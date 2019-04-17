@@ -47,27 +47,52 @@ class Bool(Property):
         super(Bool, self).__init__(types=(str, bool), **kwargs)
         self.allow_strings = allow_strings
 
+    def _from_string(self, value):
+        if not self.allow_strings:
+            raise exceptions.PropertyValidationError  # TODO
+        value = value.lower()
+        if value == "true":
+            value = True
+        elif value == "false":
+            value = False
+        else:
+            raise exceptions.PropertyValidationError  # TODO
+        return value
+
     def _validate(self, value):
         if isinstance(value, str):
-            if not self.allow_strings:
-                raise exceptions.PropertyValidationError  # TODO
-            value = value.lower()
-            if value == "true":
-                value = True
-            elif value == "false":
-                value = False
-            else:
-                raise exceptions.PropertyValidationError  # TODO
+            value = self._from_string(value)
         return value
 
 
 class Number(Property):
-    def __init__(self, min_value=None, max_value=None, types=(int, float), **kwargs):
+    def __init__(
+        self,
+        min_value=None,
+        max_value=None,
+        allow_strings=True,
+        types=(int, float, str),
+        **kwargs
+    ):
         super(Number, self).__init__(types=types, **kwargs)
         self.min_value = min_value
         self.max_value = max_value
+        self.allow_strings = allow_strings
+
+    def _from_string(self, value):
+        if not self.allow_strings:
+            raise exceptions.PropertyValidationError  # TODO
+        if "." in value and value.replace(".", "", 1).isnumeric():
+            value = float(value)
+        elif value.isnumeric():
+            value = int(value)
+        else:
+            raise exceptions.PropertyValidationError  # TODO
+        return value
 
     def _validate(self, value):
+        if isinstance(value, str):
+            value = self._from_string(value)
         if self.min_value:
             min_value = self._resolve(self.min_value)
             if value < min_value:
@@ -81,12 +106,12 @@ class Number(Property):
 
 class Int(Number):
     def __init__(self, **kwargs):
-        super(Int, self).__init__(types=(int,), **kwargs)
+        super(Int, self).__init__(types=(str, int), **kwargs)
 
 
 class Float(Number):
     def __init__(self, **kwargs):
-        super(Float, self).__init__(types=(int, float), **kwargs)
+        super(Float, self).__init__(types=(str, int, float), **kwargs)
 
     def _validate(self, value):
         value = super(Float, self)._validate(value)
