@@ -43,6 +43,36 @@ class Property:
         return self
 
 
+class Array(Property):
+    def __init__(self, prop, min_length=None, max_length=None, **kwargs):
+        if isinstance(prop, type):
+            prop = prop()
+        super(Array, self).__init__(**kwargs)
+        self.min_length = min_length
+        self.max_length = max_length
+        self.prop = prop
+
+    def _validate(self, value):
+        length = len(value)
+        if self.min_length:
+            min_length = self._resolve(self.min_length)
+            if length < min_length:
+                raise exceptions.PropertyValidationError  # TODO
+        if self.max_length:
+            max_length = self._resolve(self.max_length)
+            if length > max_length:
+                raise exceptions.PropertyValidationError  # TODO
+        return [self.prop.load(item) for item in value]
+
+
+class Object(Property):
+    ...  # TODO
+
+
+class Model(Property):
+    ...  # TODO
+
+
 class Bool(Property):
     def __init__(self, allow_strings=True, **kwargs):
         super(Bool, self).__init__(types=(str, bool), **kwargs)
@@ -276,15 +306,3 @@ class Email(Regex):
 
     def __init__(self, **kwargs):
         super(Email, self).__init__(self.matcher, **kwargs)
-
-
-class Array(Property):
-    ...  # TODO
-
-
-class Object(Property):
-    ...  # TODO
-
-
-class Model(Property):
-    ...  # TODO

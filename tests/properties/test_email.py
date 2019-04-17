@@ -3,7 +3,6 @@ import pytest
 from jason import exceptions
 from jason.properties import Email
 
-
 VALID_EMAILS = [
     # TODO write a regex matcher to validate these... good luck
     # "email@domain.com",
