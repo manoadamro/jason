@@ -226,12 +226,65 @@ class Datetime(Property):
 
 
 class Password(String):
-    def __init__(self, uppercase=None, numbers=None, symbols=None, **kwargs):
+    uppercase_matcher = re.compile("[A-Z]")
+    numbers_matcher = re.compile("[0-9]")
+    symbols_matcher = re.compile("[^A-Za-z0-9]")
+    whitespace_matcher = re.compile("[\\s]")
+
+    def __init__(self, uppercase=None, numbers=None, symbols=None, score=0, **kwargs):
         super(Password, self).__init__(**kwargs)
         self.uppercase = uppercase
         self.numbers = numbers
         self.symbols = symbols
+        self.min_score = score
 
     def _validate(self, value):
-        # TODO
-        ...
+
+        score = 0
+        if re.search(self.whitespace_matcher, value):
+            raise exceptions.PropertyValidationError  # TODO
+
+        if re.search(self.uppercase_matcher, value):
+            if self.uppercase is False:
+                raise exceptions.PropertyValidationError  # TODO
+            score += 1
+        elif self.uppercase is True:
+            raise exceptions.PropertyValidationError  # TODO
+
+        if re.search(self.numbers_matcher, value):
+            if self.numbers is False:
+                raise exceptions.PropertyValidationError  # TODO
+            score += 1
+        elif self.numbers is True:
+            raise exceptions.PropertyValidationError  # TODO
+
+        if re.search(self.symbols_matcher, value):
+            if self.symbols is False:
+                raise exceptions.PropertyValidationError  # TODO
+            score += 1
+        elif self.symbols is True:
+            raise exceptions.PropertyValidationError  # TODO
+
+        if score < self.min_score:
+            raise exceptions.PropertyValidationError  # TODO
+
+        return value
+
+
+class Email(Regex):
+    matcher = re.compile("^[^@]+@[^@]+\\.[^@]+$")
+
+    def __init__(self, **kwargs):
+        super(Email, self).__init__(self.matcher, **kwargs)
+
+
+class Array(Property):
+    ...  # TODO
+
+
+class Object(Property):
+    ...  # TODO
+
+
+class Model(Property):
+    ...  # TODO
