@@ -1,6 +1,6 @@
 import pytest
 
-from jason.properties import Array, String, PropertyValidationError
+from jason.properties import Array, PropertyValidationError, String
 
 
 def test_value_too_short():

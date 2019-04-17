@@ -8,6 +8,7 @@ def model():
     class MyModel(props.Model):
         my_int = props.Int
         my_float = props.Float(nullable=False)
+
     return MyModel
 
 

@@ -10,7 +10,6 @@ class PropertyValidationError(Exception):
 
 
 class RangeCheck:
-
     def __init__(self, min_value, max_value):
         self.min_value = min_value
         self.max_value = max_value
@@ -93,7 +92,6 @@ class Array(Property):
 
 
 class Nested(Property):
-
     def __init__(self, model, strict=None, **kwargs):
         super(Nested, self).__init__(types=(dict,), **kwargs)
         self.props = model.__props__
@@ -114,7 +112,6 @@ class Nested(Property):
 
 
 class Object(Model, Nested):
-
     def __init__(self, props, **kwargs):
         for key, value in props.items():
             if isinstance(value, type):
@@ -148,12 +145,12 @@ class Bool(Property):
 
 class Number(Property):
     def __init__(
-            self,
-            min_value=None,
-            max_value=None,
-            allow_strings=True,
-            types=(int, float, str),
-            **kwargs
+        self,
+        min_value=None,
+        max_value=None,
+        allow_strings=True,
+        types=(int, float, str),
+        **kwargs
     ):
         super(Number, self).__init__(types=types, **kwargs)
         self.range = RangeCheck(min_value=min_value, max_value=max_value)
