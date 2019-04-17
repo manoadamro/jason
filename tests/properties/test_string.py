@@ -1,17 +1,18 @@
 import pytest
 
+from jason import exceptions
 from jason.properties import String
 
 
 def test_value_too_short():
     prop = String(min_length=10, max_length=20)
-    with pytest.raises(Exception):
+    with pytest.raises(exceptions.PropertyValidationError):
         prop.load("a" * 5)
 
 
 def test_value_too_long():
     prop = String(min_length=10, max_length=20)
-    with pytest.raises(Exception):
+    with pytest.raises(exceptions.PropertyValidationError):
         prop.load("a" * 25)
 
 

@@ -1,5 +1,6 @@
 import pytest
 
+from jason import exceptions
 from jason.properties import Bool
 
 
@@ -15,7 +16,7 @@ def test_false():
 
 def test_no_strings():
     prop = Bool(allow_strings=False)
-    with pytest.raises(Exception):
+    with pytest.raises(exceptions.PropertyValidationError):
         prop.load("true")
 
 
@@ -41,5 +42,5 @@ def test_false_from_capitalised_string():
 
 def test_invalid_string():
     prop = Bool()
-    with pytest.raises(Exception):
+    with pytest.raises(exceptions.PropertyValidationError):
         prop.load("nope")

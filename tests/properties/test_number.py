@@ -1,17 +1,18 @@
 import pytest
 
+from jason import exceptions
 from jason.properties import Number
 
 
 def test_value_too_low():
     prop = Number(min_value=10, max_value=20)
-    with pytest.raises(Exception):
+    with pytest.raises(exceptions.PropertyValidationError):
         prop.load(5)
 
 
 def test_value_too_high():
     prop = Number(min_value=10, max_value=20)
-    with pytest.raises(Exception):
+    with pytest.raises(exceptions.PropertyValidationError):
         prop.load(25)
 
 

@@ -1,6 +1,8 @@
 import re
 import uuid
 
+from . import exceptions
+
 
 class Property:
     def __init__(self, nullable=False, default=None, types=None):
@@ -20,10 +22,10 @@ class Property:
             print(value)
         if value is None:
             if not self.nullable:
-                raise Exception  # TODO
+                raise exceptions.PropertyValidationError  # TODO
             return None
         if self.types and not isinstance(value, self.types):
-            raise Exception  # TODO
+            raise exceptions.PropertyValidationError  # TODO
         return self._validate(value)
 
     def _validate(self, value):
@@ -50,14 +52,14 @@ class Bool(Property):
     def _validate(self, value):
         if isinstance(value, str):
             if not self.allow_strings:
-                raise Exception  # TODO
+                raise exceptions.PropertyValidationError  # TODO
             value = value.lower()
             if value == "true":
                 value = True
             elif value == "false":
                 value = False
             else:
-                raise Exception  # TODO
+                raise exceptions.PropertyValidationError  # TODO
         return value
 
 
@@ -78,11 +80,11 @@ class Number(Property):
         if self.min_value:
             min_value = self._resolve(self.min_value)
             if value < min_value:
-                raise Exception  # TODO
+                raise exceptions.PropertyValidationError  # TODO
         if self.max_value:
             max_value = self._resolve(self.max_value)
             if value > max_value:
-                raise Exception  # TODO
+                raise exceptions.PropertyValidationError  # TODO
         return value
 
 
@@ -115,11 +117,11 @@ class String(Property):
         if self.min_length:
             min_length = self._resolve(self.min_length)
             if length < min_length:
-                raise Exception  # TODO
+                raise exceptions.PropertyValidationError  # TODO
         if self.max_length:
             max_length = self._resolve(self.max_length)
             if length > max_length:
-                raise Exception  # TODO
+                raise exceptions.PropertyValidationError  # TODO
         return value
 
 
@@ -132,7 +134,7 @@ class Regex(String):
 
     def _validate(self, value):
         if re.match(self.matcher, value) is None:
-            raise NotImplemented  # TODO
+            raise exceptions.PropertyValidationError  # TODO
         return value
 
 
@@ -144,7 +146,7 @@ class Uuid(String):
         try:
             uuid.UUID(value)
         except ValueError:
-            raise Exception  # TODO
+            raise exceptions.PropertyValidationError  # TODO
         return value
 
 
