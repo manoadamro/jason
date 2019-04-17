@@ -43,10 +43,8 @@ class Property:
 
 
 class Bool(Property):
-    def __init__(self, nullable=False, default=None, allow_strings=True):
-        super(Bool, self).__init__(
-            nullable=nullable, default=default, types=(str, bool)
-        )
+    def __init__(self, allow_strings=True, **kwargs):
+        super(Bool, self).__init__(types=(str, bool), **kwargs)
         self.allow_strings = allow_strings
 
     def _validate(self, value):
@@ -64,15 +62,8 @@ class Bool(Property):
 
 
 class Number(Property):
-    def __init__(
-        self,
-        min_value=None,
-        max_value=None,
-        nullable=False,
-        default=None,
-        types=(int, float),
-    ):
-        super(Number, self).__init__(nullable=nullable, default=default, types=types)
+    def __init__(self, min_value=None, max_value=None, types=(int, float), **kwargs):
+        super(Number, self).__init__(types=types, **kwargs)
         self.min_value = min_value
         self.max_value = max_value
 
@@ -89,17 +80,13 @@ class Number(Property):
 
 
 class Int(Number):
-    def __init__(self, min_value=None, max_value=None, nullable=False, default=None):
-        super(Int, self).__init__(
-            min_value, max_value, nullable=nullable, default=default, types=(int,)
-        )
+    def __init__(self, **kwargs):
+        super(Int, self).__init__(types=(int,), **kwargs)
 
 
 class Float(Number):
-    def __init__(self, min_value=None, max_value=None, nullable=False, default=None):
-        super(Float, self).__init__(
-            min_value, max_value, nullable=nullable, default=default, types=(int, float)
-        )
+    def __init__(self, **kwargs):
+        super(Float, self).__init__(types=(int, float), **kwargs)
 
     def _validate(self, value):
         value = super(Float, self)._validate(value)
@@ -107,8 +94,8 @@ class Float(Number):
 
 
 class String(Property):
-    def __init__(self, min_length=None, max_length=None, nullable=False, default=None):
-        super(String, self).__init__(nullable=nullable, default=default, types=(str,))
+    def __init__(self, min_length=None, max_length=None, **kwargs):
+        super(String, self).__init__(types=(str,), **kwargs)
         self.min_length = min_length
         self.max_length = max_length
 
@@ -126,8 +113,8 @@ class String(Property):
 
 
 class Regex(String):
-    def __init__(self, matcher, nullable=False, default=None):
-        super(Regex, self).__init__(nullable=nullable, default=default)
+    def __init__(self, matcher, **kwargs):
+        super(Regex, self).__init__(**kwargs)
         if isinstance(matcher, str):
             matcher = re.compile(matcher)
         self.matcher = matcher
@@ -139,8 +126,8 @@ class Regex(String):
 
 
 class Uuid(String):
-    def __init__(self, nullable=False, default=None):
-        super(Uuid, self).__init__(nullable=nullable, default=default)
+    def __init__(self, **kwargs):
+        super(Uuid, self).__init__(**kwargs)
 
     def _validate(self, value):
         try:
@@ -151,35 +138,47 @@ class Uuid(String):
 
 
 class Date(Property):
-    def __init__(self, min_value=None, max_value=None, nullable=False, default=None):
-        super(Date, self).__init__(nullable=nullable, default=default)
+    def __init__(self, min_value=None, max_value=None, **kwargs):
+        super(Date, self).__init__(**kwargs)
         self.min_value = min_value
         self.max_value = max_value
 
     def _validate(self, value):
-        # TODO
-        ...
+        if self.min_value:
+            min_value = self._resolve(self.min_value)
+            if value < min_value:
+                raise exceptions.PropertyValidationError  # TODO
+        if self.max_value:
+            max_value = self._resolve(self.max_value)
+            if value > max_value:
+                raise exceptions.PropertyValidationError  # TODO
+        return value
 
 
 class Datetime(Property):
-    def __init__(self, min_value=None, max_value=None, nullable=False, default=None):
-        super(Datetime, self).__init__(nullable=nullable, default=default)
+    def __init__(self, min_value=None, max_value=None, **kwargs):
+        super(Datetime, self).__init__(**kwargs)
         self.min_value = min_value
         self.max_value = max_value
 
     def _validate(self, value):
-        # TODO
-        ...
+        if self.min_value:
+            min_value = self._resolve(self.min_value)
+            if value < min_value:
+                raise exceptions.PropertyValidationError  # TODO
+        if self.max_value:
+            max_value = self._resolve(self.max_value)
+            if value > max_value:
+                raise exceptions.PropertyValidationError  # TODO
+        return value
 
 
 class Password(String):
-    def __init__(self, min_length=None, max_length=None, nullable=False, default=None):
-        super(Password, self).__init__(
-            min_length=min_length,
-            max_length=max_length,
-            nullable=nullable,
-            default=default,
-        )
+    def __init__(self, uppercase=None, numbers=None, symbols=None, **kwargs):
+        super(Password, self).__init__(**kwargs)
+        self.uppercase = uppercase
+        self.numbers = numbers
+        self.symbols = symbols
 
     def _validate(self, value):
         # TODO
