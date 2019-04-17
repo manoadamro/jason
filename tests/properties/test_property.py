@@ -1,7 +1,6 @@
 import pytest
 
-from jason import exceptions
-from jason.properties import Property
+from jason.properties import Property, PropertyValidationError
 
 
 def test_nullable_no_default():
@@ -16,7 +15,7 @@ def test_nullable_with_default():
 
 def test_non_nullable_no_default():
     prop = Property(nullable=False, default=None)
-    with pytest.raises(exceptions.PropertyValidationError):
+    with pytest.raises(PropertyValidationError):
         prop.load(None)
 
 
@@ -32,7 +31,7 @@ def test_callable_default():
 
 def test_wrong_type():
     prop = Property(types=(str,))
-    with pytest.raises(exceptions.PropertyValidationError):
+    with pytest.raises(PropertyValidationError):
         prop.load(123)
 
 

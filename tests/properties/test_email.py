@@ -1,11 +1,10 @@
 import pytest
 
-from jason import exceptions
-from jason.properties import Email
+from jason.properties import Email, PropertyValidationError
 
 VALID_EMAILS = [
     # TODO write a regex matcher to validate these... good luck
-    # "email@domain.com",
+    "email@domain.com",
     # "firstname.lastname@domain.com",
     # "email@subdomain.domain.com",
     # "firstname+lastname@domain.com",
@@ -22,7 +21,7 @@ VALID_EMAILS = [
 
 INVALID_EMAILS = [
     # TODO write a regex matcher to invalidate these... good luck
-    # "plainaddress",
+    "plainaddress",
     # "#@%^%#$@#$@#.com",
     # "@domain.com",
     # "Joe Smith <email@domain.com>",
@@ -45,13 +44,13 @@ def test_positive():
         prop = Email()
         try:
             assert prop.load(email) == email, f"could not validate: {email}"
-        except exceptions.PropertyValidationError:
+        except PropertyValidationError:
             raise AssertionError(f"could not validate: {email}")
 
 
 def test_negative():
     for email in INVALID_EMAILS:
         prop = Email()
-        with pytest.raises(exceptions.PropertyValidationError):
+        with pytest.raises(PropertyValidationError):
             prop.load(email)
             pytest.fail(f"wrongly validated: {email}")

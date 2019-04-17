@@ -1,18 +1,17 @@
 import pytest
 
-from jason import exceptions
-from jason.properties import Array, String
+from jason.properties import Array, String, PropertyValidationError
 
 
 def test_value_too_short():
     prop = Array(String(), min_length=10, max_length=20)
-    with pytest.raises(exceptions.PropertyValidationError):
+    with pytest.raises(PropertyValidationError):
         prop.load(["a"] * 5)
 
 
 def test_value_too_long():
     prop = Array(String, min_length=10, max_length=20)
-    with pytest.raises(exceptions.PropertyValidationError):
+    with pytest.raises(PropertyValidationError):
         prop.load(["a"] * 25)
 
 
@@ -43,5 +42,5 @@ def test_validates_array():
 
 def test_invalidates_array():
     prop = Array(String)
-    with pytest.raises(exceptions.PropertyValidationError):
+    with pytest.raises(PropertyValidationError):
         prop.load([1])

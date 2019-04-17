@@ -2,7 +2,31 @@ import datetime
 import re
 import uuid
 
-from . import exceptions
+from . import utils
+
+
+class PropertyValidationError(Exception):
+    ...
+
+
+class RangeCheck:
+
+    def __init__(self, min_value, max_value):
+        self.min_value = min_value
+        self.max_value = max_value
+
+    def raise_error(self):
+        raise PropertyValidationError  # TODO
+
+    def validate(self, value):
+        if self.min_value:
+            min_length = utils.maybe_call(self.min_value)
+            if value < min_length:
+                self.raise_error()
+        if self.max_value:
+            max_length = utils.maybe_call(self.max_value)
+            if value > max_length:
+                self.raise_error()
 
 
 class Property:
@@ -11,22 +35,16 @@ class Property:
         self.default = default
         self.types = types
 
-    @classmethod
-    def _resolve(cls, value):
-        if callable(value):
-            return value()
-        return value
-
     def load(self, value):
         if value is None:
-            value = self._resolve(value=self.default)
+            value = utils.maybe_call(value=self.default)
             print(value)
         if value is None:
             if not self.nullable:
-                raise exceptions.PropertyValidationError  # TODO
+                raise PropertyValidationError  # TODO
             return None
         if self.types and not isinstance(value, self.types):
-            raise exceptions.PropertyValidationError  # TODO
+            raise PropertyValidationError  # TODO
         return self._validate(value)
 
     def _validate(self, value):
@@ -43,34 +61,66 @@ class Property:
         return self
 
 
+class Model(Property):
+    __strict__ = True
+    __props__ = None
+
+    def __init_subclass__(cls):
+        props = {}
+        for field in dir(cls):
+            if field.startswith("_"):
+                continue
+            value = getattr(cls, field)
+            if isinstance(value, type) and issubclass(value, Property):
+                props[field] = value()
+            if isinstance(value, Property):
+                props[field] = value
+        cls.__props__ = props
+
+
 class Array(Property):
     def __init__(self, prop, min_length=None, max_length=None, **kwargs):
         if isinstance(prop, type):
             prop = prop()
-        super(Array, self).__init__(**kwargs)
-        self.min_length = min_length
-        self.max_length = max_length
+        super(Array, self).__init__(types=(list, tuple), **kwargs)
+        self.range = RangeCheck(min_value=min_length, max_value=max_length)
         self.prop = prop
 
     def _validate(self, value):
         length = len(value)
-        if self.min_length:
-            min_length = self._resolve(self.min_length)
-            if length < min_length:
-                raise exceptions.PropertyValidationError  # TODO
-        if self.max_length:
-            max_length = self._resolve(self.max_length)
-            if length > max_length:
-                raise exceptions.PropertyValidationError  # TODO
+        self.range.validate(length)
         return [self.prop.load(item) for item in value]
 
 
-class Object(Property):
-    ...  # TODO
+class Nested(Property):
+
+    def __init__(self, model, strict=None, **kwargs):
+        super(Nested, self).__init__(types=(dict,), **kwargs)
+        self.props = model.__props__
+        if strict is None:
+            strict = getattr(model, "__strict__")
+        self.strict = strict
+
+    def _validate(self, obj):
+        validated = {}
+        for field, prop in self.props.items():
+            value = obj.get(field, None)
+            validated[field] = prop.load(value)
+        if self.strict:
+            for field in obj:
+                if field not in self.props:
+                    raise PropertyValidationError  # TODO
+        return validated
 
 
-class Model(Property):
-    ...  # TODO
+class Object(Model, Nested):
+
+    def __init__(self, props, **kwargs):
+        for key, value in props.items():
+            if isinstance(value, type):
+                props[key] = value()
+        self.__props__ = props
+        Nested.__init__(self, model=self, **kwargs)
 
 
 class Bool(Property):
@@ -80,14 +130,14 @@ class Bool(Property):
 
     def _from_string(self, value):
         if not self.allow_strings:
-            raise exceptions.PropertyValidationError  # TODO
+            raise PropertyValidationError  # TODO
         value = value.lower()
         if value == "true":
             value = True
         elif value == "false":
             value = False
         else:
-            raise exceptions.PropertyValidationError  # TODO
+            raise PropertyValidationError  # TODO
         return value
 
     def _validate(self, value):
@@ -98,40 +148,32 @@ class Bool(Property):
 
 class Number(Property):
     def __init__(
-        self,
-        min_value=None,
-        max_value=None,
-        allow_strings=True,
-        types=(int, float, str),
-        **kwargs
+            self,
+            min_value=None,
+            max_value=None,
+            allow_strings=True,
+            types=(int, float, str),
+            **kwargs
     ):
         super(Number, self).__init__(types=types, **kwargs)
-        self.min_value = min_value
-        self.max_value = max_value
+        self.range = RangeCheck(min_value=min_value, max_value=max_value)
         self.allow_strings = allow_strings
 
     def _from_string(self, value):
         if not self.allow_strings:
-            raise exceptions.PropertyValidationError  # TODO
+            raise PropertyValidationError  # TODO
         if "." in value and value.replace(".", "", 1).isnumeric():
             value = float(value)
         elif value.isnumeric():
             value = int(value)
         else:
-            raise exceptions.PropertyValidationError  # TODO
+            raise PropertyValidationError  # TODO
         return value
 
     def _validate(self, value):
         if isinstance(value, str):
             value = self._from_string(value)
-        if self.min_value:
-            min_value = self._resolve(self.min_value)
-            if value < min_value:
-                raise exceptions.PropertyValidationError  # TODO
-        if self.max_value:
-            max_value = self._resolve(self.max_value)
-            if value > max_value:
-                raise exceptions.PropertyValidationError  # TODO
+        self.range.validate(value)
         return value
 
 
@@ -152,19 +194,11 @@ class Float(Number):
 class String(Property):
     def __init__(self, min_length=None, max_length=None, **kwargs):
         super(String, self).__init__(types=(str,), **kwargs)
-        self.min_length = min_length
-        self.max_length = max_length
+        self.range = RangeCheck(min_value=min_length, max_value=max_length)
 
     def _validate(self, value):
         length = len(value)
-        if self.min_length:
-            min_length = self._resolve(self.min_length)
-            if length < min_length:
-                raise exceptions.PropertyValidationError  # TODO
-        if self.max_length:
-            max_length = self._resolve(self.max_length)
-            if length > max_length:
-                raise exceptions.PropertyValidationError  # TODO
+        self.range.validate(length)
         return value
 
 
@@ -177,7 +211,7 @@ class Regex(String):
 
     def _validate(self, value):
         if re.match(self.matcher, value) is None:
-            raise exceptions.PropertyValidationError  # TODO
+            raise PropertyValidationError  # TODO
         return value
 
 
@@ -189,69 +223,53 @@ class Uuid(String):
         try:
             uuid.UUID(value)
         except ValueError:
-            raise exceptions.PropertyValidationError  # TODO
+            raise PropertyValidationError  # TODO
         return value
 
 
 class Date(Property):
     def __init__(self, min_value=None, max_value=None, allow_strings=True, **kwargs):
-        super(Date, self).__init__(**kwargs)
-        self.min_value = min_value
-        self.max_value = max_value
+        super(Date, self).__init__(types=(datetime.date, str), **kwargs)
+        self.range = RangeCheck(min_value=min_value, max_value=max_value)
         self.allow_strings = allow_strings
 
     def _from_string(self, value):
         if not self.allow_strings:
-            raise exceptions.PropertyValidationError  # TODO
+            raise PropertyValidationError  # TODO
         try:
             value = datetime.date.fromisoformat(value)
         except ValueError:
-            raise exceptions.PropertyValidationError  # TODO
+            raise PropertyValidationError  # TODO
         return value
 
     def _validate(self, value):
         if isinstance(value, str):
             value = self._from_string(value)
-        if self.min_value:
-            min_value = self._resolve(self.min_value)
-            if value < min_value:
-                raise exceptions.PropertyValidationError  # TODO
-        if self.max_value:
-            max_value = self._resolve(self.max_value)
-            if value > max_value:
-                raise exceptions.PropertyValidationError  # TODO
+        self.range.validate(value)
         return value
 
 
 class Datetime(Property):
     def __init__(self, min_value=None, max_value=None, allow_strings=True, **kwargs):
-        super(Datetime, self).__init__(**kwargs)
-        self.min_value = min_value
-        self.max_value = max_value
+        super(Datetime, self).__init__(types=(datetime.datetime, str), **kwargs)
+        self.range = RangeCheck(min_value=min_value, max_value=max_value)
         self.allow_strings = allow_strings
 
     def _from_string(self, value):
         if value.endswith("Z"):
             value = value[:-1] + "+00:00"
         if not self.allow_strings:
-            raise exceptions.PropertyValidationError  # TODO
+            raise PropertyValidationError  # TODO
         try:
             value = datetime.datetime.fromisoformat(value)
         except ValueError:
-            raise exceptions.PropertyValidationError  # TODO
+            raise PropertyValidationError  # TODO
         return value
 
     def _validate(self, value):
         if isinstance(value, str):
             value = self._from_string(value)
-        if self.min_value:
-            min_value = self._resolve(self.min_value)
-            if value < min_value:
-                raise exceptions.PropertyValidationError  # TODO
-        if self.max_value:
-            max_value = self._resolve(self.max_value)
-            if value > max_value:
-                raise exceptions.PropertyValidationError  # TODO
+        self.range.validate(value)
         return value
 
 
@@ -272,31 +290,31 @@ class Password(String):
 
         score = 0
         if re.search(self.whitespace_matcher, value):
-            raise exceptions.PropertyValidationError  # TODO
+            raise PropertyValidationError  # TODO
 
         if re.search(self.uppercase_matcher, value):
             if self.uppercase is False:
-                raise exceptions.PropertyValidationError  # TODO
+                raise PropertyValidationError  # TODO
             score += 1
         elif self.uppercase is True:
-            raise exceptions.PropertyValidationError  # TODO
+            raise PropertyValidationError  # TODO
 
         if re.search(self.numbers_matcher, value):
             if self.numbers is False:
-                raise exceptions.PropertyValidationError  # TODO
+                raise PropertyValidationError  # TODO
             score += 1
         elif self.numbers is True:
-            raise exceptions.PropertyValidationError  # TODO
+            raise PropertyValidationError  # TODO
 
         if re.search(self.symbols_matcher, value):
             if self.symbols is False:
-                raise exceptions.PropertyValidationError  # TODO
+                raise PropertyValidationError  # TODO
             score += 1
         elif self.symbols is True:
-            raise exceptions.PropertyValidationError  # TODO
+            raise PropertyValidationError  # TODO
 
         if score < self.min_score:
-            raise exceptions.PropertyValidationError  # TODO
+            raise PropertyValidationError  # TODO
 
         return value
 

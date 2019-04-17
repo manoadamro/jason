@@ -1,8 +1,6 @@
 import pytest
 
-from jason import exceptions
-from jason.exceptions import PropertyValidationError
-from jason.properties import Uuid
+from jason.properties import Uuid, PropertyValidationError
 
 
 def test_valid_uuid_with_hyphens():
@@ -20,5 +18,5 @@ def test_valid_uuid_without_hyphens():
 def test_invalid_uuid():
     uuid = "not-a-uuid"
     prop = Uuid()
-    with pytest.raises(exceptions.PropertyValidationError):
+    with pytest.raises(PropertyValidationError):
         prop.load(uuid)

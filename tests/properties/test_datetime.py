@@ -2,8 +2,7 @@ import datetime
 
 import pytest
 
-from jason import exceptions
-from jason.properties import Datetime
+from jason.properties import Datetime, PropertyValidationError
 
 
 @pytest.fixture
@@ -18,7 +17,7 @@ def maximum():
 
 def test_value_too_low(minimum, maximum):
     prop = Datetime(min_value=minimum, max_value=maximum)
-    with pytest.raises(exceptions.PropertyValidationError):
+    with pytest.raises(PropertyValidationError):
         prop.load(
             datetime.datetime(year=1999, month=1, day=1, hour=1, minute=1, second=1)
         )
@@ -26,7 +25,7 @@ def test_value_too_low(minimum, maximum):
 
 def test_value_too_high(minimum, maximum):
     prop = Datetime(min_value=minimum, max_value=maximum)
-    with pytest.raises(exceptions.PropertyValidationError):
+    with pytest.raises(PropertyValidationError):
         prop.load(
             datetime.datetime(year=2002, month=1, day=1, hour=1, minute=1, second=1)
         )
@@ -65,19 +64,19 @@ def test_date_from_string():
 
 def test_string_date_when_strings_not_allowed():
     prop = Datetime(allow_strings=False)
-    with pytest.raises(exceptions.PropertyValidationError):
+    with pytest.raises(PropertyValidationError):
         prop.load("2000-01-01T01:01:01.000+00:00")
 
 
 def test_invalid_date_from_string():
     prop = Datetime(allow_strings=True)
-    with pytest.raises(exceptions.PropertyValidationError):
+    with pytest.raises(PropertyValidationError):
         prop.load("2001-02-29T01:01:01.000+00:00")
 
 
 def test_nan_from_string():
     prop = Datetime(allow_strings=True)
-    with pytest.raises(exceptions.PropertyValidationError):
+    with pytest.raises(PropertyValidationError):
         prop.load("nope")
 
 

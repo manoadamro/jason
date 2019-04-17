@@ -3,8 +3,7 @@ from typing import Pattern
 
 import pytest
 
-from jason import exceptions
-from jason.properties import Regex
+from jason.properties import Regex, PropertyValidationError
 
 
 @pytest.fixture
@@ -24,5 +23,5 @@ def test_matches_string(matcher):
 
 def test_fails_to_match_string(matcher):
     prop = Regex(matcher=matcher)
-    with pytest.raises(exceptions.PropertyValidationError):
+    with pytest.raises(PropertyValidationError):
         assert prop.load("aB3D")
