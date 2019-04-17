@@ -1,3 +1,4 @@
+import datetime
 import re
 import uuid
 
@@ -163,12 +164,24 @@ class Uuid(String):
 
 
 class Date(Property):
-    def __init__(self, min_value=None, max_value=None, **kwargs):
+    def __init__(self, min_value=None, max_value=None, allow_strings=True, **kwargs):
         super(Date, self).__init__(**kwargs)
         self.min_value = min_value
         self.max_value = max_value
+        self.allow_strings = allow_strings
+
+    def _from_string(self, value):
+        if not self.allow_strings:
+            raise exceptions.PropertyValidationError  # TODO
+        try:
+            value = datetime.date.fromisoformat(value)
+        except ValueError:
+            raise exceptions.PropertyValidationError  # TODO
+        return value
 
     def _validate(self, value):
+        if isinstance(value, str):
+            value = self._from_string(value)
         if self.min_value:
             min_value = self._resolve(self.min_value)
             if value < min_value:
@@ -181,12 +194,26 @@ class Date(Property):
 
 
 class Datetime(Property):
-    def __init__(self, min_value=None, max_value=None, **kwargs):
+    def __init__(self, min_value=None, max_value=None, allow_strings=True, **kwargs):
         super(Datetime, self).__init__(**kwargs)
         self.min_value = min_value
         self.max_value = max_value
+        self.allow_strings = allow_strings
+
+    def _from_string(self, value):
+        if value.endswith("Z"):
+            value = value[:-1] + "+00:00"
+        if not self.allow_strings:
+            raise exceptions.PropertyValidationError  # TODO
+        try:
+            value = datetime.datetime.fromisoformat(value)
+        except ValueError:
+            raise exceptions.PropertyValidationError  # TODO
+        return value
 
     def _validate(self, value):
+        if isinstance(value, str):
+            value = self._from_string(value)
         if self.min_value:
             min_value = self._resolve(self.min_value)
             if value < min_value:
