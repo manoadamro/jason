@@ -14,13 +14,16 @@ format:
 	isort -rc ./tests ./jason ;
 	black ./tests ./jason ;
 
-test:
+check:
 	isort -rc --check-only ./tests ./jason ;
 	black --check ./tests ./jason;
+
+test:
 	coverage run -m pytest --doctest-modules;
 	coverage report --show-missing --skip-covered ;
 
 pre-commit:
 	python3 --version ;
 	make format ;
+	make check ;
 	make test ;

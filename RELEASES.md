@@ -1,4 +1,9 @@
 
+v0.0.3
+
+- Added `check` to makefile
+- Added basic instructions to `README.md`
+
 v0.0.2
 ===
 
