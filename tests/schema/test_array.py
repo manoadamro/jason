@@ -1,5 +1,4 @@
 import pytest
-
 from jason.schema import Array, PropertyValidationError, String
 
 
