@@ -32,13 +32,29 @@ def test_value_too_high(minimum, maximum):
 
 
 def test_no_min(maximum):
-    dt = datetime.datetime(year=1999, month=1, day=1, hour=1, minute=1, second=1)
+    dt = datetime.datetime(
+        year=1999,
+        month=1,
+        day=1,
+        hour=1,
+        minute=1,
+        second=1,
+        tzinfo=datetime.timezone.utc,
+    )
     prop = Datetime(min_value=None, max_value=maximum)
     assert prop.load(dt) == dt
 
 
 def test_no_max(minimum):
-    dt = datetime.datetime(year=2002, month=1, day=1, hour=1, minute=1, second=1)
+    dt = datetime.datetime(
+        year=2002,
+        month=1,
+        day=1,
+        hour=1,
+        minute=1,
+        second=1,
+        tzinfo=datetime.timezone.utc,
+    )
     prop = Datetime(min_value=minimum, max_value=None)
     assert prop.load(dt) == dt
 
@@ -46,7 +62,9 @@ def test_no_max(minimum):
 def test_no_range():
     dt = datetime.datetime(year=2002, month=1, day=1, hour=1, minute=1, second=1)
     prop = Datetime(min_value=None, max_value=None)
-    assert prop.load(dt) == dt
+    assert prop.load(dt) == dt.replace(
+        tzinfo=datetime.timezone(datetime.timedelta(hours=0))
+    )
 
 
 def test_date_from_string():
