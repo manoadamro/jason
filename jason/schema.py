@@ -702,8 +702,8 @@ class Uuid(String):
 
     """
 
-    def __init__(self, **kwargs: Any):
-        super(Uuid, self).__init__(**kwargs)
+    def __init__(self):
+        super(Uuid, self).__init__()
 
     def _validate(self, value: str) -> str:
         """
