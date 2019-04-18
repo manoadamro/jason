@@ -261,7 +261,7 @@ class Array(Property):
         if isinstance(prop, type):
             prop = prop()
         super(Array, self).__init__(types=(list, tuple), **kwargs)
-        self.range = _SizeRangeCheck(min_value=min_length, max_value=max_length)
+        self.range = SizeRangeCheck(min_value=min_length, max_value=max_length)
         self.prop = prop
 
     def _validate(self, value: Union[List, Tuple]) -> Union[List, Tuple]:
@@ -510,7 +510,7 @@ class Number(Property):
         **kwargs: Any,
     ):
         super(Number, self).__init__(types=types, **kwargs)
-        self.range = _RangeCheck(min_value=min_value, max_value=max_value)
+        self.range = RangeCheck(min_value=min_value, max_value=max_value)
         self.allow_strings = allow_strings
 
     def _from_string(self, value: str) -> Union[int, float]:
@@ -643,7 +643,7 @@ class String(Property):
         **kwargs: Any,
     ):
         super(String, self).__init__(types=(str,), **kwargs)
-        self.range = _SizeRangeCheck(min_value=min_length, max_value=max_length)
+        self.range = SizeRangeCheck(min_value=min_length, max_value=max_length)
 
     def _validate(self, value: str) -> str:
         """
@@ -745,7 +745,7 @@ class Date(Property):
         **kwargs: Any,
     ):
         super(Date, self).__init__(types=(datetime.date, str), **kwargs)
-        self.range = _RangeCheck(min_value=min_value, max_value=max_value)
+        self.range = RangeCheck(min_value=min_value, max_value=max_value)
         self.allow_strings = allow_strings
 
     def _from_string(self, value: str) -> datetime.date:
@@ -802,7 +802,7 @@ class Datetime(Property):
         **kwargs: Any,
     ):
         super(Datetime, self).__init__(types=(datetime.datetime, str), **kwargs)
-        self.range = _DateTimeRangeCheck(min_value=min_value, max_value=max_value)
+        self.range = DateTimeRangeCheck(min_value=min_value, max_value=max_value)
         self.allow_strings = allow_strings
 
     def _from_string(self, value: str) -> datetime.datetime:
@@ -1031,11 +1031,11 @@ class Email(Regex):
         super(Email, self).__init__(self.matcher, **kwargs)
 
 
-class _RangeCheck:
+class RangeCheck:
     """
     ensures that a value is within a defined range.
 
-    >>> check = _RangeCheck(min_value=5, max_value=10)
+    >>> check = RangeCheck(min_value=5, max_value=10)
     >>> check.validate(7)
 
     >>> check.validate(15)
@@ -1097,11 +1097,11 @@ class _RangeCheck:
         return param
 
 
-class _SizeRangeCheck(_RangeCheck):
+class SizeRangeCheck(RangeCheck):
     """
     ensures that a 'sized' value is within a defined range.
 
-    >>> check = _SizeRangeCheck(min_value=2, max_value=4)
+    >>> check = SizeRangeCheck(min_value=2, max_value=4)
     >>> check.validate(['a', 'b', 'c'])
 
     >>> check.validate(['a', 'b', 'c', 'd', 'e'])
@@ -1123,11 +1123,11 @@ class _SizeRangeCheck(_RangeCheck):
         return len(value)
 
 
-class _DateTimeRangeCheck(_RangeCheck):
+class DateTimeRangeCheck(RangeCheck):
     """
     ensures that a 'sized' value is within a defined range.
 
-    >>> check = _DateTimeRangeCheck(
+    >>> check = DateTimeRangeCheck(
     ...     min_value=datetime.datetime.fromisoformat("2000-01-01T00:00:00.000+00:00"),
     ...     max_value=datetime.datetime.fromisoformat("2002-01-01T00:00:00.000+00:00")
     ... )
