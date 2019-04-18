@@ -7,6 +7,7 @@ v0.0.1
 - Added empty README.md
 - Added RELEASES.md (this file)
 - added Makefile
+    - install: upgrades pip and force-reinstall jason
     - format: formats code with isort and black
     - test:  runs tests with pytest and checks with isort and black
     - pre-commit: runs format followed by test
