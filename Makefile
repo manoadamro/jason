@@ -7,6 +7,9 @@ install:
 	pip3 install --upgrade pip ;
 	pip3 install --upgrade --force-reinstall . ;
 
+cloc:
+	cloc ./jason ;
+
 format:
 	isort -rc ./tests ./jason ;
 	black ./tests ./jason ;
@@ -14,10 +17,10 @@ format:
 test:
 	isort -rc --check-only ./tests ./jason ;
 	black --check ./tests ./jason;
-	coverage run -m pytest ;
+	coverage run -m pytest --doctest-modules;
 	coverage report --show-missing --skip-covered ;
 
 pre-commit:
-	python --version ;
+	python3 --version ;
 	make format ;
 	make test ;
