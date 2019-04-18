@@ -1,4 +1,8 @@
 
+v0.0.2
+===
+
+- Added schema module ([docs](./docs/schema.md))
 
 v0.0.1
 ===
