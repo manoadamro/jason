@@ -13,7 +13,7 @@ def model():
 
 
 def test_from_props(model):
-    obj = props.Object(props={"my_int": props.Int, "my_float": props.Float})
+    obj = props.Inline(props={"my_int": props.Int, "my_float": props.Float})
     data = {"my_int": 123, "my_float": 12.3}
     assert obj.load(data) == data
 

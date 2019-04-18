@@ -42,10 +42,7 @@ INVALID_EMAILS = [
 def test_positive():
     for email in VALID_EMAILS:
         prop = Email()
-        try:
-            assert prop.load(email) == email, f"could not validate: {email}"
-        except PropertyValidationError:
-            raise AssertionError(f"could not validate: {email}")
+        assert prop.load(email) == email
 
 
 def test_negative():
@@ -53,4 +50,3 @@ def test_negative():
         prop = Email()
         with pytest.raises(PropertyValidationError):
             prop.load(email)
-            pytest.fail(f"wrongly validated: {email}")

@@ -6,29 +6,35 @@ from . import utils
 
 
 class PropertyValidationError(Exception):
+    """
+    raised when a property fails to validate a value
+
+    """
+
     ...
 
 
-class RangeCheck:
-    def __init__(self, min_value, max_value):
-        self.min_value = min_value
-        self.max_value = max_value
+class SchemaAttribute:
+    def load(self, value):
+        raise NotImplementedError
 
-    def raise_error(self):
+
+class AnyOf(SchemaAttribute):
+    def __init__(self, *rules):
+        self.rules = rules
+
+    def load(self, value):
+        for rule in self.rules:
+            if utils.is_type(rule):
+                rule = rule()
+            try:
+                return rule.load(value)
+            except PropertyValidationError:
+                continue
         raise PropertyValidationError  # TODO
 
-    def validate(self, value):
-        if self.min_value:
-            min_length = utils.maybe_call(self.min_value)
-            if value < min_length:
-                self.raise_error()
-        if self.max_value:
-            max_length = utils.maybe_call(self.max_value)
-            if value > max_length:
-                self.raise_error()
 
-
-class Property:
+class Property(SchemaAttribute):
     def __init__(self, nullable=False, default=None, types=None):
         self.nullable = nullable
         self.default = default
@@ -60,7 +66,7 @@ class Property:
         return self
 
 
-class Model(Property):
+class Model:
     __strict__ = True
     __props__ = None
 
@@ -82,7 +88,7 @@ class Array(Property):
         if isinstance(prop, type):
             prop = prop()
         super(Array, self).__init__(types=(list, tuple), **kwargs)
-        self.range = RangeCheck(min_value=min_length, max_value=max_length)
+        self.range = _RangeCheck(min_value=min_length, max_value=max_length)
         self.prop = prop
 
     def _validate(self, value):
@@ -111,13 +117,34 @@ class Nested(Property):
         return validated
 
 
-class Object(Model, Nested):
+class Inline(Model, Nested):
     def __init__(self, props, **kwargs):
         for key, value in props.items():
             if isinstance(value, type):
                 props[key] = value()
         self.__props__ = props
         Nested.__init__(self, model=self, **kwargs)
+
+
+class Combine(Inline):
+    def __init__(self, *objects, **kwargs):
+        properties = {}
+        for obj in objects:
+            if utils.is_instance_or_type(obj, Model):
+                props = obj.__props__
+            elif utils.is_instance_or_type(obj, (Nested, Inline)):
+                props = obj.props
+            elif isinstance(obj, dict):
+                props = obj
+            else:
+                raise ValueError  # TODO wrong type
+            for key, value in props.items():
+                if not utils.is_instance_or_type(value, (Model, SchemaAttribute)):
+                    raise PropertyValidationError  # TODO
+                if key in properties:
+                    raise PropertyValidationError  # TODO
+                properties[key] = value
+        Inline.__init__(self, props=properties, **kwargs)
 
 
 class Bool(Property):
@@ -153,7 +180,7 @@ class Number(Property):
         **kwargs
     ):
         super(Number, self).__init__(types=types, **kwargs)
-        self.range = RangeCheck(min_value=min_value, max_value=max_value)
+        self.range = _RangeCheck(min_value=min_value, max_value=max_value)
         self.allow_strings = allow_strings
 
     def _from_string(self, value):
@@ -168,6 +195,8 @@ class Number(Property):
         return value
 
     def _validate(self, value):
+        if utils.is_bool(value):
+            raise PropertyValidationError  # TODO
         if isinstance(value, str):
             value = self._from_string(value)
         self.range.validate(value)
@@ -191,7 +220,7 @@ class Float(Number):
 class String(Property):
     def __init__(self, min_length=None, max_length=None, **kwargs):
         super(String, self).__init__(types=(str,), **kwargs)
-        self.range = RangeCheck(min_value=min_length, max_value=max_length)
+        self.range = _RangeCheck(min_value=min_length, max_value=max_length)
 
     def _validate(self, value):
         length = len(value)
@@ -227,7 +256,7 @@ class Uuid(String):
 class Date(Property):
     def __init__(self, min_value=None, max_value=None, allow_strings=True, **kwargs):
         super(Date, self).__init__(types=(datetime.date, str), **kwargs)
-        self.range = RangeCheck(min_value=min_value, max_value=max_value)
+        self.range = _RangeCheck(min_value=min_value, max_value=max_value)
         self.allow_strings = allow_strings
 
     def _from_string(self, value):
@@ -249,7 +278,7 @@ class Date(Property):
 class Datetime(Property):
     def __init__(self, min_value=None, max_value=None, allow_strings=True, **kwargs):
         super(Datetime, self).__init__(types=(datetime.datetime, str), **kwargs)
-        self.range = RangeCheck(min_value=min_value, max_value=max_value)
+        self.range = _RangeCheck(min_value=min_value, max_value=max_value)
         self.allow_strings = allow_strings
 
     def _from_string(self, value):
@@ -321,3 +350,22 @@ class Email(Regex):
 
     def __init__(self, **kwargs):
         super(Email, self).__init__(self.matcher, **kwargs)
+
+
+class _RangeCheck:
+    def __init__(self, min_value, max_value):
+        self.min_value = min_value
+        self.max_value = max_value
+
+    def raise_error(self):
+        raise PropertyValidationError  # TODO
+
+    def validate(self, value):
+        if self.min_value:
+            min_length = utils.maybe_call(self.min_value)
+            if value < min_length:
+                self.raise_error()
+        if self.max_value:
+            max_length = utils.maybe_call(self.max_value)
+            if value > max_length:
+                self.raise_error()
