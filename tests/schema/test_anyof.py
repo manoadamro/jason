@@ -1,6 +1,6 @@
 import pytest
 
-from jason.properties import AnyOf, Float, Int, PropertyValidationError, String
+from jason.schema import AnyOf, Float, Int, PropertyValidationError, String
 
 
 def test_validates():

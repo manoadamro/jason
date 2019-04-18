@@ -1,6 +1,6 @@
 import pytest
 
-from jason.properties import Number, PropertyValidationError
+from jason.schema import Number, PropertyValidationError
 
 
 def test_value_too_low():

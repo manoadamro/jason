@@ -1,6 +1,6 @@
 import pytest
 
-from jason.properties import Bool, PropertyValidationError
+from jason.schema import Bool, PropertyValidationError
 
 
 def test_true():

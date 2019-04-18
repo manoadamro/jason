@@ -1,6 +1,6 @@
 import pytest
 
-from jason.properties import Float
+from jason.schema import Float
 
 
 def test_converts_int_to_float():

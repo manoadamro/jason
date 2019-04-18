@@ -21,7 +21,7 @@ class PropertyValidationError(Exception):
 
 class SchemaAttribute:
     """
-    base class for all schema properties and rules
+    base class for all schema schema and rules
 
     """
 
@@ -47,7 +47,7 @@ class AnyOf(SchemaAttribute):
     >>> rule.load(True)
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: AllOf failed to validate value 'True' with any rules
+    jason.schema.PropertyValidationError: AllOf failed to validate value 'True' with any rules
 
     """
 
@@ -76,7 +76,7 @@ class AnyOf(SchemaAttribute):
 
 class Property(SchemaAttribute):
     """
-    Base class for all schema properties.
+    Base class for all schema schema.
     validates type against a whitelist,
     validates nullability,
     resolves from default where applicable
@@ -89,7 +89,7 @@ class Property(SchemaAttribute):
     >>> prop.load(None)
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Property is not nullable
+    jason.schema.PropertyValidationError: Property is not nullable
 
     >>> prop = Property(nullable=True)
     >>> prop.load(None)
@@ -117,7 +117,7 @@ class Property(SchemaAttribute):
     >>> prop.load("nope")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Property was expected to be of type: int
+    jason.schema.PropertyValidationError: Property was expected to be of type: int
     """
 
     def __init__(
@@ -186,13 +186,13 @@ class Property(SchemaAttribute):
 class Model:
     """
     Base class for schema models.
-    Will auto load properties when sub-class is initialised.
+    Will auto load schema when sub-class is initialised.
 
     >>> class MyModel(Model):
     ...     my_int = Property()
     ...     my_str = Property()
     >>> MyModel.__props__
-    {'my_int': <jason.properties.Property object at 0x...>, 'my_str': <jason.properties.Property object at 0x...>}
+    {'my_int': <jason.schema.Property object at 0x...>, 'my_str': <jason.schema.Property object at 0x...>}
 
     By default, the __strict__ field will default to True
     >>> MyModel.__strict__
@@ -205,7 +205,7 @@ class Model:
 
     def __init_subclass__(cls):
         """
-        Every time a sub-class is initialised, the properties are loaded into a dictionary.
+        Every time a sub-class is initialised, the schema are loaded into a dictionary.
         This saves a lot of overhead compared to doing it on the fly each time.
 
         """
@@ -238,17 +238,17 @@ class Array(Property):
     >>> arr.load(["a", 2, "c"])
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Property was expected to be of type: str
+    jason.schema.PropertyValidationError: Property was expected to be of type: str
 
     >>> arr.load(["a"])
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Range validation failed. value is '1'. minimum: 2 maximum: 3
+    jason.schema.PropertyValidationError: Range validation failed. value is '1'. minimum: 2 maximum: 3
 
     >>> arr.load(["a", "b", "c", "d"])
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Range validation failed. value is '4'. minimum: 2 maximum: 3
+    jason.schema.PropertyValidationError: Range validation failed. value is '4'. minimum: 2 maximum: 3
     """
 
     def __init__(
@@ -282,7 +282,7 @@ class Nested(Property):
     ...     my_str = Property()
     >>> nested = Nested(MyModel)
     >>> nested.props
-    {'my_int': <jason.properties.Property object at 0x...>, 'my_str': <jason.properties.Property object at 0x...>}
+    {'my_int': <jason.schema.Property object at 0x...>, 'my_str': <jason.schema.Property object at 0x...>}
 
     By default, the strict field will default to True
     >>> nested.strict
@@ -324,7 +324,7 @@ class Inline(Model, Nested):
 
     >>> inline = Inline(dict(my_int=Property(), my_str=Property()))
     >>> inline.props
-    {'my_int': <jason.properties.Property object at 0x...>, 'my_str': <jason.properties.Property object at 0x...>}
+    {'my_int': <jason.schema.Property object at 0x...>, 'my_str': <jason.schema.Property object at 0x...>}
 
     can be used in place of a model:
     >>> isinstance(inline, Model)
@@ -373,7 +373,7 @@ class Combine(Inline):
         *objects: Union[Model, Nested, Dict[str, Property], Type[Model]],
         **kwargs: Any,
     ):
-        properties = {}
+        schema = {}
         for obj in objects:
             if utils.is_instance_or_type(obj, Model):
                 props = obj.__props__
@@ -396,12 +396,12 @@ class Combine(Inline):
                         f"can only combine objects of type: "
                         f"'Model', 'SchemaAttribute'. Not '{value}'"
                     )
-                if key in properties:
+                if key in schema:
                     raise PropertyValidationError(
                         f"A property with name '{key}' already exists in combined object."
                     )
-                properties[key] = value
-        super(Combine, self).__init__(props=properties, **kwargs)
+                schema[key] = value
+        super(Combine, self).__init__(props=schema, **kwargs)
 
 
 class Bool(Property):
@@ -418,12 +418,12 @@ class Bool(Property):
     >>> b.load(123)
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Property was expected to be of type: str, bool
+    jason.schema.PropertyValidationError: Property was expected to be of type: str, bool
 
     >>> b.load("nope")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Could not coerce string 'nope' to boolean
+    jason.schema.PropertyValidationError: Could not coerce string 'nope' to boolean
 
     >>> b.load("true")
     True
@@ -435,7 +435,7 @@ class Bool(Property):
     >>> b.load("true")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Loading boolean from string is not allowed
+    jason.schema.PropertyValidationError: Loading boolean from string is not allowed
 
     """
 
@@ -491,13 +491,13 @@ class Number(Property):
     >>> number.load(True)
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Property was expected to be of type: int, float, str
+    jason.schema.PropertyValidationError: Property was expected to be of type: int, float, str
 
     >>> number = Number(allow_strings=False)
     >>> number.load("12.3")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Loading number from string is not allowed
+    jason.schema.PropertyValidationError: Loading number from string is not allowed
 
     """
 
@@ -555,14 +555,14 @@ class Int(Number):
     >>> number.load(12.3)
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Property was expected to be of type: str, int
+    jason.schema.PropertyValidationError: Property was expected to be of type: str, int
 
 
     >>> number = Int(allow_strings=False)
     >>> number.load("123")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Loading number from string is not allowed
+    jason.schema.PropertyValidationError: Loading number from string is not allowed
 
     """
 
@@ -591,7 +591,7 @@ class Float(Number):
     >>> number.load("12.3")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Loading number from string is not allowed
+    jason.schema.PropertyValidationError: Loading number from string is not allowed
 
     """
 
@@ -618,21 +618,21 @@ class String(Property):
     >>> string.load(123)
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Property was expected to be of type: str
+    jason.schema.PropertyValidationError: Property was expected to be of type: str
 
 
     >>> string = String(min_length=3, max_length=5)
     >>> string.load("a")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Range validation failed. value is '1'. minimum: 3 maximum: 5
+    jason.schema.PropertyValidationError: Range validation failed. value is '1'. minimum: 3 maximum: 5
 
 
     >>> string = String(min_length=3, max_length=5)
     >>> string.load("reeeee")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Range validation failed. value is '6'. minimum: 3 maximum: 5
+    jason.schema.PropertyValidationError: Range validation failed. value is '6'. minimum: 3 maximum: 5
 
     """
 
@@ -665,7 +665,7 @@ class Regex(String):
     >>> regex.load("h3ll0")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: String value 'h3ll0' did not match regex pattern '^[a-zA-Z]+$'
+    jason.schema.PropertyValidationError: String value 'h3ll0' did not match regex pattern '^[a-zA-Z]+$'
 
     """
 
@@ -698,7 +698,7 @@ class Uuid(String):
     >>> uid.load("nope")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: value 'nope' is not a valid uuid
+    jason.schema.PropertyValidationError: value 'nope' is not a valid uuid
 
     """
 
@@ -733,7 +733,7 @@ class Date(Property):
     >>> date.load("1970-01-01")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Loading date from string is not allowed
+    jason.schema.PropertyValidationError: Loading date from string is not allowed
 
     """
 
@@ -790,7 +790,7 @@ class Datetime(Property):
     >>> datet.load("1970-01-01T01:01:01.000Z")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Loading datetime from string is not allowed
+    jason.schema.PropertyValidationError: Loading datetime from string is not allowed
 
     """
 
@@ -843,7 +843,7 @@ class Password(String):
     >>> password.load("my password")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Password must not contain white space
+    jason.schema.PropertyValidationError: Password must not contain white space
 
 
     >>> password = Password(uppercase=True)
@@ -852,7 +852,7 @@ class Password(String):
     >>> password.load("password")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Password must contain at least 1 uppercase character
+    jason.schema.PropertyValidationError: Password must contain at least 1 uppercase character
 
     >>> password = Password(uppercase=False)
     >>> password.load("password")
@@ -861,7 +861,7 @@ class Password(String):
     >>> password.load("Password")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Password must not contain uppercase characters
+    jason.schema.PropertyValidationError: Password must not contain uppercase characters
 
     >>> password = Password(uppercase=None)
     >>> password.load("password")
@@ -877,7 +877,7 @@ class Password(String):
     >>> password.load("password")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Password must contain at least 1 number
+    jason.schema.PropertyValidationError: Password must contain at least 1 number
 
     >>> password = Password(numbers=False)
     >>> password.load("password")
@@ -886,7 +886,7 @@ class Password(String):
     >>> password.load("p4ssw0rd")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Password must not contain numbers
+    jason.schema.PropertyValidationError: Password must not contain numbers
 
     >>> password = Password(numbers=None)
     >>> password.load("password")
@@ -902,7 +902,7 @@ class Password(String):
     >>> password.load("password")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Password must contain at least 1 symbol character
+    jason.schema.PropertyValidationError: Password must contain at least 1 symbol character
 
     >>> password = Password(symbols=False)
     >>> password.load("password")
@@ -911,7 +911,7 @@ class Password(String):
     >>> password.load("pa$$word")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Password must not contain symbol characters
+    jason.schema.PropertyValidationError: Password must not contain symbol characters
 
     >>> password = Password(symbols=None)
     >>> password.load("password")
@@ -925,17 +925,17 @@ class Password(String):
     >>> password.load("password")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Password is too weak. minimum score: 3. current score: 0
+    jason.schema.PropertyValidationError: Password is too weak. minimum score: 3. current score: 0
 
     >>> password.load("Password")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Password is too weak. minimum score: 3. current score: 1
+    jason.schema.PropertyValidationError: Password is too weak. minimum score: 3. current score: 1
 
     >>> password.load("P4ssw0rd")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Password is too weak. minimum score: 3. current score: 2
+    jason.schema.PropertyValidationError: Password is too weak. minimum score: 3. current score: 2
 
     >>> password.load("P4$$w0rd")
     'P4$$w0rd'
@@ -1021,7 +1021,7 @@ class Email(Regex):
     >>> email.load("nope")
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: String value 'nope' did not match regex pattern '^[^@]+@[^@]+\\.[^@]+$'
+    jason.schema.PropertyValidationError: String value 'nope' did not match regex pattern '^[^@]+@[^@]+\\.[^@]+$'
 
     """
 
@@ -1041,12 +1041,12 @@ class _RangeCheck:
     >>> check.validate(15)
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Range validation failed. value is '15'. minimum: 5 maximum: 10
+    jason.schema.PropertyValidationError: Range validation failed. value is '15'. minimum: 5 maximum: 10
 
     >>> check.validate(3)
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Range validation failed. value is '3'. minimum: 5 maximum: 10
+    jason.schema.PropertyValidationError: Range validation failed. value is '3'. minimum: 5 maximum: 10
 
     """
 
@@ -1107,12 +1107,12 @@ class _SizeRangeCheck(_RangeCheck):
     >>> check.validate(['a', 'b', 'c', 'd', 'e'])
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Range validation failed. value is '5'. minimum: 2 maximum: 4
+    jason.schema.PropertyValidationError: Range validation failed. value is '5'. minimum: 2 maximum: 4
 
     >>> check.validate(['a'])
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Range validation failed. value is '1'. minimum: 2 maximum: 4
+    jason.schema.PropertyValidationError: Range validation failed. value is '1'. minimum: 2 maximum: 4
     """
 
     def mod_value(self, value: Any) -> int:
@@ -1136,11 +1136,11 @@ class _DateTimeRangeCheck(_RangeCheck):
     >>> check.validate(datetime.datetime.fromisoformat("2003-01-01T00:00:00.000+00:00"))
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Range validation failed. value is '2003-01-01 00:00:00+00:00'. minimum: 2000-01-01 00:00:00+00:00 maximum: 2002-01-01 00:00:00+00:00
+    jason.schema.PropertyValidationError: Range validation failed. value is '2003-01-01 00:00:00+00:00'. minimum: 2000-01-01 00:00:00+00:00 maximum: 2002-01-01 00:00:00+00:00
     >>> check.validate(datetime.datetime.fromisoformat("1999-01-01T00:00:00.000+00:00"))
     Traceback (most recent call last):
         ...
-    jason.properties.PropertyValidationError: Range validation failed. value is '1999-01-01 00:00:00+00:00'. minimum: 2000-01-01 00:00:00+00:00 maximum: 2002-01-01 00:00:00+00:00
+    jason.schema.PropertyValidationError: Range validation failed. value is '1999-01-01 00:00:00+00:00'. minimum: 2000-01-01 00:00:00+00:00 maximum: 2002-01-01 00:00:00+00:00
     """
 
     def mod_param(
