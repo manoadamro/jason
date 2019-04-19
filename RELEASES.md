@@ -1,4 +1,9 @@
 
+v0.0.4
+===
+
+- Added api.schema ([docs](./docs/api/schema.md))
+
 v0.0.3
 ===
 
