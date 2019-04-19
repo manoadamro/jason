@@ -17,17 +17,6 @@ class MyModel(schema.Model):
 
 ---
 
-`AnyOf`
-
-validate against at least one property or rule in a defined list
-
-parameters:
-
-- __*rules__: 
-list of rules or properties
-
----
-
 ## Property:
 
 ```python
@@ -65,12 +54,21 @@ prop = schema.AnyOf(schema.Int, schema.String)
 prop.load("some thing")
 ```
 
+#### `AnyOf`
+
+validate against at least one property or rule in a defined list
+
+parameters:
+
+- __*rules__: 
+list of rules or properties
+
 ---
 
 #### Types
 
 
-`Property`
+#### `Property`
 
 base class for all properties, can be subclassed to create custom ones
 
@@ -86,7 +84,7 @@ if `False`, `None` values will cause `PropertyValidationError` to be raised (def
 a tuple of types that a value must be an instance or subclass of. if `None` any type will be accepted (default: `None`)
 
 
-`Array`
+#### `Array`
 
 validate a list or tuple
 
@@ -108,7 +106,7 @@ minimum length of the array, if `None` any length will be accepted (default: Non
 maximum length of the array, if `None` any length will be accepted (default: None)
 
 
-`Nested`
+#### `Nested`
 
 create a property from a model
 
@@ -128,7 +126,7 @@ if `True` any value found in the subject dict will cause `PropertyValidationErro
 if `None`, the value will be taken from the model.  (default: None)
 
 
-`Inline`
+#### `Inline`
 
 create a nested property from a dictionary of property
 
@@ -144,7 +142,7 @@ a value or callable (no args) to be used if a value is `None` (default: `None`)
 if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
 
 
-`Combine`
+#### `Combine`
 
 combine two or more models, inline properties or nested properties into one nested property
 
@@ -160,7 +158,7 @@ a value or callable (no args) to be used if a value is `None` (default: `None`)
 if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
 
 
-`Bool`
+#### `Bool`
 
 validate a boolean
 
@@ -176,7 +174,7 @@ a value or callable (no args) to be used if a value is `None` (default: `None`)
 if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
 
 
-`Number`
+#### `Number`
 
 validate an int or float
 
@@ -198,7 +196,7 @@ a value or callable (no args) to be used if a value is `None` (default: `None`)
 if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
 
 
-`Int`
+#### `Int`
 
 validate an int
 
@@ -220,7 +218,7 @@ a value or callable (no args) to be used if a value is `None` (default: `None`)
 if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
 
 
-`Float`
+#### `Float`
 
 validate a float. (ints will be converted to floats)
 
@@ -242,7 +240,7 @@ a value or callable (no args) to be used if a value is `None` (default: `None`)
 if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
 
 
-`String`
+#### `String`
 
 validate a string
 
@@ -261,7 +259,7 @@ minimum length of the string, if `None` any length will be accepted (default: No
 maximum length of the string, if `None` any length will be accepted (default: None)
 
 
-`Regex`
+#### `Regex`
 
 validate a string against a regex matcher
 
@@ -283,7 +281,7 @@ minimum length of the string, if `None` any length will be accepted (default: No
 maximum length of the string, if `None` any length will be accepted (default: None)
 
 
-`Uuid`
+#### `Uuid`
 
 validate a string against the uuid4 standard
 
@@ -292,7 +290,7 @@ parameters:
  - None!
 
 
-`Date`
+#### `Date`
 
 validate a date or iso8601 date
 
@@ -314,7 +312,7 @@ a value or callable (no args) to be used if a value is `None` (default: `None`)
 if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
 
 
-`Datetime`
+#### `Datetime`
 
 validate a datetime or iso8601 datetime
 
@@ -336,7 +334,7 @@ a value or callable (no args) to be used if a value is `None` (default: `None`)
 if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
 
 
-`Password`
+#### `Password`
 
 validate a string against password rules
 
@@ -361,7 +359,7 @@ a value or callable (no args) to be used if a value is `None` (default: `None`)
 if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
 
 
-`Email`
+#### `Email`
 
 validate a string against email rules
 
@@ -377,7 +375,7 @@ if `False`, `None` values will cause `PropertyValidationError` to be raised (def
 
 #### Checks
 
-`RangeCheck`
+#### `RangeCheck`
 
 parameters:
 
@@ -388,7 +386,7 @@ minimum value accepted, if `None` any value will be accepted (default: None)
 maximum value accepted, if `None` any value will be accepted (default: None)
 
 
-`SizeRangeCheck`
+#### `SizeRangeCheck`
 
 parameters:
 
@@ -399,7 +397,7 @@ minimum length accepted, if `None` any length will be accepted (default: None)
 maximum length accepted, if `None` any length will be accepted (default: None)
 
 
-`DateTimeRangeCheck`
+#### `DateTimeRangeCheck`
 
 parameters:
 
