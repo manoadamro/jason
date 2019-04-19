@@ -3,65 +3,103 @@ import inspect
 
 from flask import request
 
-from .. import schema as _schema
+from .. import schema, utils
 
-props = _schema
+props = schema
+
+
+class RequestValidationError(props.PropertyValidationError):
+    """
+    raised when `RequestSchema` to validate a request
+
+    """
+
+    ...
 
 
 class RequestSchema:
-    def __init__(self, model=None, params=None, query=None, json=None, form=None):
-        self.model = model
-        self.params = params or self.get_sub_model("Params")
-        self.query = query or self.get_sub_model("Query")
-        self.json = json or self.get_sub_model("Json")
-        self.form = form or self.get_sub_model("Form")
+    def __init__(self, model=None, args=None, json=None, query=None, form=None):
+        self.args = args if args is not None else self.from_model(model, "Args")
+        self.json = json if json is not None else self.from_model(model, "Json")
+        self.query = query if query is not None else self.from_model(model, "Query")
+        self.form = form if form is not None else self.from_model(model, "Form")
 
     @staticmethod
-    def load_property_data(data, sub_model):
-        if sub_model is not None:
-            data = sub_model.load(data)
-        else:
-            data = data or {}
-        return data
+    def load(kwargs, func_params, **funcs):
+        for name, func in funcs.items():
+            data = func()
+            if name in func_params:
+                kwargs[name] = data
+        return kwargs
 
-    def get_sub_model(self, name):
-        if not self.model:
+    @staticmethod
+    def from_model(model, name):
+        if model is None:
             return None
+        if hasattr(model, name):
+            return getattr(model, name)
         upper = name.upper()
-        if hasattr(self.model, upper):
-            return getattr(self.model, upper)
+        if hasattr(model, upper):
+            return getattr(model, upper)
         lower = name.lower()
-        if hasattr(self.model, lower):
-            return getattr(self.model, lower)
-        return getattr(self.model, name, None)
+        if hasattr(model, lower):
+            return getattr(model, lower)
+        return None
+
+    def load_view_args(self):
+        args = request.view_args or {}
+        if utils.is_instance_or_type(self.args, props.SchemaAttribute):
+            return self.args.load(args)
+        return args
+
+    def load_query(self):
+        query = request.args
+        if utils.is_instance_or_type(self.query, props.SchemaAttribute):
+            return self.query.load(query)
+        return query
+
+    def load_form(self):
+        if self.form is True:
+            if request.form is None:
+                raise RequestValidationError  # TODO
+            return request.form
+        if self.form is False:
+            if request.form is not None:
+                raise RequestValidationError  # TODO
+            return None
+        if utils.is_instance_or_type(self.form, props.SchemaAttribute):
+            return self.form.load(request.form)
+        return request.form
+
+    def load_json(self):
+        if self.json is True:
+            if request.is_json is False:
+                raise RequestValidationError  # TODO
+            return request.json
+        elif self.json is False:
+            if request.is_json is True:
+                raise RequestValidationError  # TODO
+            return None
+        elif utils.is_instance_or_type(self.json, props.SchemaAttribute):
+            return self.json.load(request.json)
+        return request.json
 
     def __call__(self, func):
         func_info = inspect.signature(func)
         func_params = func_info.parameters
 
         @functools.wraps(func)
-        def call(*args, **kwargs):
-
-            # params
-            params_data = self.load_property_data(request.view_args, self.params)
-            for name, value in params_data.items():
+        def call(**kwargs):
+            for name, value in self.load_view_args().items():
                 kwargs[name] = value
-
-            # query
-            query_data = self.load_property_data(request.args, self.query)
-            if "query" in func_params:
-                kwargs["query"] = query_data
-
-            # json
-            json_data = self.load_property_data(request.json, self.json)
-            if "json" in func_params:
-                kwargs["json"] = json_data
-
-            # form
-            form_data = self.load_property_data(request.form, self.form)
-            if "form" in func_params:
-                kwargs["form"] = form_data
-            return func(*args, **kwargs)
+            kwargs = self.load(
+                kwargs,
+                func_params,
+                json=self.load_json,
+                query=self.load_query,
+                form=self.load_form,
+            )
+            return func(**kwargs)
 
         return call
 
