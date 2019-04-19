@@ -10,9 +10,6 @@ from . import schema as _schema
 props = _schema
 
 
-# TODO global config
-
-
 class Config(props.Model):
     """
     attempts to load values first from the 'fields' parameter and if `None`, from the env.
