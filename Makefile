@@ -8,7 +8,7 @@ install:
 	pip3 install --upgrade --force-reinstall . ;
 
 cloc:
-	cloc ./jason ;
+	cloc . --exclude-list-file=.gitignore ;
 
 format:
 	isort -rc ./tests ./jason ;
