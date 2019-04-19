@@ -2,7 +2,6 @@ import re
 from typing import Pattern
 
 import pytest
-
 from jason.schema import PropertyValidationError, Regex
 
 

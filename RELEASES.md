@@ -1,5 +1,8 @@
 
 v0.0.3
+===
+
+- Added config module ([docs](./docs/schema.md))
 
 - Added `check` to makefile
 - Added basic instructions to `README.md`

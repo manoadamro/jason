@@ -117,7 +117,7 @@ class Property(SchemaAttribute):
     >>> prop.load("nope")
     Traceback (most recent call last):
         ...
-    jason.schema.PropertyValidationError: Property was expected to be of type: int
+    jason.schema.PropertyValidationError: Property was expected to be of type: int. not str
     """
 
     def __init__(
@@ -149,7 +149,7 @@ class Property(SchemaAttribute):
             or not isinstance(value, self.types)
         ):
             raise PropertyValidationError(
-                f"Property was expected to be of type: {', '.join(t.__name__ for t in self.types)}"
+                f"Property was expected to be of type: {', '.join(t.__name__ for t in self.types)}. not {type(value).__name__}"
             )
         return self._validate(value)
 
@@ -238,7 +238,7 @@ class Array(Property):
     >>> arr.load(["a", 2, "c"])
     Traceback (most recent call last):
         ...
-    jason.schema.PropertyValidationError: Property was expected to be of type: str
+    jason.schema.PropertyValidationError: Property was expected to be of type: str. not int
 
     >>> arr.load(["a"])
     Traceback (most recent call last):
@@ -418,7 +418,7 @@ class Bool(Property):
     >>> b.load(123)
     Traceback (most recent call last):
         ...
-    jason.schema.PropertyValidationError: Property was expected to be of type: str, bool
+    jason.schema.PropertyValidationError: Property was expected to be of type: str, bool. not int
 
     >>> b.load("nope")
     Traceback (most recent call last):
@@ -491,7 +491,7 @@ class Number(Property):
     >>> number.load(True)
     Traceback (most recent call last):
         ...
-    jason.schema.PropertyValidationError: Property was expected to be of type: int, float, str
+    jason.schema.PropertyValidationError: Property was expected to be of type: int, float, str. not bool
 
     >>> number = Number(allow_strings=False)
     >>> number.load("12.3")
@@ -555,7 +555,7 @@ class Int(Number):
     >>> number.load(12.3)
     Traceback (most recent call last):
         ...
-    jason.schema.PropertyValidationError: Property was expected to be of type: str, int
+    jason.schema.PropertyValidationError: Property was expected to be of type: str, int. not float
 
 
     >>> number = Int(allow_strings=False)
@@ -618,7 +618,7 @@ class String(Property):
     >>> string.load(123)
     Traceback (most recent call last):
         ...
-    jason.schema.PropertyValidationError: Property was expected to be of type: str
+    jason.schema.PropertyValidationError: Property was expected to be of type: str. not int
 
 
     >>> string = String(min_length=3, max_length=5)

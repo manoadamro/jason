@@ -1,5 +1,4 @@
 import pytest
-
 from jason import schema as props
 
 
