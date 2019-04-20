@@ -26,4 +26,4 @@ print(config.MY_FLOAT)
     
 ```
 
-more information about models and properties can be found [here](./schema.md)
+more information about models and properties can be found [here](schema.md)

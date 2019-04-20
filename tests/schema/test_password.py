@@ -1,5 +1,5 @@
 import pytest
-from jason.schema import Password, PropertyValidationError
+from jason.core.schema import Password, PropertyValidationError
 
 
 def test_fails_when_contains_whitespace():

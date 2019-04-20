@@ -5,7 +5,7 @@ config
 import os
 from typing import Any
 
-from . import schema
+from jason.core import schema
 
 props = schema
 

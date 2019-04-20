@@ -1,3 +1,10 @@
+v0.0.5
+===
+
+- created core namespace
+    - moved config to jason.core
+    - moved schema to jason.core
+    - moved utils to jason.core
 
 v0.0.4
 ===
@@ -7,7 +14,7 @@ v0.0.4
 v0.0.3
 ===
 
-- Added config module ([docs](./docs/config.md))
+- Added config module ([docs](docs/core/config.md))
 
 - Added `check` to makefile
 - Added basic instructions to `README.md`
@@ -15,7 +22,7 @@ v0.0.3
 v0.0.2
 ===
 
-- Added schema module ([docs](./docs/schema.md))
+- Added schema module ([docs](docs/core/schema.md))
 
 v0.0.1
 ===

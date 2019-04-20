@@ -7,8 +7,7 @@ import inspect
 from typing import Any, Callable, Dict, Optional, Type
 
 from flask import request
-
-from .. import schema, utils
+from jason.core import schema, utils
 
 props = schema
 

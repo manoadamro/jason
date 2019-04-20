@@ -2,7 +2,7 @@
 
 Used for validating content in flask requests.
 
-documentation for schema properties and models is [here](../schema.md)
+documentation for schema properties and models is [here](../core/schema.md)
 
 ### `request_schema(...)`
 
