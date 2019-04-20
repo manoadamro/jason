@@ -1,5 +1,5 @@
 import pytest
-from jason.schema import Email, PropertyValidationError
+from jason.core.schema import Email, PropertyValidationError
 
 VALID_EMAILS = [
     # TODO write a regex matcher to validate these... good luck

@@ -1,5 +1,5 @@
 import pytest
-from jason.schema import (
+from jason.core.schema import (
     Bool,
     Combine,
     Float,

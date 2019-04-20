@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 import pytest
-from jason.config import Config, props
+from jason.core.config import Config, props
 
 
 @pytest.fixture

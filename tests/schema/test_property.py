@@ -1,5 +1,5 @@
 import pytest
-from jason.schema import Property, PropertyValidationError
+from jason.core.schema import Property, PropertyValidationError
 
 
 def test_nullable_no_default():

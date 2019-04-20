@@ -1,6 +1,6 @@
 import unittest.mock as mock
 
-from jason import utils
+from jason.core import utils
 
 
 def test_maybe_call_with_callable():
