@@ -23,7 +23,7 @@ check:
 	python3 -m black --check ./tests ./jason;
 
 test:
-	python3 -m coverage run -m pytest --doctest-modules;
+	python3 -m coverage run --source=./jason -m pytest --doctest-modules;
 	python3 -m coverage report ;
 
 pre-commit:
