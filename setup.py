@@ -8,7 +8,8 @@ setuptools.setup(
     version='0.0.6',
     install_requires=[
         "Flask==1.0.2",
-        "PyJWT==1.7.1"
+        "PyJWT==1.7.1",
+        "jsonpointer==2.0"
     ],
     extras_require={
         'dev': [
