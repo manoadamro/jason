@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+
 from jason.core.schema import Datetime, PropertyValidationError
 
 

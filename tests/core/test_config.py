@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+
 from jason.core.config import Config, props
 
 

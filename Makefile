@@ -4,23 +4,27 @@ LC_ALL=en_GB.UTF-8
 
 
 install:
-	pip3 install --upgrade pip ;
-	pip3 install --upgrade --force-reinstall . ;
+	pip3 install --user --upgrade pip ;
+	pip3 install --user --upgrade --force-reinstall . ;
+
+install-dev:
+	pip3 install --user --upgrade pip ;
+	pip3 install --user --upgrade --force-reinstall .[dev] ;
 
 cloc:
 	cloc --exclude-list-file=.gitignore . ;
 
 format:
-	isort -rc ./tests ./jason ;
-	black ./tests ./jason ;
+	python3 -m isort -rc ./tests ./jason ;
+	python3 -m black ./tests ./jason ;
 
 check:
-	isort -rc --check-only ./tests ./jason ;
-	black --check ./tests ./jason;
+	python3 -m isort -rc --check-only ./tests ./jason ;
+	python3 -m black --check ./tests ./jason;
 
 test:
-	coverage run -m pytest --doctest-modules;
-	coverage report ;
+	python3 -m coverage run --source=./jason -m pytest --doctest-modules;
+	python3 -m coverage report ;
 
 pre-commit:
 	python3 --version ;
