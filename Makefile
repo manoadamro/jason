@@ -15,12 +15,12 @@ cloc:
 	cloc --exclude-list-file=.gitignore . ;
 
 format:
-	isort -rc ./tests ./jason ;
-	black ./tests ./jason ;
+	python3 -m isort -rc ./tests ./jason ;
+	python3 -m black ./tests ./jason ;
 
 check:
-	isort -rc --check-only ./tests ./jason ;
-	black --check ./tests ./jason;
+	python3 -m isort -rc --check-only ./tests ./jason ;
+	python3 -m black --check ./tests ./jason;
 
 test:
 	coverage run -m pytest --doctest-modules;

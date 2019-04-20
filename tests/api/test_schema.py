@@ -2,6 +2,7 @@ from contextlib import contextmanager
 from unittest import mock
 
 import pytest
+
 from jason.api import schema
 
 
