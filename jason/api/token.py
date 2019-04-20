@@ -44,15 +44,15 @@ class TokenHandler(TokenHandlerBase):
         self.verify = None
         self.auto_update = None
         self.init_app(app)
-        super(TokenHandler, self).__init__(**kwargs)
+        self.configure(**kwargs)
 
     def init_app(self, app: flask.Flask) -> NoReturn:
         if not app:
             return
         self.app = app
-        self.app.before_first_request(self._before_first_request)
-        self.app.before_request(self._before_request)
-        self.app.after_request(self._after_request)
+        self.app.before_first_request(self.before_first_request)
+        self.app.before_request(self.before_request)
+        self.app.after_request(self.after_request)
 
     def configure(
         self,
@@ -81,17 +81,8 @@ class TokenHandler(TokenHandlerBase):
             self.auto_update = auto_update
         for key, value in kwargs.items():
             if key not in self.DECODER_OPTIONS:
-                raise KeyError  # TODO
+                raise ValueError(f"invalid keyword argument {key}")
             self.DECODER_OPTIONS[key] = value
-
-    def generate_token(self, token_data, user_id, scopes, not_before=None):
-        token_data["nbf"] = not_before or time.time()
-        token_data["uid"] = user_id
-        token_data["scp"] = scopes
-        token_data["exp"] = time.time() + self.lifespan
-        token_data["iss"] = self.issuer
-        token_data["aud"] = self.audience
-        return self._encode(token_data=token_data)
 
     def _encode(self, token_data):
         return jwt.encode(
@@ -112,7 +103,7 @@ class TokenHandler(TokenHandlerBase):
             audience=self.audience,
         )
 
-    def _before_first_request(self) -> NoReturn:
+    def before_first_request(self) -> NoReturn:
         missing = []
         if self.algorithm is None:
             self.algorithm = "HS256"
@@ -124,21 +115,23 @@ class TokenHandler(TokenHandlerBase):
             missing.append("issuer")
         if self.audience is None:
             missing.append("audience")
-        if len(missing):
+        if len(missing) > 0:
             raise ValueError(
                 "TokenHandler is missing the values for: " f"{', '.join(missing)}"
             )
 
-    def _before_request(self) -> NoReturn:
+    def before_request(self) -> NoReturn:
         token_string = flask.request.headers.get(self.HEADER_KEY, None)
-        if not token_string or not token_string.startswith(self.TOKEN_PREFIX):
+        if not token_string:
             return
+        if not token_string.startswith(self.TOKEN_PREFIX):
+            raise TokenValidationError(f"token is unreadable")
         token_string = token_string[len(self.TOKEN_PREFIX) :]
         # TODO decrypt
         token_data = self._decode(token_string)
         flask.g[self.G_KEY] = token_data
 
-    def _after_request(self, response: flask.Response) -> flask.Response:
+    def after_request(self, response: flask.Response) -> flask.Response:
         if not self.auto_update:
             return response
         token_data = flask.g[self.G_KEY]
@@ -148,6 +141,18 @@ class TokenHandler(TokenHandlerBase):
         # TODO encrypt
         response.headers[self.HEADER_KEY] = token_string
         return response
+
+    def generate_token(self, user_id, scopes, token_data=None, not_before=None):
+        token_data = token_data or {}
+        token_data["nbf"] = not_before or time.time()
+        token_data["uid"] = user_id
+        token_data["scp"] = scopes
+        token_data["exp"] = time.time() + self.lifespan
+        token_data["iss"] = self.issuer
+        token_data["aud"] = self.audience
+        token = self._encode(token_data=token_data)
+        # TODO encrypt
+        return token
 
 
 class TokenRule:
@@ -161,7 +166,12 @@ class AllOf(TokenRule):
 
     def validate(self, token):
         for rule in self.rules:
-            rule.validate(token)
+            try:
+                rule.validate(token)
+            except TokenValidationError as ex:
+                raise TokenValidationError(
+                    f"token did not conform to one or more of the defined rules. {ex}"
+                )
         return
 
 
@@ -173,11 +183,11 @@ class AnyOf(TokenRule):
         for rule in self.rules:
             try:
                 rule.validate(token)
-            except TokenValidationError:  # TODO
+            except TokenValidationError:
                 continue
             else:
                 return
-        raise TokenValidationError  # TODO
+        raise TokenValidationError("token did not conform to any of the defined rules")
 
 
 class NoneOf(TokenRule):
@@ -188,10 +198,12 @@ class NoneOf(TokenRule):
         for rule in self.rules:
             try:
                 rule.validate(token)
-            except TokenValidationError:  # TODO
+            except TokenValidationError:
                 continue
             else:
-                raise TokenValidationError  # TODO
+                raise TokenValidationError(
+                    "token conformed to one or more of the defined rules"
+                )
         return
 
 
@@ -201,7 +213,7 @@ class HasScopes(TokenRule):
 
     def validate(self, token):
         if not all(scope in token["scp"] for scope in self.scopes):
-            raise TokenValidationError  # TODO
+            raise TokenValidationError(f"token is missing a required scope")
 
 
 class HasKeys(TokenRule):
@@ -210,7 +222,7 @@ class HasKeys(TokenRule):
 
     def validate(self, token):
         if not all(key in token for key in self.keys):
-            raise TokenValidationError  # TODO
+            raise TokenValidationError(f"token is missing a required key")
 
 
 class HasValue(TokenRule):
@@ -223,30 +235,31 @@ class HasValue(TokenRule):
     def validate(self, token):
         try:
             v = jsonpointer.resolve_pointer(token, self.pointer)
-            return v == self.value
+            if v != self.value:
+                raise TokenValidationError(
+                    f"token value at defined path does not match defined value"
+                )
         except jsonpointer.JsonPointerException:
-            return False
+            raise TokenValidationError(f"token is missing a required value")
 
 
-class MatchValue(TokenRule):
+class MatchValues(TokenRule):
     def __init__(self, *paths: str):
         self.matchers: List[(Callable, str)] = [
             self._resolve_path(path) for path in paths
         ]
         if len(self.matchers) < 2:
-            raise ValueError(f"MatchValue requires two or more paths")
+            raise ValueError(f"MatchValues requires two or more paths")
 
     def validate(self, token):
         try:
-            equal = self._check_equal(
+            assert self._check_equal(
                 [matcher[0](matcher[1], token) for matcher in self.matchers]
             )
         except jsonpointer.JsonPointerException:
-            raise TokenValidationError  # TODO
-        else:
-            if not equal:
-                raise TokenValidationError  # TODO
-        return
+            raise TokenValidationError("path to value does not exist in token")
+        except AssertionError:
+            raise TokenValidationError("one or more values do not match")
 
     def _resolve_path(self, path: str) -> (Callable, str):
         object_name, pointer = path.split(":")
@@ -286,7 +299,7 @@ class MatchValue(TokenRule):
         return jsonpointer.resolve_pointer(token, path)
 
 
-class TokenProtect(TokenHandlerBase):
+class Protect(TokenHandlerBase):
     def __init__(self, *rules):
         self.rules = AllOf(*rules)
 
@@ -294,12 +307,10 @@ class TokenProtect(TokenHandlerBase):
         @functools.wraps(func)
         def call(*args, **kwargs):
             token = flask.g[self.G_KEY]
-            if not token:
-                raise TokenValidationError  # TODO
             self.rules.validate(token)
             return func(*args, **kwargs)
 
         return call
 
 
-token_protect = TokenProtect
+protect = Protect
