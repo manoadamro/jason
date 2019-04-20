@@ -23,8 +23,8 @@ check:
 	python3 -m black --check ./tests ./jason;
 
 test:
-	coverage run -m pytest --doctest-modules;
-	coverage report ;
+	python3 -m coverage run -m pytest --doctest-modules;
+	python3 -m coverage report ;
 
 pre-commit:
 	python3 --version ;
