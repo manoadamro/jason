@@ -256,12 +256,14 @@ class MatchValues(TokenRule):
             assert self._check_equal(
                 [matcher[0](matcher[1], token) for matcher in self.matchers]
             )
-        except jsonpointer.JsonPointerException:
-            raise TokenValidationError("path to value does not exist in token")
+        except jsonpointer.JsonPointerException as ex:
+            raise TokenValidationError(f"path to value does not exist in token")
         except AssertionError:
             raise TokenValidationError("one or more values do not match")
 
     def _resolve_path(self, path: str) -> (Callable, str):
+        if ":" not in path:
+            raise ValueError(f"invalid path: {path}")
         object_name, pointer = path.split(":")
         if not pointer.startswith("/"):
             pointer = f"/{pointer}"
@@ -287,7 +289,7 @@ class MatchValues(TokenRule):
         return jsonpointer.resolve_pointer(flask.request.view_args, path)
 
     @staticmethod
-    def param(path: str, _: Any) -> Any:
+    def query(path: str, _: Any) -> Any:
         return jsonpointer.resolve_pointer(flask.request.args, path)
 
     @staticmethod
