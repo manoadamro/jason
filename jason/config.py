@@ -5,9 +5,9 @@ config
 import os
 from typing import Any
 
-from . import schema as _schema
+from . import schema
 
-props = _schema
+props = schema
 
 
 class Config(props.Model):

@@ -8,7 +8,7 @@ install:
 	pip3 install --upgrade --force-reinstall . ;
 
 cloc:
-	cloc . --exclude-list-file=.gitignore ;
+	cloc --exclude-list-file=.gitignore . ;
 
 format:
 	isort -rc ./tests ./jason ;
@@ -20,10 +20,11 @@ check:
 
 test:
 	coverage run -m pytest --doctest-modules;
-	coverage report --show-missing --skip-covered ;
+	coverage report ;
 
 pre-commit:
 	python3 --version ;
 	make format ;
 	make check ;
 	make test ;
+	make cloc ;
