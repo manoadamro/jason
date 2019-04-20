@@ -11,7 +11,10 @@ setuptools.setup(
     ],
     extras_require={
         'dev': [
-            'pytest==4.4.1'
+            'pytest==4.4.1',
+            'isort==4.3.4',
+            'black==18.9b0',
+            'coverage==4.5.1'
         ]
     },
     packages=setuptools.find_packages()
