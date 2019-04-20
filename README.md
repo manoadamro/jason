@@ -2,10 +2,17 @@
 
 ### Installation
 
-To install jason and its dependencies, simple run:
+To install jason and its dependencies, simply run:
 
 ```bash
 make install
+
+```
+
+or to install test dependencies as well:
+
+```bash
+make install-dev
 
 ```
 
