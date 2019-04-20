@@ -1,0 +1,26 @@
+version: 2
+jobs:
+
+  test-3.7:
+    docker:
+      - image: circleci/python:3.7.3
+    steps:
+      - checkout
+      - run:
+          name: install
+          command: |
+            make install
+      - run:
+          name: check
+          command: |
+            make check
+      - run:
+          name: test
+          command: |
+            make test
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
