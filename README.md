@@ -1,5 +1,8 @@
 # jason
 
+- [Documentation](./docs)
+- [Release Notes](./RELEASES.md)
+
 ### Installation
 
 To install jason and its dependencies, simply run:

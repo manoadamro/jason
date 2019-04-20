@@ -32,6 +32,19 @@ class TokenHandler(TokenHandlerBase):
     """
     handles the encoding, decoding and generation of jwt tokens
 
+    >>> import flask
+    >>> app = flask.Flask(__name__)
+
+
+    configure all in one
+    >>> handler = TokenHandler(app=app, lifespan=600, key="secret", issuer="someone", audience="something")
+
+
+    configure bit by bit
+    >>> handler = TokenHandler()
+    >>> handler.init_app(app=app)
+    >>> handler.configure(lifespan=600, key="secret", issuer="someone", audience="something")
+
     """
 
     HEADER_KEY = "Authorization"
@@ -397,6 +410,9 @@ class Protect(TokenHandlerBase):
     intended for use on flask endpoints
     ensures that the current token (stored in g) passes all of the defined rules
 
+    >>> @protect(HasScopes("some:thing", "other:thing"), MatchValues("jwt:user_id", "url:user_id"))
+    ... def some_route():
+    ...     ...
     """
 
     def __init__(self, *rules: TokenRule):
