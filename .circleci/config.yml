@@ -9,7 +9,7 @@ jobs:
       - run:
           name: install
           command: |
-            make install
+            make install-dev
       - run:
           name: check
           command: |

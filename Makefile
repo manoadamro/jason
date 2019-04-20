@@ -4,8 +4,12 @@ LC_ALL=en_GB.UTF-8
 
 
 install:
-	pip3 install --upgrade pip ;
-	pip3 install --upgrade --force-reinstall . ;
+	pip3 install --upgrade pip --user ;
+	pip3 install --upgrade --force-reinstall --user . ;
+
+install-dev:
+	pip3 install --upgrade pip --user ;
+	pip3 install --upgrade --force-reinstall -e .[dev] ;
 
 cloc:
 	cloc --exclude-list-file=.gitignore . ;

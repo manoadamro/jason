@@ -1,3 +1,12 @@
+v0.0.6
+===
+
+- CircleCi integration
+- improved setup.py
+    - added extra requires (dev) and pytest requirement
+- added `install-dev` to makefile
+
+    
 v0.0.5
 ===
 

@@ -3,16 +3,16 @@
 import setuptools
 
 
-NAME = 'jason'
-VERSION = '0.0.5'
-REQUIRES = [
-    "Flask==1.0.2"
-]
-
-
 setuptools.setup(
-    name=NAME,
-    version=VERSION,
-    install_requires=REQUIRES,
+    name='jason',
+    version='0.0.6',
+    install_requires=[
+        "Flask==1.0.2"
+    ],
+    extras_require={
+        'dev': [
+            'pytest==4.4.1'
+        ]
+    },
     packages=setuptools.find_packages()
 )
