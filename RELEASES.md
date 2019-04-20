@@ -1,3 +1,8 @@
+v0.0.7
+===
+
+- Added api.token ([docs](./docs/api/token.md))
+
 v0.0.6
 ===
 

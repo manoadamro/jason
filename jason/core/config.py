@@ -1,5 +1,5 @@
 """
-config
+core.config
 
 """
 import os

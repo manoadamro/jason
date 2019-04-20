@@ -15,7 +15,7 @@ props = schema
 
 class RequestValidationError(props.PropertyValidationError):
     """
-    raised when `RequestSchema` to validate a request
+    raised when `RequestSchema` fails to validate a request
 
     """
 
@@ -169,11 +169,11 @@ class RequestSchema:
         """
         if self.form is True:
             if request.form is None:
-                raise RequestValidationError  # TODO
+                raise RequestValidationError("request requires a form")
             return request.form
         if self.form is False:
             if request.form is not None:
-                raise RequestValidationError  # TODO
+                raise RequestValidationError("request should not contain a form")
             return None
         if utils.is_instance_or_type(self.form, props.SchemaAttribute):
             return self.form.load(request.form)
@@ -186,11 +186,11 @@ class RequestSchema:
         """
         if self.json is True:
             if request.is_json is False:
-                raise RequestValidationError  # TODO
+                raise RequestValidationError("request requires a json body")
             return request.json
         elif self.json is False:
             if request.is_json is True:
-                raise RequestValidationError  # TODO
+                raise RequestValidationError("request should not contain a json body")
             return None
         elif utils.is_instance_or_type(self.json, props.SchemaAttribute):
             return self.json.load(request.json)

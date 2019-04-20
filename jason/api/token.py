@@ -1,3 +1,7 @@
+"""
+api.token
+
+"""
 import functools
 import time
 from typing import Any, Callable, Dict, List, NoReturn
@@ -8,14 +12,28 @@ import jwt
 
 
 class TokenValidationError(Exception):
+    """
+    raised when a token rule fails to validate a token
+
+    """
+
     ...
 
 
 class TokenHandlerBase:
+    """
+    base class for anything needing access to the decoded token
+    """
+
     G_KEY = "_ACCESS_TOKEN"
 
 
 class TokenHandler(TokenHandlerBase):
+    """
+    handles the encoding, decoding and generation of jwt tokens
+
+    """
+
     HEADER_KEY = "Authorization"
     TOKEN_PREFIX = "Bearer "
 
@@ -47,6 +65,10 @@ class TokenHandler(TokenHandlerBase):
         self.configure(**kwargs)
 
     def init_app(self, app: flask.Flask) -> NoReturn:
+        """
+        initialises flask app and registers callbacks
+
+        """
         if not app:
             return
         self.app = app
@@ -63,8 +85,12 @@ class TokenHandler(TokenHandlerBase):
         algorithm: str = None,
         verify: bool = None,
         auto_update: bool = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> NoReturn:
+        """
+        sets config values where possible
+
+        """
         if key is not None:
             self.key = key
         if lifespan is not None:
@@ -84,7 +110,11 @@ class TokenHandler(TokenHandlerBase):
                 raise ValueError(f"invalid keyword argument {key}")
             self.DECODER_OPTIONS[key] = value
 
-    def _encode(self, token_data):
+    def _encode(self, token_data: Dict[str, Any]) -> str:
+        """
+        encodes a token from dict to string
+
+        """
         return jwt.encode(
             payload=token_data,
             key=self.key,
@@ -92,7 +122,11 @@ class TokenHandler(TokenHandlerBase):
             json_encoder=None,  # TODO
         )
 
-    def _decode(self, token_string):
+    def _decode(self, token_string: str) -> Dict[str, Any]:
+        """
+        decodes a token from string to dict
+
+        """
         return jwt.decode(
             jwt=token_string,
             key=self.key,
@@ -104,6 +138,10 @@ class TokenHandler(TokenHandlerBase):
         )
 
     def before_first_request(self) -> NoReturn:
+        """
+        ensures that everything is set up correctly
+
+        """
         missing = []
         if self.algorithm is None:
             self.algorithm = "HS256"
@@ -121,6 +159,10 @@ class TokenHandler(TokenHandlerBase):
             )
 
     def before_request(self) -> NoReturn:
+        """
+        gets jwt from header if possible and decodes
+
+        """
         token_string = flask.request.headers.get(self.HEADER_KEY, None)
         if not token_string:
             return
@@ -132,6 +174,10 @@ class TokenHandler(TokenHandlerBase):
         flask.g[self.G_KEY] = token_data
 
     def after_request(self, response: flask.Response) -> flask.Response:
+        """
+        if auto_update is set to true, sends back a token with an updated expiry
+
+        """
         if not self.auto_update:
             return response
         token_data = flask.g[self.G_KEY]
@@ -143,6 +189,10 @@ class TokenHandler(TokenHandlerBase):
         return response
 
     def generate_token(self, user_id, scopes, token_data=None, not_before=None):
+        """
+        generates a token based on current config
+
+        """
         token_data = token_data or {}
         token_data["nbf"] = not_before or time.time()
         token_data["uid"] = user_id
@@ -156,15 +206,25 @@ class TokenHandler(TokenHandlerBase):
 
 
 class TokenRule:
-    def validate(self, token):
+    """
+    base class for all token validation rules
+
+    """
+
+    def validate(self, token: Dict[str, Any]) -> NoReturn:
         raise NotImplementedError
 
 
 class AllOf(TokenRule):
-    def __init__(self, *rules):
+    """
+    raises an error if one or more of the defined rules fails
+
+    """
+
+    def __init__(self, *rules: TokenRule):
         self.rules = rules
 
-    def validate(self, token):
+    def validate(self, token: Dict[str, Any]) -> NoReturn:
         for rule in self.rules:
             try:
                 rule.validate(token)
@@ -176,10 +236,15 @@ class AllOf(TokenRule):
 
 
 class AnyOf(TokenRule):
-    def __init__(self, *rules):
+    """
+    raises an error if all of the defined rules fails
+
+    """
+
+    def __init__(self, *rules: TokenRule):
         self.rules = rules
 
-    def validate(self, token):
+    def validate(self, token: Dict[str, Any]) -> NoReturn:
         for rule in self.rules:
             try:
                 rule.validate(token)
@@ -191,10 +256,15 @@ class AnyOf(TokenRule):
 
 
 class NoneOf(TokenRule):
-    def __init__(self, *rules):
+    """
+    raises an error unless all of the defined rules fails
+
+    """
+
+    def __init__(self, *rules: TokenRule):
         self.rules = rules
 
-    def validate(self, token):
+    def validate(self, token: Dict[str, Any]) -> NoReturn:
         for rule in self.rules:
             try:
                 rule.validate(token)
@@ -208,31 +278,47 @@ class NoneOf(TokenRule):
 
 
 class HasScopes(TokenRule):
-    def __init__(self, *scopes):
+    """
+    raises an error unless all of the defined scopes exist in the current jwt
+
+    """
+
+    def __init__(self, *scopes: str):
         self.scopes = scopes
 
-    def validate(self, token):
+    def validate(self, token: Dict[str, Any]) -> NoReturn:
         if not all(scope in token["scp"] for scope in self.scopes):
             raise TokenValidationError(f"token is missing a required scope")
 
 
 class HasKeys(TokenRule):
+    """
+    raises an error unless all of the defined keys exist in the current jwt
+
+    """
+
     def __init__(self, *keys: str):
         self.keys = keys
 
-    def validate(self, token):
+    def validate(self, token: Dict[str, Any]) -> NoReturn:
+
         if not all(key in token for key in self.keys):
             raise TokenValidationError(f"token is missing a required key")
 
 
 class HasValue(TokenRule):
-    def __init__(self, pointer, value):
+    """
+    raises an error unless all the defined value exists in the current jwt under the defined key
+
+    """
+
+    def __init__(self, pointer: str, value: str):
         if not pointer.startswith("/"):
             pointer = f"/{pointer}"
         self.pointer = pointer
         self.value = value
 
-    def validate(self, token):
+    def validate(self, token: Dict[str, Any]) -> NoReturn:
         try:
             v = jsonpointer.resolve_pointer(token, self.pointer)
             if v != self.value:
@@ -244,6 +330,11 @@ class HasValue(TokenRule):
 
 
 class MatchValues(TokenRule):
+    """
+    raises an error unless all of the defined values match
+
+    """
+
     def __init__(self, *paths: str):
         self.matchers: List[(Callable, str)] = [
             self._resolve_path(path) for path in paths
@@ -251,7 +342,7 @@ class MatchValues(TokenRule):
         if len(self.matchers) < 2:
             raise ValueError(f"MatchValues requires two or more paths")
 
-    def validate(self, token):
+    def validate(self, token: Dict[str, Any]) -> NoReturn:
         try:
             assert self._check_equal(
                 [matcher[0](matcher[1], token) for matcher in self.matchers]
@@ -302,12 +393,18 @@ class MatchValues(TokenRule):
 
 
 class Protect(TokenHandlerBase):
-    def __init__(self, *rules):
+    """
+    intended for use on flask endpoints
+    ensures that the current token (stored in g) passes all of the defined rules
+
+    """
+
+    def __init__(self, *rules: TokenRule):
         self.rules = AllOf(*rules)
 
-    def __call__(self, func):
+    def __call__(self, func: Callable) -> Callable:
         @functools.wraps(func)
-        def call(*args, **kwargs):
+        def call(*args: Any, **kwargs: Any) -> Any:
             token = flask.g[self.G_KEY]
             self.rules.validate(token)
             return func(*args, **kwargs)

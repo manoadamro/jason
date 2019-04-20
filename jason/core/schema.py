@@ -1,5 +1,5 @@
 """
-schema
+core.schema
 
 """
 import datetime
