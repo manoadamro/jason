@@ -51,7 +51,6 @@ class TokenHandler(TokenHandlerBase):
     TOKEN_PREFIX = "Bearer "
 
     DECODER_OPTIONS = {
-        "require_signature": True,
         "require_exp": True,
         "require_nbf": True,
         "require_iat": True,
@@ -401,7 +400,7 @@ class MatchValues(TokenRule):
         return jsonpointer.resolve_pointer(flask.request.form, path)
 
     @staticmethod
-    def jwt(path: str, token: Dict) -> Any:
+    def token(path: str, token: Dict) -> Any:
         return jsonpointer.resolve_pointer(token, path)
 
 
@@ -410,7 +409,7 @@ class Protect(TokenHandlerBase):
     intended for use on flask endpoints
     ensures that the current token (stored in g) passes all of the defined rules
 
-    >>> @protect(HasScopes("some:thing", "other:thing"), MatchValues("jwt:user_id", "url:user_id"))
+    >>> @protect(HasScopes("some:thing", "other:thing"), MatchValues("token:user_id", "url:user_id"))
     ... def some_route():
     ...     ...
     """

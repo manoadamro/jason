@@ -17,7 +17,7 @@ def test_match_values():
         ),
     ):
         MatchValues(
-            "header:/a", "json:/a", "url:/a", "query:/a", "form:/a", "jwt:/a"
+            "header:/a", "json:/a", "url:/a", "query:/a", "form:/a", "token:/a"
         ).validate({"a": True})
 
 
@@ -26,7 +26,7 @@ def test_value_doesnt_match():
     with mock.patch(
         "jason.api.token.flask.request", mock.Mock(view_args={"a": True})
     ), pytest.raises(TokenValidationError):
-        MatchValues("url:/a", "jwt:/a").validate({"a": False})
+        MatchValues("url:/a", "token:/a").validate({"a": False})
 
 
 def test_value_missing_path():
@@ -34,7 +34,7 @@ def test_value_missing_path():
     with mock.patch(
         "jason.api.token.flask.request", mock.Mock(view_args={"a": True})
     ), pytest.raises(TokenValidationError):
-        MatchValues("url:/a", "jwt:/a").validate({})
+        MatchValues("url:/a", "token:/a").validate({})
 
 
 def test_not_enough_paths():
@@ -44,7 +44,7 @@ def test_not_enough_paths():
 
 def test_value_invalid_path():
     with pytest.raises(ValueError):
-        MatchValues("url:/a", "jwt/a")
+        MatchValues("url:/a", "token/a")
 
 
 def test_value_invalid_object():
@@ -53,4 +53,4 @@ def test_value_invalid_object():
 
 
 def test_auto_fix_paths():
-    MatchValues("url:a", "jwt:a")
+    MatchValues("url:a", "token:a")

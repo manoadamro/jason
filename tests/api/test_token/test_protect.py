@@ -7,7 +7,7 @@ from jason.api import token
 
 @token.protect(
     token.HasScopes("some:scope", "some:other"),
-    token.MatchValues("jwt:user_id", "url:user_id"),
+    token.MatchValues("token:user_id", "url:user_id"),
 )
 def some_route():
     return True
