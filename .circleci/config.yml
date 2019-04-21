@@ -7,15 +7,15 @@ jobs:
     steps:
       - checkout
       - run:
-          name: install
+          name: Install Jason
           command: |
             make install-dev
       - run:
-          name: check
+          name: Check Source Code
           command: |
             make check
       - run:
-          name: test
+          name: Run Unit Tests
           command: |
             make test
 
