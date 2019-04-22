@@ -4,9 +4,12 @@ source =
 
 
 [report]
-exclude_lines = raise NotImplementedError
+exclude_lines =
+    raise NotImplementedError
+    \.\.\.
 
-omit = */__main__.py
+omit =
+    */__main__.py
 
 fail_under = 100
 

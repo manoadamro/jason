@@ -5,7 +5,7 @@ v0.0.8
 - Added config module for config mixins
 - Added flask config mixin
 - Added rabbit config mixin
-- Added postgres config mixin with a couple of helper functions
+- Added postgres config mixin
 - Added service module
 - Added database module
 
