@@ -1,8 +1,7 @@
-import sqlalchemy
-import sqlalchemy.ext.declarative
 import sqlalchemy.orm
+from sqlalchemy.ext import declarative
 
-from jason.config.postgres import PostgresConfigMixin
+from .config.postgres import PostgresConfigMixin
 
 db = sqlalchemy
 orm = sqlalchemy.orm

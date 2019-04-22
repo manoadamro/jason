@@ -5,8 +5,8 @@ import flask
 import waitress
 from pika import BlockingConnection, ConnectionParameters, PlainCredentials
 
-from jason.config.flask import FlaskConfigMixin
-from jason.core.configuration import Config, props
+from .config.flask import FlaskConfigMixin
+from .core.configuration import Config, props
 
 Config = Config
 props = props
