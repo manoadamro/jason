@@ -18,7 +18,8 @@ setuptools.setup(
             'pytest==4.4.1',
             'isort==4.3.4',
             'black==18.9b0',
-            'coverage==4.5.1'
+            'coverage==4.5.1',
+            'pika==0.13.1'
         ]
     },
     packages=setuptools.find_packages()
