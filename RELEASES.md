@@ -3,6 +3,7 @@ v0.0.8
 
 - Renamed core.config to core.configuration
 - Added config module for config mixins
+- Added flask config mixin
 - Added postgres config mixin with a couple of helper functions
 - Added service module
 - Added database module

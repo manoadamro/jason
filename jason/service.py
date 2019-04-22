@@ -1,10 +1,13 @@
 import threading
-import waitress
-from typing import Iterable, Any
+from typing import Any, Iterable
 
 import flask
+import waitress
 
 from jason.config.flask import FlaskConfigMixin
+from jason.core.configuration import Config
+
+Config = Config
 
 
 class Service:
@@ -49,8 +52,15 @@ class Service:
 
 
 class FlaskService(Service):
-    def __init__(self, config: FlaskConfigMixin, sidekicks: Iterable["Service"] = (), db_handler: Any = None):
-        super(FlaskService, self).__init__(config=config, sidekicks=sidekicks, db_handler=db_handler)
+    def __init__(
+        self,
+        config: FlaskConfigMixin,
+        sidekicks: Iterable["Service"] = (),
+        db_handler: Any = None,
+    ):
+        super(FlaskService, self).__init__(
+            config=config, sidekicks=sidekicks, db_handler=db_handler
+        )
         self.app = self.create_app()
 
     def create_app(self):
@@ -60,4 +70,6 @@ class FlaskService(Service):
         return app
 
     def serve(self):
-        waitress.serve(self.app, host=self.config.SERVE_HOST, port=self.config.SERVE_PORT)
+        waitress.serve(
+            self.app, host=self.config.SERVE_HOST, port=self.config.SERVE_PORT
+        )
