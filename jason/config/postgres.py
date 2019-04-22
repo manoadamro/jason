@@ -24,7 +24,7 @@ def scoped_session(factory):
 def postgres_engine(config: PostgresConfigMixin, testing=False):
     """
     builds a connection uri based on config options and returns an engine.
-    
+
     NOTE: if testing is true, the uri will be to an in-memory sqlite database
 
     """
