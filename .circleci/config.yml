@@ -7,13 +7,13 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Jason
-          command: |
-            make install-dev
-      - run:
           name: Check Source Code
           command: |
             make check
+      - run:
+          name: Install Jason
+          command: |
+            make install-dev
       - run:
           name: Run Unit Tests
           command: |
