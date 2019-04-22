@@ -28,7 +28,7 @@ v0.0.4
 v0.0.3
 ===
 
-- Added config module ([docs](docs/core/config.md))
+- Added config module ([docs](docs/core/configuration.md))
 
 - Added `check` to makefile
 - Added basic instructions to `README.md`
