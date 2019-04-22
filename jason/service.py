@@ -3,6 +3,7 @@ from typing import Any, Iterable
 
 import flask
 import waitress
+from pika import BlockingConnection, ConnectionParameters, PlainCredentials
 
 from jason.config.flask import FlaskConfigMixin
 from jason.core.configuration import Config
@@ -63,6 +64,9 @@ class FlaskService(Service):
         )
         self.app = self.create_app()
 
+    def init(self):
+        self.app = self.create_app()
+
     def create_app(self):
         app = flask.Flask(__name__)
         app.config.update(self.config.__dict__)
@@ -72,4 +76,34 @@ class FlaskService(Service):
     def serve(self):
         waitress.serve(
             self.app, host=self.config.SERVE_HOST, port=self.config.SERVE_PORT
+        )
+
+
+class RabbitService(Service):
+    def __init__(
+        self,
+        config: FlaskConfigMixin,
+        sidekicks: Iterable["Service"] = (),
+        db_handler: Any = None,
+    ):
+        super(RabbitService, self).__init__(
+            config=config, sidekicks=sidekicks, db_handler=db_handler
+        )
+        self.connection = None
+        self.channel = None
+
+    @property
+    def credentials(self):
+        return PlainCredentials(
+            username=self.config.RABBIT_USER, password=self.config.RABBIT_PASS
+        )
+
+    def connection(self, **kwargs):
+        return BlockingConnection(
+            ConnectionParameters(
+                host=self.config.RABBIT_HOST,
+                port=self.config.RABBIT_PORT,
+                credentials=self.credentials,
+                **kwargs
+            )
         )
