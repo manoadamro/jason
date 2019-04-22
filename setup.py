@@ -9,7 +9,9 @@ setuptools.setup(
     install_requires=[
         "Flask==1.0.2",
         "PyJWT==1.7.1",
-        "jsonpointer==2.0"
+        "jsonpointer==2.0",
+        'waitress==1.2.1',
+        'SQLAlchemy==1.2.18'
     ],
     extras_require={
         'dev': [
