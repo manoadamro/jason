@@ -1,4 +1,5 @@
 v0.0.8
+===
 
 - Renamed core.config to core.configuration
 - Added config module for config mixins
