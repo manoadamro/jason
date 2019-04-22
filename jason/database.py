@@ -6,14 +6,7 @@ from .config.postgres import PostgresConfigMixin
 db = sqlalchemy
 orm = sqlalchemy.orm
 model_factory = sqlalchemy.ext.declarative.declarative_base
-
-
-def scoped_session(factory):
-    """
-    creates a thread safe session factory
-
-    """
-    return sqlalchemy.orm.scoped_session(factory)
+scoped_session = sqlalchemy.orm.scoped_session
 
 
 def postgres_engine(config: PostgresConfigMixin, testing=False):
@@ -32,4 +25,4 @@ def postgres_engine(config: PostgresConfigMixin, testing=False):
         db_url = f"{config.DB_DRIVER}://{credentials}{host}"
     else:
         db_url = config.TEST_DB_URL
-    return sqlalchemy.create_engine(db_url, echo=True)
+    return db.create_engine(db_url, echo=True)
