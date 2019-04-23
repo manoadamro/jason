@@ -23,8 +23,6 @@ class Service:
     def start(self):
         self.set_up()
         for sidekick in self.sidekicks:
-            if not sidekick:
-                continue
             thread = threading.Thread(target=sidekick.start)
             thread.start()
         try:
@@ -65,9 +63,6 @@ class FlaskService(Service):
         )
         self.app = self.create_app()
 
-    def init(self):
-        self.app = self.create_app()
-
     def create_app(self):
         app = flask.Flask(__name__)
         app.config.update(self.config.__dict__)
@@ -99,12 +94,14 @@ class RabbitService(Service):
             username=self.config.RABBIT_USER, password=self.config.RABBIT_PASS
         )
 
-    def connection(self, **kwargs):
-        return BlockingConnection(
-            ConnectionParameters(
-                host=self.config.RABBIT_HOST,
-                port=self.config.RABBIT_PORT,
-                credentials=self.credentials,
-                **kwargs
-            )
+    @property
+    def connection_parameters(self, **kwargs):
+        return ConnectionParameters(
+            host=self.config.RABBIT_HOST,
+            port=self.config.RABBIT_PORT,
+            credentials=self.credentials,
+            **kwargs
         )
+
+    def create_connection(self):
+        return BlockingConnection(self.connection_parameters)

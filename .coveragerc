@@ -5,6 +5,7 @@ source =
 
 [report]
 exclude_lines =
+    waitress.serve
     raise NotImplementedError
     \.\.\.
 
