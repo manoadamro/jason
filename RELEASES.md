@@ -1,13 +1,14 @@
 v0.0.8
 ===
 
-- Renamed core.config to core.configuration
-- Added config module for config mixins
+- Added service module
+- Added database module
 - Added flask config mixin
 - Added rabbit config mixin
 - Added postgres config mixin
-- Added service module
-- Added database module
+- Renamed core.config to core.configuration
+- Added config module for config mixins
+
 
 v0.0.7
 ===
