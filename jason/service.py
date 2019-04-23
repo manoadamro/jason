@@ -17,6 +17,7 @@ class Service:
     Base class for all services.
 
     """
+
     def __init__(
         self, config: Any, sidekicks: Iterable["Service"] = (), db_handler=None
     ):
@@ -86,6 +87,7 @@ class FlaskService(Service):
     Base class for flask services
 
     """
+
     def __init__(
         self,
         config: FlaskConfigMixin,
@@ -122,6 +124,7 @@ class RabbitService(Service):
     Base class for rabbit consumer services
 
     """
+
     def __init__(
         self,
         config: FlaskConfigMixin,
