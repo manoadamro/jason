@@ -1,3 +1,14 @@
+v0.0.8
+===
+
+- Added service module ([docs](./docs/service.md))
+- Added database module ([docs](./docs/database.md))
+- Added config module for config mixins
+- Added flask config mixin
+- Added rabbit config mixin
+- Added postgres config mixin
+- Renamed core.config to core.configuration
+
 v0.0.7
 ===
 
@@ -28,7 +39,7 @@ v0.0.4
 v0.0.3
 ===
 
-- Added config module ([docs](docs/core/config.md))
+- Added config module ([docs](docs/core/configuration.md))
 
 - Added `check` to makefile
 - Added basic instructions to `README.md`

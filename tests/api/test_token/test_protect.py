@@ -5,7 +5,7 @@ import pytest
 from jason.api import token
 
 
-@token.protect(
+@token.token_protect(
     token.HasScopes("some:scope", "some:other"),
     token.MatchValues("token:user_id", "url:user_id"),
 )

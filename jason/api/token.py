@@ -409,7 +409,7 @@ class Protect(TokenHandlerBase):
     intended for use on flask endpoints
     ensures that the current token (stored in g) passes all of the defined rules
 
-    >>> @protect(HasScopes("some:thing", "other:thing"), MatchValues("token:user_id", "url:user_id"))
+    >>> @token_protect(HasScopes("some:thing", "other:thing"), MatchValues("token:user_id", "url:user_id"))
     ... def some_route():
     ...     ...
     """
@@ -427,4 +427,4 @@ class Protect(TokenHandlerBase):
         return call
 
 
-protect = Protect
+token_protect = Protect
