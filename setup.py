@@ -5,7 +5,7 @@ import setuptools
 
 setuptools.setup(
     name='jason',
-    version='0.0.8',
+    version='0.0.9',
     install_requires=[
         "Flask==1.0.2",
         "PyJWT==1.7.1",

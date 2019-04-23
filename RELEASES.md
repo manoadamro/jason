@@ -1,3 +1,8 @@
+v0.0.9
+===
+
+- Added basic cli for running services
+
 v0.0.8
 ===
 
