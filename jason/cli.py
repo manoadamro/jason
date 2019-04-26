@@ -8,7 +8,6 @@ from jason.service import Service
 
 
 class Cli:
-
     @staticmethod
     def _find_service(module, default=None) -> Type[Service]:
         obj = default
@@ -34,7 +33,7 @@ class Cli:
         if not module:
             raise ImportError(f"could not import {component} from {os.getcwd()}")
 
-        service_class = _find_service(module, default=None)
+        service_class = cls._find_service(module, default=None)
         if not service_class:
             raise AttributeError(
                 f"module {component} does not contain a subclass of {Service.__name__} {dir(module)}"
