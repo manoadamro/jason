@@ -3,21 +3,18 @@ from typing import Iterable, Type
 from .base import Config as _Config
 from .base import Service, props
 
-try:
-    from pika import BlockingConnection, ConnectionParameters, PlainCredentials
-except ImportError as ex:
-    raise ImportError(
-        f"to use this service module you will need pika installed.\n"
-        f"original error:"
-        f"\n{ex}"
-    )
+from pika import BlockingConnection, ConnectionParameters, PlainCredentials
 
 
-class Config(_Config):
+class RabbitConfigMixin:
     RABBIT_HOST = props.String(default="localhost")
     RABBIT_PORT = props.Int(default=1234)  # TODO
     RABBIT_USER = props.String(default="guest")
     RABBIT_PASS = props.String(default="guest")
+
+
+class Config(RabbitConfigMixin, _Config):
+    ...
 
 
 class RabbitService(Service):

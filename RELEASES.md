@@ -1,6 +1,11 @@
 v0.0.11
 ===
 
+- Added basic cache module ([docs](./docs/cache.md))
+
+v0.0.11
+===
+
 - Moved cli methods to class
 
 v0.0.10

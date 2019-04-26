@@ -5,13 +5,14 @@ import setuptools
 
 setuptools.setup(
     name='jason',
-    version='0.0.11',
+    version='0.0.12',
     install_requires=[
         "Flask==1.0.2",
         "PyJWT==1.7.1",
         "jsonpointer==2.0",
         'waitress==1.2.1',
-        'SQLAlchemy==1.2.18'
+        'SQLAlchemy==1.2.18',
+        'redis==3.2.1'
     ],
     extras_require={
         'dev': [
