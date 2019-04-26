@@ -1,6 +1,6 @@
 import pytest
 
-from jason.core import schema as props
+from jason import schema as props
 
 
 @pytest.fixture

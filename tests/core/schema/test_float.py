@@ -1,4 +1,4 @@
-from jason.core.schema import Float
+from jason.schema import Float
 
 
 def test_converts_int_to_float():

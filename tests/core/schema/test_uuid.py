@@ -1,6 +1,6 @@
 import pytest
 
-from jason.core.schema import PropertyValidationError, Uuid
+from jason.schema import PropertyValidationError, Uuid
 
 
 def test_valid_uuid_with_hyphens():

@@ -3,8 +3,8 @@ import os
 from importlib import import_module as _import
 from typing import Type
 
-from jason.core.utils import is_type
 from jason.service import Service
+from jason.utils import is_type
 
 
 class Cli:

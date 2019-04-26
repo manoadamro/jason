@@ -3,7 +3,7 @@ from typing import Pattern
 
 import pytest
 
-from jason.core.schema import PropertyValidationError, Regex
+from jason.schema import PropertyValidationError, Regex
 
 
 @pytest.fixture

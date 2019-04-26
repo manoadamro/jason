@@ -8,7 +8,7 @@ from typing import Any, Callable, Dict, Optional, Type
 
 from flask import request
 
-from jason.core import schema, utils
+from jason import schema, utils
 
 props = schema
 
