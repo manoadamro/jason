@@ -1,3 +1,8 @@
+v0.0.11
+===
+
+- Moved cli methods to class
+
 v0.0.10
 ===
 
