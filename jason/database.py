@@ -1,12 +1,21 @@
 import sqlalchemy.orm
 from sqlalchemy.ext import declarative
 
-from .config.postgres import PostgresConfigMixin
+from jason.core.configuration import props
 
 db = sqlalchemy
 orm = sqlalchemy.orm
 model_factory = sqlalchemy.ext.declarative.declarative_base
 scoped_session = sqlalchemy.orm.scoped_session
+
+
+class PostgresConfigMixin:
+    DB_DRIVER = props.String(default="postgresql")
+    DB_HOST = props.String()
+    DB_PORT = props.String()
+    DB_USER = props.String(nullable=True)
+    DB_PASS = props.String(nullable=True)
+    TEST_DB_URL = props.String(default="sqlite:///:memory:")
 
 
 def postgres_engine(config: PostgresConfigMixin, testing=False):

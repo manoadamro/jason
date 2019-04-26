@@ -1,3 +1,4 @@
+import functools
 import os
 from importlib import import_module as _import
 from typing import Type
@@ -36,5 +37,13 @@ def run(component):
             f"module {component} does not contain a subclass of {Service.__name__} {dir(module)}"
         )
 
-    service = service_class()
-    service.start()
+    @functools.wraps(service_class)
+    def wrapped(*args, **kwargs):
+        """
+        required to make fire use the params from the service constructor and call start
+
+        """
+        service = service_class(*args, **kwargs)
+        service.start()
+
+    return wrapped

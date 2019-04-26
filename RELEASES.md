@@ -3,6 +3,7 @@ v0.0.10
 
 - Updated cli 
 - service module is now a package
+- Removed config mixin package and made service types and plugins responsible for their own config mixins
 
 v0.0.9
 ===

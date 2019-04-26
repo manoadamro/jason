@@ -1,5 +1,5 @@
 import threading
-from typing import Any, Iterable
+from typing import Iterable, Type
 
 from ..core.configuration import Config, props
 
@@ -13,7 +13,7 @@ class Service:
 
     """
 
-    def __init__(self, config: Any, sidekicks: Iterable["Service"] = ()):
+    def __init__(self, config: Type[Config], sidekicks: Iterable["Service"] = ()):
         self.config = config
         self.sidekicks = sidekicks
 
