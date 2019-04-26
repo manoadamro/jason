@@ -2,12 +2,12 @@ from unittest import mock
 
 import pytest
 
-from jason.api.token import MatchValues, TokenValidationError
+from jason.token import MatchValues, TokenValidationError
 
 
 def test_match_values():
     with mock.patch(
-        "jason.api.token.flask.request",
+        "jason.token.flask.request",
         mock.Mock(
             headers={"a": True},
             json={"a": True},
@@ -24,7 +24,7 @@ def test_match_values():
 def test_value_doesnt_match():
 
     with mock.patch(
-        "jason.api.token.flask.request", mock.Mock(view_args={"a": True})
+        "jason.token.flask.request", mock.Mock(view_args={"a": True})
     ), pytest.raises(TokenValidationError):
         MatchValues("url:/a", "token:/a").validate({"a": False})
 
@@ -32,7 +32,7 @@ def test_value_doesnt_match():
 def test_value_missing_path():
 
     with mock.patch(
-        "jason.api.token.flask.request", mock.Mock(view_args={"a": True})
+        "jason.token.flask.request", mock.Mock(view_args={"a": True})
     ), pytest.raises(TokenValidationError):
         MatchValues("url:/a", "token:/a").validate({})
 

@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytest
 
-from jason.api.token import HasValue, TokenValidationError
+from jason.token import HasValue, TokenValidationError
 
 
 def test_has_value():

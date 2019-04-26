@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytest
 
-from jason.api.token import TokenHandler, TokenValidationError
+from jason.token import TokenHandler, TokenValidationError
 
 
 @pytest.fixture
@@ -60,36 +60,33 @@ def test_missing_config():
 
 def test_decode_token_from_header(handler):
     with mock.patch(
-        "jason.api.token.flask.request",
+        "jason.token.flask.request",
         mock.Mock(headers={"Authorization": "Bearer some_token"}),
-    ), mock.patch("jason.api.token.flask.g"), mock.patch("jason.api.token.jwt"):
+    ), mock.patch("jason.token.flask.g"), mock.patch("jason.token.jwt"):
         handler.before_request()
 
 
 def test_unreadable_token(handler):
     with mock.patch(
-        "jason.api.token.flask.request",
-        mock.Mock(headers={"Authorization": "some_token"}),
-    ), mock.patch("jason.api.token.flask.g"), mock.patch(
-        "jason.api.token.jwt"
-    ), pytest.raises(
+        "jason.token.flask.request", mock.Mock(headers={"Authorization": "some_token"})
+    ), mock.patch("jason.token.flask.g"), mock.patch("jason.token.jwt"), pytest.raises(
         TokenValidationError
     ):
         handler.before_request()
 
 
 def test_no_token(handler):
-    with mock.patch("jason.api.token.flask.request", mock.Mock(headers={})), mock.patch(
-        "jason.api.token.flask.g"
-    ), mock.patch("jason.api.token.jwt"):
+    with mock.patch("jason.token.flask.request", mock.Mock(headers={})), mock.patch(
+        "jason.token.flask.g"
+    ), mock.patch("jason.token.jwt"):
         handler.before_request()
 
 
 def test_encode_token_from_header(handler):
     with mock.patch(
-        "jason.api.token.flask.request",
+        "jason.token.flask.request",
         mock.Mock(headers={"Authorization": "Bearer some_token"}),
-    ), mock.patch("jason.api.token.flask.g"), mock.patch("jason.api.token.jwt"):
+    ), mock.patch("jason.token.flask.g"), mock.patch("jason.token.jwt"):
         handler.after_request(mock.MagicMock())
 
 
@@ -99,5 +96,5 @@ def test_no_auto_update(handler):
 
 
 def test_generate_token(handler):
-    with mock.patch("jason.api.token.jwt"):
+    with mock.patch("jason.token.jwt"):
         handler.generate_token("123", ["a", "b", "c"])

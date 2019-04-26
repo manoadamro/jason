@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytest
 
-from jason.api.token import AnyOf, TokenValidationError
+from jason.token import AnyOf, TokenValidationError
 
 
 @pytest.fixture

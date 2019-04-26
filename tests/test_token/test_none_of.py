@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytest
 
-from jason.api.token import AllOf, TokenValidationError
+from jason.token import NoneOf, TokenValidationError
 
 
 @pytest.fixture
@@ -21,10 +21,10 @@ def false():
     return v
 
 
-def test_all_of(true):
-    AllOf(true, true, true).validate("token")
+def test_all_of(true, false):
+    NoneOf(false, false, false).validate("token")
 
 
 def test_all_of_fails(true, false):
     with pytest.raises(TokenValidationError):
-        AllOf(true, true, false).validate("token")
+        NoneOf(false, false, true).validate("token")
