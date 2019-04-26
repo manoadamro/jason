@@ -1,1 +1,1 @@
-from .base import Service
+from .base import Service, Config
