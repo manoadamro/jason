@@ -1,7 +1,7 @@
 import threading
 from typing import Iterable, Type
 
-from jason.configuration import Config, props
+from jason.config import Config, props
 
 Config = Config
 props = props
