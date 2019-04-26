@@ -1,9 +1,9 @@
 from typing import Iterable, Type
 
+from pika import BlockingConnection, ConnectionParameters, PlainCredentials
+
 from .base import Config as _Config
 from .base import Service, props
-
-from pika import BlockingConnection, ConnectionParameters, PlainCredentials
 
 
 class RabbitConfigMixin:

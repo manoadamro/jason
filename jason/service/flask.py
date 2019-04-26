@@ -1,13 +1,12 @@
 from typing import Iterable, Type
 
-from .base import Config as _Config
-from .base import Service, props
+import flask
+import waitress
 
 from ..cache import RedisConfigMixin
 from ..database import PostgresConfigMixin
-
-import flask
-import waitress
+from .base import Config as _Config
+from .base import Service, props
 
 
 class FlaskConfigMixin:
