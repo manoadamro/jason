@@ -23,8 +23,12 @@ class RabbitService(Service):
 
     """
 
-    def __init__(self, config: Type[Config], sidekicks: Iterable["Service"] = ()):
-        super(RabbitService, self).__init__(config=config, sidekicks=sidekicks)
+    def __init__(
+        self, name: str, config: Type[Config], sidekicks: Iterable["Service"] = ()
+    ):
+        super(RabbitService, self).__init__(
+            name=name, config=config, sidekicks=sidekicks
+        )
         self.connection = None
         self.channel = None
 

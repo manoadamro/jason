@@ -7,7 +7,9 @@ from jason.service.flask import FlaskService
 
 @pytest.fixture
 def service():
-    service = FlaskService(config=mock.Mock(), sidekicks=(mock.Mock(), mock.Mock()))
+    service = FlaskService(
+        name="test", config=mock.Mock(), sidekicks=(mock.Mock(), mock.Mock())
+    )
     service.set_up = mock.Mock()
     service.main = mock.Mock()
     service.tear_down = mock.Mock()

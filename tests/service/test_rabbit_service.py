@@ -8,6 +8,7 @@ from jason.service.rabbit import RabbitService
 @pytest.fixture
 def service():
     service = RabbitService(
+        name="test",
         config=mock.Mock(
             RABBIT_HOST="localhost",
             RABBIT_PORT=12345,

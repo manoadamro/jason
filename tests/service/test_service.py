@@ -7,7 +7,9 @@ from jason.service import Service
 
 @pytest.fixture
 def service():
-    service = Service(config=mock.Mock(), sidekicks=(mock.Mock(), mock.Mock()))
+    service = Service(
+        name="test", config=mock.Mock(), sidekicks=(mock.Mock(), mock.Mock())
+    )
     service.set_up = mock.Mock()
     service.main = mock.Mock()
     service.tear_down = mock.Mock()
