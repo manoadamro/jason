@@ -2,14 +2,12 @@ from unittest import mock
 
 import pytest
 
-from jason.service import FlaskService
+from jason.service.flask import FlaskService
 
 
 @pytest.fixture
 def service():
-    service = FlaskService(
-        config=mock.Mock(), sidekicks=(mock.Mock(), mock.Mock()), db_handler=mock.Mock()
-    )
+    service = FlaskService(config=mock.Mock(), sidekicks=(mock.Mock(), mock.Mock()))
     service.set_up = mock.Mock()
     service.main = mock.Mock()
     service.tear_down = mock.Mock()

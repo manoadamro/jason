@@ -1,6 +1,21 @@
+import os
 from importlib import import_module as _import
+from typing import Type
 
-_component_path = "jason.components"
+from jason.core.utils import is_type
+from jason.service import Service
+
+
+def _find_service(module, default=None) -> Type[Service]:
+    obj = default
+    for name in dir(module):
+        if name.startswith("_"):
+            continue
+        obj = getattr(module, name, None)
+        if not is_type(obj, typ=Service):
+            continue
+        break
+    return obj
 
 
 def run(component):
@@ -9,5 +24,17 @@ def run(component):
     package must implement `build` method in it's top level
 
     """
-    module = _import(f"{_component_path}.{component}")
-    return module.build
+    component = component.replace("/", ".")
+
+    module = _import(component)
+    if not module:
+        raise ImportError(f"could not import {component} from {os.getcwd()}")
+
+    service_class = _find_service(module, default=None)
+    if not service_class:
+        raise AttributeError(
+            f"module {component} does not contain a subclass of {Service.__name__} {dir(module)}"
+        )
+
+    service = service_class()
+    service.start()

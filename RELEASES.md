@@ -1,7 +1,13 @@
+v0.0.10
+===
+
+- Updated cli 
+- service module is now a package
+
 v0.0.9
 ===
 
-- Added basic cli for running services
+- Added basic cli for running services ([docs](./docs/cli.md))
 
 v0.0.8
 ===
