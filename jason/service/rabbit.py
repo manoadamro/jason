@@ -1,9 +1,23 @@
-from typing import Iterable
+from typing import Iterable, Type
 
-from pika import BlockingConnection, ConnectionParameters, PlainCredentials
+from .base import Config as _Config
+from .base import Service, props
 
-from ..config.flask import FlaskConfigMixin
-from .base import Service
+try:
+    from pika import BlockingConnection, ConnectionParameters, PlainCredentials
+except ImportError as ex:
+    raise ImportError(
+        f"to use this service module you will need pika installed.\n"
+        f"original error:"
+        f"\n{ex}"
+    )
+
+
+class Config(_Config):
+    RABBIT_HOST = props.String(default="localhost")
+    RABBIT_PORT = props.Int(default=1234)  # TODO
+    RABBIT_USER = props.String(default="guest")
+    RABBIT_PASS = props.String(default="guest")
 
 
 class RabbitService(Service):
@@ -12,7 +26,7 @@ class RabbitService(Service):
 
     """
 
-    def __init__(self, config: FlaskConfigMixin, sidekicks: Iterable["Service"] = ()):
+    def __init__(self, config: Type[Config], sidekicks: Iterable["Service"] = ()):
         super(RabbitService, self).__init__(config=config, sidekicks=sidekicks)
         self.connection = None
         self.channel = None
@@ -37,7 +51,7 @@ class RabbitService(Service):
             host=self.config.RABBIT_HOST,
             port=self.config.RABBIT_PORT,
             credentials=self.credentials,
-            **kwargs
+            **kwargs,
         )
 
     def create_connection(self):
