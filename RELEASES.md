@@ -1,3 +1,9 @@
+v0.0.12
+===
+
+- Removed core and api packages and flattened everything
+
+
 v0.0.11
 ===
 

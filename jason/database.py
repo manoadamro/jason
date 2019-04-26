@@ -1,7 +1,7 @@
 import sqlalchemy.orm
 from sqlalchemy.ext import declarative
 
-from jason.core.configuration import props
+from jason.configuration import props
 
 db = sqlalchemy
 orm = sqlalchemy.orm
