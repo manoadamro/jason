@@ -7,12 +7,13 @@ source =
 exclude_lines =
     waitress.serve
     raise NotImplementedError
+    except ImportError
     \.\.\.
 
 omit =
     */__main__.py
 
-fail_under = 100
+fail_under = 95
 
 show_missing = true
 skip_covered = true

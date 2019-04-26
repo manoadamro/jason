@@ -2,12 +2,12 @@ from unittest import mock
 
 import pytest
 
-import jason.service
+from jason.service.rabbit import RabbitService
 
 
 @pytest.fixture
 def service():
-    service = jason.service.RabbitService(
+    service = RabbitService(
         config=mock.Mock(
             RABBIT_HOST="localhost",
             RABBIT_PORT=12345,
@@ -15,7 +15,6 @@ def service():
             RABBIT_PASS="Pa$$w0rd",
         ),
         sidekicks=(mock.Mock(), mock.Mock()),
-        db_handler=mock.Mock(),
     )
     service.set_up = mock.Mock()
     service.main = mock.Mock()
@@ -57,6 +56,6 @@ def test_connection_parameters(service):
 
 
 def test_connection(service):
-    with mock.patch.object(jason.service, "BlockingConnection") as mock_conn:
+    with mock.patch("jason.service.rabbit.BlockingConnection") as mock_conn:
         service.create_connection()
     assert mock_conn.call_count == 1
