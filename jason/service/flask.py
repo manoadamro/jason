@@ -3,20 +3,20 @@ from typing import Iterable, Type
 from .base import Config as _Config
 from .base import Service, props
 
-try:
-    import flask
-    import waitress
-except ImportError as ex:
-    raise ImportError(
-        f"to use this service module you will need both flask and waitress installed.\n"
-        f"original error:"
-        f"\n{ex}"
-    )
+from ..cache import RedisConfigMixin
+from ..database import PostgresConfigMixin
+
+import flask
+import waitress
 
 
-class Config(_Config):
+class FlaskConfigMixin:
     SERVE_HOST = props.String(default="localhost")
     SERVE_PORT = props.Int(default=5000)
+
+
+class Config(FlaskConfigMixin, _Config):
+    ...
 
 
 class FlaskService(Service):
@@ -35,6 +35,11 @@ class FlaskService(Service):
         creates an instance of a flask app and returns
 
         """
+        if isinstance(self.config, RedisConfigMixin):
+            ...  # TODO set up cache
+        if isinstance(self.config, PostgresConfigMixin):
+            ...  # TODO set up database
+
         return flask.Flask(__name__)
 
     def main(self):
