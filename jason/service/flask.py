@@ -1,13 +1,10 @@
 from typing import Iterable, Type
 
-from .base import Config as _Config
-from .base import Service, props
-
-from ..cache import RedisConfigMixin
-from ..database import PostgresConfigMixin
-
 import flask
 import waitress
+
+from .base import Config as _Config
+from .base import Service, props
 
 
 class FlaskConfigMixin:
@@ -25,8 +22,12 @@ class FlaskService(Service):
 
     """
 
-    def __init__(self, config: Type[Config], sidekicks: Iterable["Service"] = ()):
-        super(FlaskService, self).__init__(config=config, sidekicks=sidekicks)
+    def __init__(
+        self, name: str, config: Type[Config], sidekicks: Iterable["Service"] = ()
+    ):
+        super(FlaskService, self).__init__(
+            name=name, config=config, sidekicks=sidekicks
+        )
         self.app = self.create_app()
         self.app.config.update(self.config.__dict__)
 
@@ -35,12 +36,7 @@ class FlaskService(Service):
         creates an instance of a flask app and returns
 
         """
-        if isinstance(self.config, RedisConfigMixin):
-            ...  # TODO set up cache
-        if isinstance(self.config, PostgresConfigMixin):
-            ...  # TODO set up database
-
-        return flask.Flask(__name__)
+        return flask.Flask(self.name)
 
     def main(self):
         """

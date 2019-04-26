@@ -1,4 +1,5 @@
 import redis
+
 from jason.core.configuration import props
 
 
