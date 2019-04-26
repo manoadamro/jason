@@ -5,7 +5,7 @@ import setuptools
 
 setuptools.setup(
     name='jason',
-    version='0.0.9',
+    version='0.0.11',
     install_requires=[
         "Flask==1.0.2",
         "PyJWT==1.7.1",
@@ -21,7 +21,7 @@ setuptools.setup(
             'coverage==4.5.1',
             'pika==0.13.1',
             'fire==0.1.3'
-        ]
+        ],
     },
     packages=setuptools.find_packages()
 )
