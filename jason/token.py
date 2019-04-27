@@ -10,6 +10,8 @@ import flask
 import jsonpointer
 import jwt
 
+from .crypto import Salsa20
+
 
 class TokenValidationError(Exception):
     """
@@ -48,7 +50,7 @@ class TokenHandler(TokenHandlerBase):
     """
 
     HEADER_KEY = "Authorization"
-    TOKEN_PREFIX = "Bearer "
+    CIPHER = Salsa20
 
     DECODER_OPTIONS = {
         "require_exp": True,
@@ -73,7 +75,7 @@ class TokenHandler(TokenHandlerBase):
         self.algorithm = None
         self.verify = None
         self.auto_update = None
-        self.encryption_key = None
+        self.cipher = None
         self.init_app(app)
         self.configure(**kwargs)
 
@@ -120,7 +122,7 @@ class TokenHandler(TokenHandlerBase):
         if auto_update is not None:
             self.auto_update = auto_update
         if encryption_key is not None:
-            self.encryption_key = encryption_key
+            self.cipher = self.CIPHER(encryption_key)
         for key, value in kwargs.items():
             if key not in self.DECODER_OPTIONS:
                 raise ValueError(f"invalid keyword argument {key}")
@@ -177,11 +179,8 @@ class TokenHandler(TokenHandlerBase):
         token_string = flask.request.headers.get(self.HEADER_KEY, None)
         if not token_string:
             return
-        if not token_string.startswith(self.TOKEN_PREFIX):
-            raise TokenValidationError(f"token is unreadable")
-        token_string = token_string[len(self.TOKEN_PREFIX) :]
-        if self.encryption_key:
-            ...  # TODO decrypt
+        if self.cipher:
+            token_string = self.cipher.decrypt(token_string)
         token_data = self._decode(token_string)
         flask.g[self.G_KEY] = token_data
 
@@ -195,9 +194,8 @@ class TokenHandler(TokenHandlerBase):
         token_data = flask.g[self.G_KEY]
         token_data["exp"] = time.time() + self.lifespan
         token_string = self._encode(token_data=token_data)
-        token_string = f"{self.TOKEN_PREFIX}{token_string}"
-        if self.encryption_key:
-            ...  # TODO encrypt
+        if self.cipher:
+            token_string = self.cipher.encrypt(token_string)
         response.headers[self.HEADER_KEY] = token_string
         return response
 
@@ -213,10 +211,10 @@ class TokenHandler(TokenHandlerBase):
         token_data["exp"] = time.time() + self.lifespan
         token_data["iss"] = self.issuer
         token_data["aud"] = self.audience
-        token = self._encode(token_data=token_data)
-        if self.encryption_key:
-            ...  # TODO encrypt
-        return token
+        token_string = self._encode(token_data=token_data)
+        if self.cipher:
+            token_string = self.cipher.encrypt(token_string)
+        return token_string
 
 
 class TokenRule:
