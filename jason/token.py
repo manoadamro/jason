@@ -10,7 +10,7 @@ import flask
 import jsonpointer
 import jwt
 
-from .crypto import Salsa20
+from .crypto import Cipher
 
 
 class TokenValidationError(Exception):
@@ -50,7 +50,7 @@ class TokenHandler(TokenHandlerBase):
     """
 
     HEADER_KEY = "Authorization"
-    CIPHER = Salsa20
+    CIPHER = Cipher
 
     DECODER_OPTIONS = {
         "require_exp": True,

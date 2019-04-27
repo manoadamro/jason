@@ -61,8 +61,9 @@ def test_missing_config():
 
 
 def test_decode_token_from_header(handler):
+    token = handler.cipher.encrypt("some_token")
     with mock.patch(
-        "jason.token.flask.request", mock.Mock(headers={"Authorization": "some_token"})
+        "jason.token.flask.request", mock.Mock(headers={"Authorization": token})
     ), mock.patch("jason.token.flask.g"), mock.patch("jason.token.jwt"):
         handler.before_request()
 
