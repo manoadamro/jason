@@ -73,7 +73,11 @@ class AnyOf(SchemaAttribute):
     >>> rule.load(True)
     Traceback (most recent call last):
         ...
-    jason.schema.PropertyValidationError: AllOf failed to validate value 'True' with any rules
+    jason.schema.BatchValidationError: failed to load batch (2 errors):
+    AllOf failed to validate value 'True' with any rules
+        -could not validate against '<jason.schema.Property object at 0x...>': Property was expected to be of type: int, float. not bool
+        -could not validate against '<jason.schema.Property object at 0x...>': Property was expected to be of type: str. not bool
+
 
     """
 
@@ -266,7 +270,10 @@ class Array(Property):
     >>> arr.load(["a", 2, "c"])
     Traceback (most recent call last):
         ...
-    jason.schema.PropertyValidationError: Property was expected to be of type: str. not int
+    jason.schema.BatchValidationError: failed to load batch (1 errors):
+    failed to validate c against <jason.schema.Array object at 0x...>
+        -could not validate a: Property was expected to be of type: str. not int
+
 
     >>> arr.load(["a"])
     Traceback (most recent call last):
@@ -302,7 +309,7 @@ class Array(Property):
         validated = []
         for item in value:
             try:
-                value = item.load(item)
+                value = self.prop.load(item)
             except PropertyValidationError as ex:
                 errors.append(f"could not validate {value}: {ex}")
                 continue

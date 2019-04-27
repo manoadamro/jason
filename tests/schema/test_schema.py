@@ -70,7 +70,7 @@ def test_json_true():
 
     assert parsed_json == {"q": "hello"}
 
-    with patch_request(json=None), pytest.raises(schema.RequestValidationError):
+    with patch_request(json=None), pytest.raises(schema.BatchValidationError):
         mock_route()
 
 
@@ -85,7 +85,7 @@ def test_json_false():
     assert parsed_json is None
 
     with patch_request(json=dict(q="hello")), pytest.raises(
-        schema.RequestValidationError
+        schema.BatchValidationError
     ):
         mock_route()
 
@@ -129,7 +129,7 @@ def test_form_true():
 
     assert parsed_form == {"q": "hello"}
 
-    with patch_request(form=None), pytest.raises(schema.RequestValidationError):
+    with patch_request(form=None), pytest.raises(schema.BatchValidationError):
         mock_route()
 
 
@@ -144,7 +144,7 @@ def test_form_false():
     assert parsed_form is None
 
     with patch_request(form=dict(q="hello")), pytest.raises(
-        schema.RequestValidationError
+        schema.BatchValidationError
     ):
         mock_route()
 
