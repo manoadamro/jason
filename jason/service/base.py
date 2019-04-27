@@ -1,6 +1,5 @@
 import logging
-import threading
-from typing import Any, Iterable, Type
+from typing import Any, Type
 
 from jason.config import Config, props
 
@@ -21,16 +20,14 @@ class Service:
         self,
         name: str,
         config: Type[Config],
-        sidekicks: Iterable["Service"] = (),
         testing: bool = False,
         use_db: bool = False,
         use_cache: bool = False,
-        **kwargs: Any
+        **kwargs: Any,
     ):
         self.name = name
         self.testing = testing
         self.config = config.load(**kwargs)
-        self.sidekicks = sidekicks
         self.logger = logging.getLogger(self.name)
 
         if use_db:
@@ -41,13 +38,19 @@ class Service:
 
     def init_database(self):
         if not isinstance(self.config, PostgresConfigMixin):
-            raise Exception  # TODO
+            raise ValueError(
+                f"can not init database with config. "
+                f"config must be sub class of PostgresConfigMixin"
+            )
         engine = postgres_engine(self.config, testing=self.testing)
         Session.configure(bind=engine)
 
     def init_cache(self, **kwargs: Any):
         if not isinstance(self.config, RedisConfigMixin):
-            raise Exception  # TODO
+            raise ValueError(
+                f"can not init database with config. "
+                f"config must be sub class of RedisConfigMixin"
+            )
         redis_cache.init(self.config, **kwargs)
 
     def start(self):
@@ -57,10 +60,6 @@ class Service:
         """
         self.logger.info("starting service %s", self.name)
         self.set_up()
-        for sidekick in self.sidekicks:
-            self.logger.info("starting sidekick %s", sidekick.name)
-            thread = threading.Thread(target=sidekick.start)
-            thread.start()
         try:
             self.main()
         except Exception as ex:
