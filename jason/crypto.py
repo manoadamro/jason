@@ -2,12 +2,6 @@ import base64
 
 from Crypto.Cipher import AES
 
-msg_text = "test some plain text here".rjust(32)
-secret_key = "1234567890123456"  # create new & store somewhere safe
-
-# ...
-print
-
 
 class Cipher:
     def __init__(self, key):
