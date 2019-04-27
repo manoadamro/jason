@@ -1,3 +1,10 @@
+v0.0.13
+===
+
+- Schema validation will process everything, 
+collect the errors and raise at the end now rather than raising as soon as it hits an error
+- Added some basic logging
+
 v0.0.12
 ===
 

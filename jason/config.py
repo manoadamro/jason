@@ -44,11 +44,18 @@ class Config(props.Model):
 
         """
         instance = cls()
+        errors = []
         fields = {name.lower(): value for name, value in fields.items()}
         for name, prop in cls.__props__.items():
             value = fields.get(name.lower(), None)
             if value is None:
                 value = os.environ.get(name.upper(), None)
-            value = prop.load(value)
+            try:
+                value = prop.load(value)
+            except schema.PropertyValidationError as ex:
+                errors.append(f"could not load property '{name}': {ex}")
+                continue
             setattr(instance, name, value)
+        if len(errors):
+            raise schema.BatchValidationError("Failed to load config", errors)
         return instance
