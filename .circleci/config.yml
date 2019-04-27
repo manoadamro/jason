@@ -25,9 +25,9 @@ jobs:
         name: Install Jason
         command: |
           make install-dev
-      - run:
-          name: Check For Updates
-          command: .circleci/check_for_updates.sh
+    - run:
+        name: Check For Updates
+        command: .circleci/check_for_updates.sh
 
   deploy:
     docker:
