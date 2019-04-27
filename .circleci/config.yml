@@ -18,9 +18,27 @@ jobs:
           name: Run Unit Tests
           command: |
             make test
+  deploy:
+    docker:
+      - image: circleci/python:3.7.3
+    steps:
+      - checkout
+      - run:
+          name: Create dist
+          command: python3 setup.py sdist
+      - run:
+          name: Upload to gemfury
+          command: .circleci/gem_fury_deploy.sh dist/$(ls dist | sort -nr | head -1)
 
 workflows:
   version: 2
-  test:
+  build_test_deploy:
     jobs:
       - test
+      - deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - master
