@@ -20,14 +20,17 @@ jobs:
             make test
 
   pre_deploy:
-    - checkout
-    - run:
-        name: Install Jason
-        command: |
-          make install-dev
-    - run:
-        name: Check For Updates
-        command: .circleci/check_for_updates.sh
+    docker:
+      - image: circleci/python:3.7.3
+    steps:
+      - checkout
+      - run:
+          name: Install Jason
+          command: |
+            make install-dev
+      - run:
+          name: Check For Updates
+          command: .circleci/check_for_updates.sh
 
   deploy:
     docker:
