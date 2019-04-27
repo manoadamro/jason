@@ -1,3 +1,8 @@
+v0.0.14
+===
+
+- Added crypto module ([docs](./docs/crypto.md))
+
 v0.0.13
 ===
 
@@ -47,7 +52,7 @@ v0.0.8
 v0.0.7
 ===
 
-- Added api.token ([docs](./docs/api/token.md))
+- Added api.token ([docs](docs/token.md))
 
 v0.0.6
 ===
@@ -69,7 +74,7 @@ v0.0.5
 v0.0.4
 ===
 
-- Added api.schema ([docs](./docs/api/schema.md))
+- Added api.schema ([docs](./docs/schema.md))
 
 v0.0.3
 ===
