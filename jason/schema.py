@@ -23,6 +23,28 @@ class PropertyValidationError(Exception):
     ...
 
 
+class BatchValidationError(PropertyValidationError):
+    tab = "    "
+
+    def __init__(self, message, errors):
+        count = 0
+        lines = [message]
+        for error in errors:
+            if isinstance(error, BatchValidationError):
+                count += error.count
+                for line in error.lines:
+                    lines.append(f"{self.tab}{line}")
+            else:
+                lines.append(f"{self.tab}-{error}")
+                count += 1
+        message = "\n".join(lines)
+        self.lines = lines
+        self.count = count
+        super(BatchValidationError, self).__init__(
+            f"failed to load batch ({self.count} errors):\n{message}"
+        )
+
+
 class SchemaAttribute:
     """
     base class for all schema schema and rules
@@ -66,15 +88,17 @@ class AnyOf(SchemaAttribute):
         If the value fails to be loaded by any of them, a PropertyValidationError is raised.
 
         """
+        errors = []
         for rule in self.rules:
             if utils.is_type(rule):
                 rule = rule()
             try:
                 return rule.load(value)
-            except PropertyValidationError:
+            except PropertyValidationError as ex:
+                errors.append(f"could not validate against '{rule}': {ex}")
                 continue
-        raise PropertyValidationError(
-            f"AllOf failed to validate value '{value}' with any rules"
+        raise BatchValidationError(
+            f"AllOf failed to validate value '{value}' with any rules", errors
         )
 
 
@@ -274,7 +298,20 @@ class Array(Property):
 
         """
         self.range.validate(value)
-        return [self.prop.load(item) for item in value]
+        errors = []
+        validated = []
+        for item in value:
+            try:
+                value = item.load(item)
+            except PropertyValidationError as ex:
+                errors.append(f"could not validate {value}: {ex}")
+                continue
+            validated.append(value)
+        if errors:
+            raise BatchValidationError(
+                f"failed to validate {value} against {self}", errors
+            )
+        return validated
 
 
 class Nested(Property):
@@ -309,16 +346,25 @@ class Nested(Property):
 
         """
         validated = {}
+        errors = []
         for field, prop in self.props.items():
             value = obj.get(field, None)
-            validated[field] = prop.load(value)
+            try:
+                validated[field] = prop.load(value)
+            except PropertyValidationError as ex:
+                errors.append(f"could not load property '{field}': {ex}")
+                continue
         if self.strict:
             extras = [k for k in obj if k not in self.props]
             if len(extras):
-                raise PropertyValidationError(
+                errors.append(
                     f"Strict mode is True and supplied object contains extra keys: "
                     f"'{', '.join(extras)}'"
                 )
+        if errors:
+            raise BatchValidationError(
+                f"failed to validate {obj} against {self}", errors
+            )
         return validated
 
 
@@ -1264,10 +1310,16 @@ class RequestSchema:
         generates kwargs to call decorated method with based on 'func_params' and a validator map 'funcs'
 
         """
+        errors = []
         for name, func in funcs.items():
-            data = func()
-            if name in func_params:
-                kwargs[name] = data
+            try:
+                data = func()
+                if name in func_params:
+                    kwargs[name] = data
+            except (PropertyValidationError, BatchValidationError) as ex:
+                errors.append(f"failed to load {name}: {ex}")
+        if errors:
+            raise BatchValidationError("failed to validate request", errors)
         return kwargs
 
     @staticmethod

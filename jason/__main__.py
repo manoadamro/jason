@@ -1,4 +1,5 @@
 import functools
+import logging
 import os
 from importlib import import_module as _import
 from typing import Type
@@ -8,8 +9,10 @@ import fire
 from jason.service import Service
 from jason.utils import is_type
 
+logger = logging.getLogger("jason-cli")
 
-class Cli:
+
+class CommandLineInterface:
     @staticmethod
     def _find_service(module, default=None) -> Type[Service]:
         obj = default
@@ -31,6 +34,8 @@ class Cli:
         """
         component = component.replace("/", ".")
 
+        logger.info("running component %s", component)
+
         module = _import(component)
         if not module:
             raise ImportError(f"could not import {component} from {os.getcwd()}")
@@ -47,6 +52,7 @@ class Cli:
             required to make fire use the params from the service constructor and call start
 
             """
+            logger.info("starting component %s", component)
             service = service_class(*args, **kwargs)
             service.start()
 
@@ -54,4 +60,4 @@ class Cli:
 
 
 if __name__ == "__main__":
-    fire.Fire(Cli, name="jason")
+    fire.Fire(CommandLineInterface, name="jason")

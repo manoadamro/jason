@@ -6,7 +6,11 @@ from jason.config import props
 db = sqlalchemy
 orm = sqlalchemy.orm
 model_factory = sqlalchemy.ext.declarative.declarative_base
-scoped_session = sqlalchemy.orm.scoped_session
+Session = sqlalchemy.orm.sessionmaker()
+
+
+def scoped_session():
+    return sqlalchemy.orm.scoped_session(Session)
 
 
 class PostgresConfigMixin:

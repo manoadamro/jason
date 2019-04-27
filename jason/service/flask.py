@@ -23,10 +23,15 @@ class FlaskService(Service):
     """
 
     def __init__(
-        self, name: str, config: Type[Config], sidekicks: Iterable["Service"] = ()
+        self,
+        name: str,
+        config: Type[Config],
+        sidekicks: Iterable["Service"] = (),
+        testing: bool = False,
+        **kwargs
     ):
         super(FlaskService, self).__init__(
-            name=name, config=config, sidekicks=sidekicks
+            name=name, config=config, sidekicks=sidekicks, testing=testing, **kwargs
         )
         self.app = self.create_app()
         self.app.config.update(self.config.__dict__)
@@ -36,6 +41,7 @@ class FlaskService(Service):
         creates an instance of a flask app and returns
 
         """
+        self.logger.info("creating flask app for service %s", self.name)
         return flask.Flask(self.name)
 
     def main(self):
@@ -43,6 +49,7 @@ class FlaskService(Service):
         use waitress to serve
 
         """
+        self.logger.info("serving flask app %s with waitress", self.name)
         waitress.serve(
             self.app, host=self.config.SERVE_HOST, port=self.config.SERVE_PORT
         )

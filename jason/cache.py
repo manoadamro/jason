@@ -9,7 +9,7 @@ class RedisConfigMixin:
     REDIS_PASS = props.String()
 
 
-class Cache:
+class RedisCache:
     def __init__(self):
         self._cache = None
 
@@ -30,3 +30,6 @@ class Cache:
         if not self._cache:
             raise RuntimeError  # TODO
         self._cache.set(name, value, ex=ex, px=px, nx=nx, xx=xx)
+
+
+redis_cache = RedisCache()

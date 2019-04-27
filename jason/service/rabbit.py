@@ -24,10 +24,15 @@ class RabbitService(Service):
     """
 
     def __init__(
-        self, name: str, config: Type[Config], sidekicks: Iterable["Service"] = ()
+        self,
+        name: str,
+        config: Type[Config],
+        sidekicks: Iterable["Service"] = (),
+        testing: bool = False,
+        **kwargs,
     ):
         super(RabbitService, self).__init__(
-            name=name, config=config, sidekicks=sidekicks
+            name=name, config=config, sidekicks=sidekicks, testing=testing, **kwargs
         )
         self.connection = None
         self.channel = None
@@ -60,4 +65,5 @@ class RabbitService(Service):
         creates a rabbitmq blocking connection
 
         """
+        self.logger.info("creating rabbit connection for service %s", self.name)
         return BlockingConnection(self.connection_parameters)
