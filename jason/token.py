@@ -73,6 +73,7 @@ class TokenHandler(TokenHandlerBase):
         self.algorithm = None
         self.verify = None
         self.auto_update = None
+        self.encryption_key = None
         self.init_app(app)
         self.configure(**kwargs)
 
@@ -97,6 +98,7 @@ class TokenHandler(TokenHandlerBase):
         algorithm: str = None,
         verify: bool = None,
         auto_update: bool = None,
+        encryption_key: str = None,
         **kwargs: Any,
     ) -> NoReturn:
         """
@@ -117,6 +119,8 @@ class TokenHandler(TokenHandlerBase):
             self.verify = verify
         if auto_update is not None:
             self.auto_update = auto_update
+        if encryption_key is not None:
+            self.encryption_key = encryption_key
         for key, value in kwargs.items():
             if key not in self.DECODER_OPTIONS:
                 raise ValueError(f"invalid keyword argument {key}")
@@ -131,7 +135,6 @@ class TokenHandler(TokenHandlerBase):
             payload=token_data,
             key=self.key,
             algorithm=self.algorithm,
-            json_encoder=None,  # TODO
         )
 
     def _decode(self, token_string: str) -> Dict[str, Any]:
@@ -181,7 +184,8 @@ class TokenHandler(TokenHandlerBase):
         if not token_string.startswith(self.TOKEN_PREFIX):
             raise TokenValidationError(f"token is unreadable")
         token_string = token_string[len(self.TOKEN_PREFIX) :]
-        # TODO decrypt
+        if self.encryption_key:
+            ...  # TODO decrypt
         token_data = self._decode(token_string)
         flask.g[self.G_KEY] = token_data
 
@@ -196,7 +200,8 @@ class TokenHandler(TokenHandlerBase):
         token_data["exp"] = time.time() + self.lifespan
         token_string = self._encode(token_data=token_data)
         token_string = f"{self.TOKEN_PREFIX}{token_string}"
-        # TODO encrypt
+        if self.encryption_key:
+            ...  # TODO encrypt
         response.headers[self.HEADER_KEY] = token_string
         return response
 
@@ -213,7 +218,8 @@ class TokenHandler(TokenHandlerBase):
         token_data["iss"] = self.issuer
         token_data["aud"] = self.audience
         token = self._encode(token_data=token_data)
-        # TODO encrypt
+        if self.encryption_key:
+            ...  # TODO encrypt
         return token
 
 
