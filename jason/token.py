@@ -131,11 +131,7 @@ class TokenHandler(TokenHandlerBase):
         encodes a token from dict to string
 
         """
-        return jwt.encode(
-            payload=token_data,
-            key=self.key,
-            algorithm=self.algorithm,
-        )
+        return jwt.encode(payload=token_data, key=self.key, algorithm=self.algorithm)
 
     def _decode(self, token_string: str) -> Dict[str, Any]:
         """
