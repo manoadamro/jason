@@ -74,12 +74,12 @@ v0.0.5
 v0.0.4
 ===
 
-- Added api.schema ([docs](./docs/schema.md))
+- Added request schema ([docs](./docs/schema.md))
 
 v0.0.3
 ===
 
-- Added config module ([docs](docs/core/configuration.md))
+- Added config module ([docs](docs/config.md))
 
 - Added `check` to makefile
 - Added basic instructions to `README.md`
@@ -87,7 +87,7 @@ v0.0.3
 v0.0.2
 ===
 
-- Added schema module ([docs](docs/core/schema.md))
+- Added schema module ([docs](docs/schema.md))
 
 v0.0.1
 ===
