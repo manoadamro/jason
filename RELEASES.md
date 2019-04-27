@@ -1,3 +1,8 @@
+v0.1.0
+===
+
+- Removed services package
+
 v0.0.15
 ===
 
