@@ -8,7 +8,7 @@ from .base import Service, props
 
 class RabbitConfigMixin:
     RABBIT_HOST = props.String(default="localhost")
-    RABBIT_PORT = props.Int(default=1234)  # TODO
+    RABBIT_PORT = props.Int(default=5672)
     RABBIT_USER = props.String(default="guest")
     RABBIT_PASS = props.String(default="guest")
 
