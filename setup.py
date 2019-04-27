@@ -5,7 +5,7 @@ import setuptools
 
 setuptools.setup(
     name='jason',
-    version='0.0.14',
+    version='0.0.15',
     install_requires=[
         "Flask==1.0.2",
         "jsonpointer==2.0",
