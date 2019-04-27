@@ -5,10 +5,11 @@ import setuptools
 
 setuptools.setup(
     name='jason',
-    version='0.0.13',
+    version='0.0.14',
     install_requires=[
         "Flask==1.0.2",
         "jsonpointer==2.0",
+        "pycryptodome==3.8.1",
         "PyJWT==1.7.1",
         'redis==3.2.1',
         'SQLAlchemy==1.2.18',

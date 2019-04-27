@@ -23,12 +23,12 @@ class RedisCache:
 
     def get(self, name):
         if not self._cache:
-            raise RuntimeError  # TODO
+            raise RuntimeError("cache has not yet been initialised")
         return self._cache.get(name)
 
     def set(self, name, value, ex=None, px=None, nx=False, xx=False):
         if not self._cache:
-            raise RuntimeError  # TODO
+            raise RuntimeError("cache has not yet been initialised")
         self._cache.set(name, value, ex=ex, px=px, nx=nx, xx=xx)
 
 

@@ -16,6 +16,7 @@ def handler():
         algorithm="HS256",
         verify=True,
         auto_update=True,
+        encryption_key="secret",
     )
 
 
@@ -38,6 +39,7 @@ def test_configure_explicitly():
         algorithm="HS256",
         verify=True,
         auto_update=True,
+        encryption_key="secret",
     )
 
 
@@ -59,19 +61,10 @@ def test_missing_config():
 
 
 def test_decode_token_from_header(handler):
+    token = handler.cipher.encrypt("some_token")
     with mock.patch(
-        "jason.token.flask.request",
-        mock.Mock(headers={"Authorization": "Bearer some_token"}),
+        "jason.token.flask.request", mock.Mock(headers={"Authorization": token})
     ), mock.patch("jason.token.flask.g"), mock.patch("jason.token.jwt"):
-        handler.before_request()
-
-
-def test_unreadable_token(handler):
-    with mock.patch(
-        "jason.token.flask.request", mock.Mock(headers={"Authorization": "some_token"})
-    ), mock.patch("jason.token.flask.g"), mock.patch("jason.token.jwt"), pytest.raises(
-        TokenValidationError
-    ):
         handler.before_request()
 
 
@@ -82,11 +75,10 @@ def test_no_token(handler):
         handler.before_request()
 
 
-def test_encode_token_from_header(handler):
-    with mock.patch(
-        "jason.token.flask.request",
-        mock.Mock(headers={"Authorization": "Bearer some_token"}),
-    ), mock.patch("jason.token.flask.g"), mock.patch("jason.token.jwt"):
+def test_encode_token(handler):
+    with mock.patch("jason.token.flask.g", mock.MagicMock()), mock.patch(
+        "jason.token.jwt", mock.Mock(encode=mock.Mock(return_value="something"))
+    ):
         handler.after_request(mock.MagicMock())
 
 
@@ -96,5 +88,6 @@ def test_no_auto_update(handler):
 
 
 def test_generate_token(handler):
-    with mock.patch("jason.token.jwt"):
+    with mock.patch("jason.token.jwt") as mock_jwt:
+        mock_jwt.encode.side_effect = lambda payload, **kwargs: str(payload)
         handler.generate_token("123", ["a", "b", "c"])

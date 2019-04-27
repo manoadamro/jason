@@ -1,3 +1,8 @@
+v0.0.14
+===
+
+- Added crypto module ([docs](./docs/crypto.md))
+
 v0.0.13
 ===
 
@@ -47,7 +52,7 @@ v0.0.8
 v0.0.7
 ===
 
-- Added api.token ([docs](./docs/api/token.md))
+- Added api.token ([docs](docs/token.md))
 
 v0.0.6
 ===
@@ -69,12 +74,12 @@ v0.0.5
 v0.0.4
 ===
 
-- Added api.schema ([docs](./docs/api/schema.md))
+- Added request schema ([docs](./docs/schema.md))
 
 v0.0.3
 ===
 
-- Added config module ([docs](docs/core/configuration.md))
+- Added config module ([docs](docs/config.md))
 
 - Added `check` to makefile
 - Added basic instructions to `README.md`
@@ -82,7 +87,7 @@ v0.0.3
 v0.0.2
 ===
 
-- Added schema module ([docs](docs/core/schema.md))
+- Added schema module ([docs](docs/schema.md))
 
 v0.0.1
 ===
