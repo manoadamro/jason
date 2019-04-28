@@ -1,5 +1,5 @@
-import json
 import datetime
+import json
 
 dump = json.dump
 dumps = json.dumps
@@ -9,7 +9,6 @@ loads = json.loads
 
 
 class JsonEncoder(json.JSONEncoder):
-
     def default(self, obj):
         if isinstance(obj, (datetime.datetime, datetime.date)):
             return obj.isoformat()
