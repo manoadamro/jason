@@ -16,3 +16,7 @@ def serve(app, config, testing=False):
         app.run(host=config.SERVE_HOST, port=config.SERVE_PORT)
     else:
         waitress.serve(app, host=config.SERVE_HOST, port=config.SERVE_PORT)
+
+
+def create_app():
+    ...
