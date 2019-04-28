@@ -1,10 +1,7 @@
-import logging
 import os
 from importlib import import_module as _import
 
 import fire
-
-logger = logging.getLogger("jason-cli")
 
 
 class CommandLineInterface:
@@ -17,8 +14,6 @@ class CommandLineInterface:
         """
         component = component.replace("/", ".")
 
-        logger.info("running component %s", component)
-
         try:
             module = _import(component)
         except (ModuleNotFoundError, ImportError) as ex:
@@ -27,7 +22,7 @@ class CommandLineInterface:
         main = getattr(module, "main")
         if not main:
             raise AttributeError(
-                f"module {component} does not contain a subclass of {Service.__name__} {dir(module)}"
+                f"module {component} does not contain a 'main' method {dir(module)}"
             )
 
         return main
