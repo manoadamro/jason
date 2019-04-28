@@ -1302,10 +1302,20 @@ class RequestSchema:
         query: Model = None,
         form: Model = None,
     ):
-        self.args = args if args is not None else self.from_model(model, "Args", default=False)
-        self.json = json if json is not None else self.from_model(model, "Json", default=False)
-        self.query = query if query is not None else self.from_model(model, "Query", default=False)
-        self.form = form if form is not None else self.from_model(model, "Form", default=False)
+        self.args = (
+            args if args is not None else self.from_model(model, "Args", default=False)
+        )
+        self.json = (
+            json if json is not None else self.from_model(model, "Json", default=False)
+        )
+        self.query = (
+            query
+            if query is not None
+            else self.from_model(model, "Query", default=False)
+        )
+        self.form = (
+            form if form is not None else self.from_model(model, "Form", default=False)
+        )
 
     @staticmethod
     def load(
@@ -1330,7 +1340,7 @@ class RequestSchema:
         return kwargs
 
     @staticmethod
-    def from_model(model: Type[Model], name: str, default: Any=None) -> Any:
+    def from_model(model: Type[Model], name: str, default: Any = None) -> Any:
         """
         attempts to load rules from a model that has been passed into constructed as 'model'
 

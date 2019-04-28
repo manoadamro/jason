@@ -1,7 +1,8 @@
 import flask
 import waitress
-from .config import Config, props
+
 from .cache import RedisCache, RedisConfigMixin
+from .config import Config, props
 from .database import Database, PostgresConfigMixin
 from .schema import request_schema
 
@@ -42,7 +43,6 @@ def create_app(config, testing=False, use_db=False, use_cache=False):
 
 
 def flask_service(config_class, use_db=False, use_cache=False):
-
     def wrapped(func):
         def call(debug=False, no_serve=False, **kwargs):
             config = config_class.load(**kwargs)
