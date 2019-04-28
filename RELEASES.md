@@ -2,6 +2,8 @@ v0.1.0
 ===
 
 - Removed services package
+- Added custom json encoder/decoder ([docs](./docs/json.md))
+- Standardised database, cache, flask and rabbit modules
 
 v0.0.15
 ===
