@@ -1,5 +1,6 @@
 from base64 import b64decode, b64encode
-from Crypto.Cipher import ChaCha20
+
+from Crypto.Cipher import ChaCha20 as _ChaCha20
 
 
 class ChaCha20:
@@ -7,7 +8,7 @@ class ChaCha20:
         self.key = key.rjust(32).encode("utf8")
 
     def encrypt(self, plain_text: str) -> str:
-        cipher = ChaCha20.new(key=self.key)
+        cipher = _ChaCha20.new(key=self.key)
         cipher_bytes = cipher.encrypt(plain_text.encode("utf8"))
         nonce = b64encode(cipher.nonce).decode("utf-8")
         cipher_text = b64encode(cipher_bytes).decode("utf-8")
@@ -21,6 +22,6 @@ class ChaCha20:
         # TODO unescape '-' character in cipher_text
         cipher_text = b64decode(cipher_text)
         nonce = b64decode(nonce)
-        cipher = ChaCha20.new(key=self.key, nonce=nonce)
+        cipher = _ChaCha20.new(key=self.key, nonce=nonce)
         plain_text = cipher.decrypt(cipher_text)
         return plain_text.decode("utf8")
