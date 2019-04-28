@@ -13,10 +13,13 @@ class RedisConfigMixin:
 
 
 class RedisCache:
-    def __init__(self):
+    def __init__(self, testing: bool = False):
         self._cache = None
+        self.testing = testing
 
-    def init(self, config: RedisConfigMixin, **kwargs):
+    def init(self, config: RedisConfigMixin, testing: bool = None, **kwargs):
+        if testing is not None:
+            self.testing = testing
         self._cache = redis.StrictRedis(
             host=config.REDIS_HOST,
             port=config.REDIS_PORT,
