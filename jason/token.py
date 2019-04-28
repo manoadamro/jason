@@ -11,6 +11,7 @@ import jsonpointer
 import jwt
 
 from .crypto import Cipher
+from .json import JsonEncoder, json
 
 
 class TokenValidationError(Exception):
@@ -128,12 +129,19 @@ class TokenHandler(TokenHandlerBase):
                 raise ValueError(f"invalid keyword argument {key}")
             self.DECODER_OPTIONS[key] = value
 
-    def _encode(self, token_data: Dict[str, Any]) -> str:
+    def _encode(
+        self, token_data: Dict[str, Any], json_encoder: json.JSONEncoder = JsonEncoder
+    ) -> str:
         """
         encodes a token from dict to string
 
         """
-        return jwt.encode(payload=token_data, key=self.key, algorithm=self.algorithm)
+        return jwt.encode(
+            payload=token_data,
+            key=self.key,
+            algorithm=self.algorithm,
+            json_encoder=json_encoder,
+        )
 
     def _decode(self, token_string: str) -> Dict[str, Any]:
         """

@@ -1,6 +1,9 @@
 import waitress
 
-from jason.config import props
+from jason.config import Config, props
+
+Config = Config
+props = props
 
 
 class FlaskConfigMixin:

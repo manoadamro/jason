@@ -1,6 +1,9 @@
 import redis
 
-from jason.config import props
+from jason.config import Config, props
+
+Config = Config
+props = props
 
 
 class RedisConfigMixin:
