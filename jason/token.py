@@ -10,7 +10,7 @@ import flask
 import jsonpointer
 import jwt
 
-from .crypto import Cipher
+from .crypto import ChaCha20
 from .json import JsonEncoder, json
 
 
@@ -51,7 +51,7 @@ class TokenHandler(TokenHandlerBase):
     """
 
     HEADER_KEY = "Authorization"
-    CIPHER = Cipher
+    CIPHER = ChaCha20
 
     DECODER_OPTIONS = {
         "require_exp": True,
