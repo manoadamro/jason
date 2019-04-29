@@ -26,11 +26,6 @@ v0.0.12
 ===
 
 - Removed core and api packages and flattened everything
-
-
-v0.0.11
-===
-
 - Added basic cache module (removed in v0.1.0)
 
 v0.0.11
