@@ -5,9 +5,7 @@ core.config
 import os
 from typing import Any
 
-import jason.schema
-
-props = jason.schema
+from jason import props
 
 
 class Config(props.Model):

@@ -1,6 +1,6 @@
 import pytest
 
-from jason.schema import (
+from jason.props import (
     Bool,
     Combine,
     Float,

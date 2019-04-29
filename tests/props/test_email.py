@@ -1,6 +1,6 @@
 import pytest
 
-from jason.schema import Email, PropertyValidationError
+from jason.props import Email, PropertyValidationError
 
 VALID_EMAILS = [
     "email@domain.com",
