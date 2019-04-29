@@ -55,9 +55,7 @@ def create_app(
     app.config.update(config.__dict__)
 
     if migrate and not use_db:
-        raise ValueError(
-            "parameter 'migrate' can not be True if 'use_db' is False"
-        )
+        raise ValueError("parameter 'migrate' can not be True if 'use_db' is False")
 
     # init cache if required
     if use_cache:
@@ -66,7 +64,12 @@ def create_app(
                 f"could not initialise cache. "
                 f"config does not sub-class {RedisConfigMixin.__name__}"
             )
-        cache.init_app(app=app, host=config.REDIS_HOST, port=config.REDIS_PORT, password=config.REDIS_PASS)
+        cache.init_app(
+            app=app,
+            host=config.REDIS_HOST,
+            port=config.REDIS_PORT,
+            password=config.REDIS_PASS,
+        )
 
     # init database if required
     if use_db:
