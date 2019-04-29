@@ -27,6 +27,7 @@ class RedisConfigMixin:
 
 
 class RabbitConfigMixin:
+    RABBIT_DRIVER = props.String(default="ampq")
     RABBIT_HOST = props.String(default="localhost")
     RABBIT_PORT = props.Int(default=5672)
     RABBIT_USER = props.String(default="guest")
@@ -80,15 +81,15 @@ def create_app(
                 f"could not initialise database. "
                 f"config does not sub-class {PostgresConfigMixin.__name__}"
             )
-        if testing:
-            database_uri = config.TEST_DB_URL
-        else:
+        if not testing:
             if config.DB_USER:
                 credentials = f"{config.DB_USER}:{config.DB_PASS}@"
             else:
                 credentials = ""
             host = f"{config.DB_HOST}:{config.DB_PORT}"
-            database_uri = f"{config.DB_DRIVER}://{credentials}{host}"
+            database_uri = f"{config.DB_DRIVER}://" f"{credentials}{host}"
+        else:
+            database_uri = config.TEST_DB_URL
         app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
         app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
         db.init_app(app=app)
@@ -101,8 +102,13 @@ def create_app(
                 f"config does not sub-class {RabbitConfigMixin.__name__}"
             )
 
-        celery.conf.broker_url = ""  # TODO
-        celery.conf.result_backend = ""  # TODO
+        rabbit_url = (
+            f"{config.RABBIT_DRIVER}://"
+            f"{config.RABBIT_USER}:{config.RABBIT_PORT}"
+            f"@{config.RABBIT_HOST}:{config.RABBIT_PORT}"
+        )
+        celery.conf.broker_url = rabbit_url
+        celery.conf.result_backend = rabbit_url
         task_base = celery.Task
 
         class AppContextTask(task_base):
