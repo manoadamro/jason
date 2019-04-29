@@ -2,9 +2,8 @@ v0.1.0
 ===
 
 - Removed services package
+- Added service module ([docs](./docs/service.md))
 - Added custom json encoder/decoder ([docs](./docs/json.md))
-- Standardised database, cache, flask and rabbit modules
-- added flask_service decorator
 
 v0.0.15
 ===
@@ -32,7 +31,7 @@ v0.0.12
 v0.0.11
 ===
 
-- Added basic cache module ([docs](./docs/cache.md))
+- Added basic cache module (removed in v0.1.0)
 
 v0.0.11
 ===
