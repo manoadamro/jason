@@ -7,13 +7,13 @@ import flask_redis
 import flask_sqlalchemy
 import waitress
 
-from jason import props
+from jason import consumer, props
 
 db = flask_sqlalchemy.SQLAlchemy()
 migrate = flask_migrate.Migrate()
 cache = flask_redis.FlaskRedis()
 celery = celery.Celery()
-workforce = None  # TODO requires: init_app(app, **kwargs), start()
+workforce = consumer.WorkForce()
 
 
 class ServiceConfig(props.Config):

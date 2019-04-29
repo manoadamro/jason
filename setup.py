@@ -14,6 +14,7 @@ setuptools.setup(
         "flask_sqlalchemy==2.1",
         "flask_redis==0.3.0",
         "jsonpointer==2.0",
+        "kombu==4.5.0",
         "pycryptodome==3.8.1",
         "pyJWT==1.7.1",
         'waitress==1.2.1',
