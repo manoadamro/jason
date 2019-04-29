@@ -152,32 +152,19 @@ def create_app(
     use_celery: bool = False,
     use_migrate: bool = False,
 ):
-
-    # create flask app
     app = Flask(__name__)
     app.testing = testing
     app.config.update(config.__dict__)
-
     if use_migrate and not use_db:
         raise ValueError("parameter 'use_migrate' can not be True if 'use_db' is False")
-
-    # init cache (if required)
     if use_cache:
         _init_cache(app=app, config=config, testing=testing)
-
-    # init database (if required)
     if use_db:
         _init_database(app=app, config=config, testing=testing)
-
-    # init celery (if required)
     if use_celery:
         _init_celery(app=app, config=config, testing=testing)
-
-    # run database migrations (if required)
     if use_migrate:
         migrate.init_app(app=app, db=db)
-
-    # we're done!
     return app
 
 
