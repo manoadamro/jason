@@ -3,7 +3,6 @@ v0.1.0
 
 - Removed services package
 - Added service module ([docs](./docs/service.md))
-- Added custom json encoder/decoder ([docs](./docs/json.md))
 - Added "choices" option to all properties in props ([docs](./docs/props.md))
 
 v0.0.15

@@ -3,6 +3,7 @@ api.token
 
 """
 import functools
+import json
 import time
 from typing import Any, Callable, Dict, List, NoReturn
 
@@ -10,8 +11,7 @@ import flask
 import jsonpointer
 import jwt
 
-from . import json
-from .crypto import ChaCha20
+from . import crypto
 
 
 class TokenValidationError(Exception):
@@ -51,7 +51,7 @@ class TokenHandler(TokenHandlerBase):
     """
 
     HEADER_KEY = "Authorization"
-    CIPHER = ChaCha20
+    CIPHER = crypto.ChaCha20
 
     DECODER_OPTIONS = {
         "require_exp": True,
@@ -130,7 +130,7 @@ class TokenHandler(TokenHandlerBase):
             self.DECODER_OPTIONS[key] = value
 
     def _encode(
-        self, token_data: Dict[str, Any], json_encoder: Any = json.JsonEncoder
+        self, token_data: Dict[str, Any], json_encoder: Any = json.JSONEncoder
     ) -> str:
         """
         encodes a token from dict to string
