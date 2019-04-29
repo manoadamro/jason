@@ -157,10 +157,12 @@ class Property(SchemaAttribute):
         nullable: bool = False,
         default: Any = None,
         types: Union[Tuple[Type, ...], List[Type]] = None,
+        choices: List = None,
     ):
         self.nullable = nullable
         self.default = default
         self.types = types
+        self.choices = choices
 
     def load(self, value: Any) -> Any:
         """
@@ -183,7 +185,12 @@ class Property(SchemaAttribute):
             raise PropertyValidationError(
                 f"Property was expected to be of type: {', '.join(t.__name__ for t in self.types)}. not {type(value).__name__}"
             )
-        return self._validate(value)
+        value = self._validate(value)
+        if self.choices and value not in self.choices:
+            raise PropertyValidationError(
+                f"Property was expected to be one of: {', '.join((str(c) for c in self.choices))}"
+            )
+        return value
 
     def _validate(self, value: Any) -> Any:
         """

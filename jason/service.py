@@ -24,7 +24,7 @@ class RedisConfigMixin:
     REDIS_DRIVER = props.String(default="redis")
     REDIS_HOST = props.String(default="localhost")
     REDIS_PORT = props.Int(default=6379)
-    REDIS_PASS = props.String(default=None)
+    REDIS_PASS = props.String(nullable=True)
 
 
 class RabbitConfigMixin:
@@ -36,18 +36,22 @@ class RabbitConfigMixin:
 
 
 class CeleryConfigMixin:
-    CELERY_BROKER_BACKEND = props.String(default="rabbitmq")
-    CELERY_RESULTS_BACKEND = props.String(default="rabbitmq")
+    CELERY_BROKER_BACKEND = props.String(
+        default="rabbitmq", choices=["rabbitmq", "redis"]
+    )
+    CELERY_RESULTS_BACKEND = props.String(
+        default="rabbitmq", choices=["rabbitmq", "redis"]
+    )
     CELERY_REDIS_DATABASE_ID = props.Int(default=0)
 
 
 class PostgresConfigMixin:
+    TEST_DB_URL = props.String(default="sqlite:///:memory:")
     DB_DRIVER = props.String(default="postgresql")
     DB_HOST = props.String(default="localhost")
     DB_PORT = props.String(default=5432)
     DB_USER = props.String(nullable=True)
     DB_PASS = props.String(nullable=True)
-    TEST_DB_URL = props.String(default="sqlite:///:memory:")
 
 
 def _assert_mixin(config, mixin, item, condition=""):
@@ -144,28 +148,36 @@ def _init_celery(app, config, testing):
     celery.finalize()
 
 
-def create_app(
-    config: Any,
-    testing: bool = False,
-    use_db: bool = False,
-    use_cache: bool = False,
-    use_celery: bool = False,
-    use_migrate: bool = False,
-):
-    app = Flask(__name__)
-    app.testing = testing
-    app.config.update(config.__dict__)
-    if use_migrate and not use_db:
-        raise ValueError("parameter 'use_migrate' can not be True if 'use_db' is False")
-    if use_cache:
-        _init_cache(app=app, config=config, testing=testing)
-    if use_db:
-        _init_database(app=app, config=config, testing=testing)
-    if use_celery:
-        _init_celery(app=app, config=config, testing=testing)
-    if use_migrate:
-        migrate.init_app(app=app, db=db)
-    return app
+class FlaskApp(Flask):
+    @classmethod
+    def new(
+        cls,
+        config: Any,
+        testing: bool = False,
+        use_db: bool = False,
+        use_cache: bool = False,
+        use_celery: bool = False,
+        use_migrate: bool = False,
+    ):
+        app = cls(__name__)
+        app.testing = testing
+        app.config.update(config.__dict__)
+        if use_migrate and not use_db:
+            raise ValueError(
+                "parameter 'use_migrate' can not be True if 'use_db' is False"
+            )
+        if use_cache:
+            _init_cache(app=app, config=config, testing=testing)
+        if use_db:
+            _init_database(app=app, config=config, testing=testing)
+        if use_celery:
+            _init_celery(app=app, config=config, testing=testing)
+        if use_migrate:
+            migrate.init_app(app=app, db=db)
+        return app
+
+    def register_consumer(self):
+        ...  # TODO start consumer on thread
 
 
 class FlaskService:
@@ -175,8 +187,9 @@ class FlaskService:
         use_db: bool = False,
         use_cache: bool = False,
         use_celery: bool = False,
+        _app_gen: Type = FlaskApp.new,
     ):
-
+        self._app_gen = _app_gen
         self.config_class = config_class
         self.use_db = use_db
         self.use_cache = use_cache
@@ -184,15 +197,6 @@ class FlaskService:
         self.app = None
         self.config = None
         self.debug = False
-
-    def _create_app(self):
-        return create_app(
-            config=self.config,
-            testing=self.debug,
-            use_db=self.use_db,
-            use_cache=self.use_cache,
-            use_celery=self.use_celery,
-        )
 
     def _serve(self, host, port):
         if self.debug:
@@ -204,7 +208,13 @@ class FlaskService:
         def call(debug=False, no_serve=False, **config_values):
             self.debug = debug
             self.config = self.config_class.load(**config_values)
-            self.app = self._create_app()
+            self.app = self._app_gen(
+                config=self.config,
+                testing=self.debug,
+                use_db=self.use_db,
+                use_cache=self.use_cache,
+                use_celery=self.use_celery,
+            )
             func(self.app, debug)
             if no_serve:
                 return
