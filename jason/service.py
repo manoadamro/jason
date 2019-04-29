@@ -1,18 +1,18 @@
 from typing import Any, Type
 
-from celery import Celery
-from flask import Flask
-from flask_migrate import Migrate
-from flask_redis import FlaskRedis
-from flask_sqlalchemy import SQLAlchemy
-from waitress import serve
+import celery
+import flask
+import flask_migrate
+import flask_redis
+import flask_sqlalchemy
+import waitress
 
 from .config import Config, props
 
-db = SQLAlchemy()
-migrate = Migrate()
-cache = FlaskRedis()
-celery = Celery()
+db = flask_sqlalchemy.SQLAlchemy()
+migrate = flask_migrate.Migrate()
+cache = flask_redis.FlaskRedis()
+celery = celery.Celery()
 
 
 class ServiceConfig(Config):
@@ -35,6 +35,15 @@ class RabbitConfigMixin:
     RABBIT_PASS = props.String(default="guest")
 
 
+class PostgresConfigMixin:
+    TEST_DB_URL = props.String(default="sqlite:///:memory:")
+    DB_DRIVER = props.String(default="postgresql")
+    DB_HOST = props.String(default="localhost")
+    DB_PORT = props.String(default=5432)
+    DB_USER = props.String(nullable=True)
+    DB_PASS = props.String(nullable=True)
+
+
 class CeleryConfigMixin:
     CELERY_BROKER_BACKEND = props.String(
         default="rabbitmq", choices=["rabbitmq", "redis"]
@@ -43,15 +52,6 @@ class CeleryConfigMixin:
         default="rabbitmq", choices=["rabbitmq", "redis"]
     )
     CELERY_REDIS_DATABASE_ID = props.Int(default=0)
-
-
-class PostgresConfigMixin:
-    TEST_DB_URL = props.String(default="sqlite:///:memory:")
-    DB_DRIVER = props.String(default="postgresql")
-    DB_HOST = props.String(default="localhost")
-    DB_PORT = props.String(default=5432)
-    DB_USER = props.String(nullable=True)
-    DB_PASS = props.String(nullable=True)
 
 
 def _assert_mixin(config, mixin, item, condition=""):
@@ -102,7 +102,7 @@ def _init_database(app, config, testing):
     db.init_app(app=app)
 
 
-def _init_cache(app, config, testing):
+def _init_cache(app, config):
     _assert_mixin(config, RedisConfigMixin, "cache")
     cache.init_app(
         app=app,
@@ -112,7 +112,7 @@ def _init_cache(app, config, testing):
     )
 
 
-def _init_celery(app, config, testing):
+def _init_celery(app, config):
     _assert_mixin(config, CeleryConfigMixin, "celery")
 
     def backend_url(backend):
@@ -144,11 +144,12 @@ def _init_celery(app, config, testing):
             with app.app_context():
                 return task_base.__call__(self, *args, **kwargs)
 
+    # noinspection PyPropertyAccess
     celery.Task = AppContextTask
     celery.finalize()
 
 
-class FlaskApp(Flask):
+class _FlaskApp(flask.Flask):
     @classmethod
     def new(
         cls,
@@ -167,16 +168,16 @@ class FlaskApp(Flask):
                 "parameter 'use_migrate' can not be True if 'use_db' is False"
             )
         if use_cache:
-            _init_cache(app=app, config=config, testing=testing)
+            _init_cache(app=app, config=config)
         if use_db:
             _init_database(app=app, config=config, testing=testing)
         if use_celery:
-            _init_celery(app=app, config=config, testing=testing)
+            _init_celery(app=app, config=config)
         if use_migrate:
             migrate.init_app(app=app, db=db)
         return app
 
-    def register_consumer(self):
+    def register_consumer(self, channel):
         ...  # TODO start consumer on thread
 
 
@@ -187,7 +188,7 @@ class FlaskService:
         use_db: bool = False,
         use_cache: bool = False,
         use_celery: bool = False,
-        _app_gen: Type = FlaskApp.new,
+        _app_gen: Any = _FlaskApp
     ):
         self._app_gen = _app_gen
         self.config_class = config_class
@@ -202,13 +203,13 @@ class FlaskService:
         if self.debug:
             self.app.run(host=host, port=port)
         else:
-            serve(self.app, host=host, port=port)
+            waitress.serve(self.app, host=host, port=port)
 
     def __call__(self, func):
         def call(debug=False, no_serve=False, **config_values):
             self.debug = debug
             self.config = self.config_class.load(**config_values)
-            self.app = self._app_gen(
+            self.app = self._app_gen.new(
                 config=self.config,
                 testing=self.debug,
                 use_db=self.use_db,
