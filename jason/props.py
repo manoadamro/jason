@@ -5,6 +5,7 @@ core.props
 import datetime
 import functools
 import inspect
+import os
 import re
 import uuid
 from typing import Any, Callable, Dict, List, Optional, Pattern, Tuple, Type, Union
@@ -1448,3 +1449,54 @@ class RequestSchema:
 
 
 request_schema = RequestSchema
+
+
+class Config(Model):
+    """
+    attempts to load values first from the 'fields' parameter and if `None`, from the env.
+
+    >>> class MyConfig(Config):
+    ...    MY_INT = Int()
+    ...    MY_FLOAT = Float()
+    ...    MY_STRING = String()
+    ...    MY_BOOL = Bool()
+
+    assume os.environ looks like this:
+    >>> os.environ = {"MY_INT": "123", "MY_FLOAT": "12.3", "MY_STRING": "stringy", "MY_BOOL": "true",}
+
+    we can pass in MY_STRING (in upper or lower case) to override the environment variable
+    MY_INT, MY_FLOAT, MY_BOOL will be taken from env
+    >>> config = MyConfig.load(my_string="something")
+
+    >>> config.MY_STRING
+    'something'
+
+    >>> config.MY_FLOAT
+    12.3
+
+    """
+
+    @classmethod
+    def load(cls, **fields: Any) -> "Config":
+        """
+        attempts to load values first from the 'fields' parameter and if `None`, from the env.
+        values that do not exist in either place will default to `None`
+        validated values are added to the instance.
+
+        """
+        instance = cls()
+        errors = []
+        fields = {name.lower(): value for name, value in fields.items()}
+        for name, prop in cls.__props__.items():
+            value = fields.get(name.lower(), None)
+            if value is None:
+                value = os.environ.get(name.upper(), None)
+            try:
+                value = prop.load(value)
+            except PropertyValidationError as ex:
+                errors.append(f"could not load property '{name}': {ex}")
+                continue
+            setattr(instance, name, value)
+        if len(errors):
+            raise BatchValidationError("Failed to load config", errors)
+        return instance

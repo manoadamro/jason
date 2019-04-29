@@ -7,7 +7,7 @@ import flask_redis
 import flask_sqlalchemy
 import waitress
 
-from jason import config, props
+from jason import props
 
 db = flask_sqlalchemy.SQLAlchemy()
 migrate = flask_migrate.Migrate()
@@ -16,7 +16,7 @@ celery = celery.Celery()
 workforce = None  # TODO requires: init_app(app, **kwargs), start()
 
 
-class ServiceConfig(config.Config):
+class ServiceConfig(props.Config):
     SERVE_HOST = props.String(default="localhost")
     SERVE_PORT = props.Int(default=5000)
 

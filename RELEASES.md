@@ -50,7 +50,6 @@ v0.0.8
 ===
 
 - Added service module ([docs](./docs/service.md))
-- Added database module ([docs](./docs/database.md))
 - Added config module for config mixins
 - Added flask config mixin
 - Added rabbit config mixin
@@ -87,7 +86,7 @@ v0.0.4
 v0.0.3
 ===
 
-- Added config module ([docs](docs/config.md))
+- Added config module ([docs](docs/props.md))
 
 - Added `check` to makefile
 - Added basic instructions to `README.md`
