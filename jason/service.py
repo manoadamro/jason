@@ -46,12 +46,18 @@ def create_app(
     use_db: bool = False,
     use_cache: bool = False,
     use_celery: bool = False,
+    migrate: bool = False,
 ):
 
     # create flask app
     app = Flask(__name__)
     app.testing = testing
     app.config.update(config.__dict__)
+
+    if migrate and not use_db:
+        raise ValueError(
+            "parameter 'migrate' can not be True if 'use_db' is False"
+        )
 
     # init cache if required
     if use_cache:
@@ -60,7 +66,7 @@ def create_app(
                 f"could not initialise cache. "
                 f"config does not sub-class {RedisConfigMixin.__name__}"
             )
-        cache.init_app(app=app)  # TODO host/port/pass
+        cache.init_app(app=app, host=config.REDIS_HOST, port=config.REDIS_PORT, password=config.REDIS_PASS)
 
     # init database if required
     if use_db:
@@ -78,8 +84,8 @@ def create_app(
                 credentials = ""
             host = f"{config.DB_HOST}:{config.DB_PORT}"
             database_uri = f"{config.DB_DRIVER}://{credentials}{host}"
-        app.config[""] = database_uri  # TODO set url
-        app.config[""] = False  # TODO set track modifications
+        app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
+        app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
         db.init_app(app=app)
 
     # init celery if required
@@ -104,7 +110,8 @@ def create_app(
         celery.Task = AppContextTask
         celery.finalize()
 
-    # TODO migrations
+    if migrate:
+        ...  # TODO migrations
 
     return app
 
