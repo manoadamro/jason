@@ -2,6 +2,7 @@ from typing import Type
 
 from celery import Celery
 from flask import Flask
+from flask_migrate import Migrate
 from flask_redis import FlaskRedis
 from flask_sqlalchemy import SQLAlchemy
 from waitress import serve
@@ -9,11 +10,12 @@ from waitress import serve
 from .config import Config, props
 
 db = SQLAlchemy()
+migrate = Migrate()
 cache = FlaskRedis()
 celery = Celery()
 
 
-class FlaskConfigMixin:
+class ServiceConfig(Config):
     SERVE_HOST = props.String(default="localhost")
     SERVE_PORT = props.Int(default=5000)
 
@@ -41,12 +43,12 @@ class PostgresConfigMixin:
 
 
 def create_app(
-    config: Config,
+    config: ServiceConfig,
     testing: bool = False,
     use_db: bool = False,
     use_cache: bool = False,
     use_celery: bool = False,
-    migrate: bool = False,
+    use_migrate: bool = False,
 ):
 
     # create flask app
@@ -54,10 +56,10 @@ def create_app(
     app.testing = testing
     app.config.update(config.__dict__)
 
-    if migrate and not use_db:
-        raise ValueError("parameter 'migrate' can not be True if 'use_db' is False")
+    if use_migrate and not use_db:
+        raise ValueError("parameter 'use_migrate' can not be True if 'use_db' is False")
 
-    # init cache if required
+    # init cache (if required)
     if use_cache:
         if not isinstance(config, RedisConfigMixin):
             raise TypeError(
@@ -71,7 +73,7 @@ def create_app(
             password=config.REDIS_PASS,
         )
 
-    # init database if required
+    # init database (if required)
     if use_db:
         if not isinstance(config, PostgresConfigMixin):
             raise TypeError(
@@ -91,7 +93,7 @@ def create_app(
         app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
         db.init_app(app=app)
 
-    # init celery if required
+    # init celery (if required)
     if use_celery:
         if not isinstance(config, RabbitConfigMixin):
             raise TypeError(
@@ -113,14 +115,16 @@ def create_app(
         celery.Task = AppContextTask
         celery.finalize()
 
-    if migrate:
-        ...  # TODO migrations
+    # run database migrations (if required)
+    if use_migrate:
+        migrate.init_app(app=app, db=db)
 
+    # we're done!
     return app
 
 
 def flask_service(
-    config_class: Type[Config],
+    config_class: Type[ServiceConfig],
     use_db: bool = False,
     use_cache: bool = False,
     use_celery: bool = False,
@@ -137,12 +141,6 @@ def flask_service(
                 use_celery=use_celery,
             )
             func(app, debug)
-
-            if not isinstance(config, FlaskConfigMixin):
-                raise TypeError(
-                    f"could not initialise celery. "
-                    f"config does not sub-class {FlaskConfigMixin.__name__}"
-                )
 
             if no_serve:
                 return
