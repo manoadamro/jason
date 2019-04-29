@@ -13,6 +13,7 @@ db = flask_sqlalchemy.SQLAlchemy()
 migrate = flask_migrate.Migrate()
 cache = flask_redis.FlaskRedis()
 celery = celery.Celery()
+workforce = None  # TODO requires: init_app(app, **kwargs), start()
 
 
 class ServiceConfig(config.Config):
@@ -149,7 +150,15 @@ def _init_celery(app, config):
     celery.finalize()
 
 
+def _init_workforce(app, config):
+    workforce.init_app(app)  # TODO apply config
+
+
 class _FlaskApp(flask.Flask):
+    def __init__(self, *args, testing=False, **kwargs):
+        super(_FlaskApp, self).__init__(*args, **kwargs)
+        self.testing = testing
+
     @classmethod
     def new(
         cls,
@@ -159,9 +168,9 @@ class _FlaskApp(flask.Flask):
         use_cache: bool = False,
         use_celery: bool = False,
         use_migrate: bool = False,
+        use_workforce: bool = False,
     ):
-        app = cls(__name__)
-        app.testing = testing
+        app = cls(__name__, testing=testing)
         app.config.update(config.__dict__)
         if use_migrate and not use_db:
             raise ValueError(
@@ -174,11 +183,10 @@ class _FlaskApp(flask.Flask):
         if use_celery:
             _init_celery(app=app, config=config)
         if use_migrate:
-            migrate.init_app(app=app, db=db)
+            migrate.init_app(app=app, db=db, testing=testing)
+        if use_workforce:
+            _init_workforce(app=app, config=config)
         return app
-
-    def register_consumer(self, channel):
-        ...  # TODO start consumer on thread
 
 
 class FlaskService:
@@ -188,13 +196,15 @@ class FlaskService:
         use_db: bool = False,
         use_cache: bool = False,
         use_celery: bool = False,
+        use_workforce: bool = False,
         _app_gen: Any = _FlaskApp,
     ):
         self._app_gen = _app_gen
-        self.config_class = config_class
         self.use_db = use_db
         self.use_cache = use_cache
         self.use_celery = use_celery
+        self.use_workforce = use_workforce
+        self.config_class = config_class
         self.app = None
         self.config = None
         self.debug = False
@@ -206,7 +216,7 @@ class FlaskService:
             waitress.serve(self.app, host=host, port=port)
 
     def __call__(self, func):
-        def call(debug=False, no_serve=False, **config_values):
+        def call(debug=False, no_serve=False, no_workforce=False, **config_values):
             self.debug = debug
             self.config = self.config_class.load(**config_values)
             self.app = self._app_gen.new(
@@ -217,9 +227,10 @@ class FlaskService:
                 use_celery=self.use_celery,
             )
             func(self.app, debug)
-            if no_serve:
-                return
-            self._serve(host=self.config.SERVE_HOST, port=self.config.SERVE_PORT)
+            if not no_workforce:
+                workforce.start()
+            if not no_serve:
+                self._serve(host=self.config.SERVE_HOST, port=self.config.SERVE_PORT)
 
         return call
 
