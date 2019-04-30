@@ -1501,8 +1501,16 @@ class Config(Model):
             raise BatchValidationError("Failed to load config", errors)
         return instance
 
+    def update(self, config):
+        for key, value in config.items():
+            setattr(self, key, value)
+
     def __getitem__(self, item):
         return getattr(self, item)
 
     def __setitem__(self, key, value):
         setattr(self, key, value)
+
+    def __str__(self):
+        prop_strings = (f'    {key}={value}\n' for key, value in self.__dict__.items())
+        return f"Config(\n{''.join(prop_strings)})"

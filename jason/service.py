@@ -58,8 +58,9 @@ class FlaskConsumer:
 class FlaskApp(flask.Flask):
     def __init__(self, name: str, config: Any, testing: bool = False, **kwargs: Any):
         super(FlaskApp, self).__init__(name, **kwargs)
-        self.testing = testing
+        config.update(self.config)
         self.config = config
+        self.testing = testing
 
     def init_database(self, database, migrate=None):
         self._assert_mixin(self.config, mixins.PostgresConfigMixin, "database")
