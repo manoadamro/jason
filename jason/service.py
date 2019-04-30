@@ -196,12 +196,14 @@ class Service:
 
     def config(self, debug=False, **config_values):
         self._pre_command(debug, config_values)
-        prop_strings = (f"{key}={value}" for key, value in self._config.__dict__.items())
-        return '\n'.join(prop_strings)
+        prop_strings = (
+            f"{key}={value}" for key, value in self._config.__dict__.items()
+        )
+        return "\n".join(prop_strings)
 
     def extensions(self, debug=False, **config_values):
         self._pre_command(debug, config_values)
-        return '\n'.join(e for e in self._app.extensions)
+        return "\n".join(e for e in self._app.extensions)
 
     def __call__(self, func):
         self._callback = func
