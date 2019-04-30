@@ -3,8 +3,8 @@ from typing import Any, Type
 
 import waitress
 
-from .config import ServiceConfig
 from .app import App
+from .config import ServiceConfig
 
 
 class Service:

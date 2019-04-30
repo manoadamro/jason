@@ -2,7 +2,7 @@ from typing import Any
 
 import flask
 
-from jason import mixins
+from jason.service import mixins
 
 
 class App(flask.Flask):
