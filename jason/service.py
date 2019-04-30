@@ -228,7 +228,7 @@ class FlaskService:
             )
             func(self.app, debug)
             if not no_workforce:
-                workforce.start()
+                workforce.start_all()
             if not no_serve:
                 self._serve(host=self.config.SERVE_HOST, port=self.config.SERVE_PORT)
 
