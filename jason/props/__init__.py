@@ -1,7 +1,5 @@
-"""
-props
+# TODO break up
 
-"""
 import datetime
 import functools
 import inspect
@@ -12,7 +10,7 @@ from typing import Any, Callable, Dict, List, Optional, Pattern, Tuple, Type, Un
 
 from flask import request
 
-from jason import utils
+from . import utils
 
 
 class PropertyValidationError(Exception):
