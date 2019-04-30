@@ -9,6 +9,7 @@ from jason import mixins, props
 
 
 class ServiceConfig(props.Config):
+    SERVE = props.Bool(default=True)
     SERVE_HOST = props.String(default="localhost")
     SERVE_PORT = props.Int(default=5000)
 
@@ -28,6 +29,7 @@ class FlaskConsumer:
             return
         self.app = app
         self.app.before_first_request(self._start)
+        # TODO add to extensions
 
     def configure(self, host=None, port=None, username=None, password=None):
         if host is not None:
@@ -63,16 +65,15 @@ class FlaskApp(flask.Flask):
         self.config = config
         self.testing = testing
 
-    def init_database(self, database, migrate=None):
+    def init_sqlalchemy(self, database, migrate=None):
         self._assert_mixin(self.config, mixins.PostgresConfigMixin, "database")
-        database_uri = self._database_uri()
-        self.config["SQLALCHEMY_DATABASE_URI"] = database_uri
-        self.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+        self.config.SQLALCHEMY_DATABASE_URI = self._database_uri()
+        self.config.SQLALCHEMY_TRACK_MODIFICATIONS = False
         database.init_app(app=self)
         if migrate:
             migrate.init_app(app=self, db=database)
 
-    def init_cache(self, cache):
+    def init_redis(self, cache):
         self._assert_mixin(self.config, mixins.RedisConfigMixin, "cache")
         cache.init_app(
             app=self,
@@ -163,30 +164,48 @@ class FlaskApp(flask.Flask):
         return f"{self.config.DB_DRIVER}://{credentials}{self.config.DB_HOST}:{self.config.DB_PORT}"
 
 
-class FlaskService:
+class Service:
     def __init__(self, config_class: Type[ServiceConfig], _app_gen: Any = FlaskApp):
         self._app_gen = _app_gen
-        self.config_class = config_class
-        self.app = None
-        self.config = None
-        self.debug = False
+        self._config_class = config_class
+        self._app = None
+        self._config = None
+        self._debug = False
+        self._callback = None
 
     def _serve(self, host, port):
-        if self.debug:
-            self.app.run(host=host, port=port)
+        if self._debug:
+            self._app.run(host=host, port=port)
         else:
-            waitress.serve(self.app, host=host, port=port)
+            waitress.serve(self._app, host=host, port=port)
+
+    def _pre_command(self, debug, config_values):
+        self._debug = debug
+        self._config = self._config_class.load(**config_values)
+        self._app = self._app_gen(__name__, config=self._config, testing=self._debug)
+        if self._callback:
+            self._callback(self._app, debug)
+
+    def run(self, debug=False, no_serve=False, detach=False, **config_values):
+        self._pre_command(debug, config_values)
+        if no_serve is False and self._config.SERVE is True:
+            if not detach:
+                self._serve(host=self._config.SERVE_HOST, port=self._config.SERVE_PORT)
+            else:
+                ...  # TODO self._serve on daemon thread
+
+    def config(self, debug=False, **config_values):
+        self._pre_command(debug, config_values)
+        prop_strings = (f"{key}={value}" for key, value in self._config.__dict__.items())
+        return '\n'.join(prop_strings)
+
+    def extensions(self, debug=False, **config_values):
+        self._pre_command(debug, config_values)
+        return '\n'.join(e for e in self._app.extensions)
 
     def __call__(self, func):
-        def call(debug=False, no_serve=False, **config_values):
-            self.debug = debug
-            self.config = self.config_class.load(**config_values)
-            self.app = self._app_gen.new(config=self.config, testing=self.debug)
-            func(self.app, debug)
-            if not no_serve:
-                self._serve(host=self.config.SERVE_HOST, port=self.config.SERVE_PORT)
-
-        return call
+        self._callback = func
+        return self
 
 
-flask_service = FlaskService
+service = Service
