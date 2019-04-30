@@ -16,7 +16,7 @@ setuptools.setup(
         "jsonpointer==2.0",
         "pycryptodome==3.8.1",
         "pyJWT==1.7.1",
-        'waitress==1.2.1',
+        'waitress==1.3.0',
     ],
     extras_require={
         'dev': [
