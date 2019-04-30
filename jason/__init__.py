@@ -1,1 +1,3 @@
-from jason.service import AppThreads, Service, mixins, service
+from jason.service import AppThreads, Service, mixins
+
+service = Service

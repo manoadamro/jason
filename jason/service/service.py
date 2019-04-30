@@ -66,6 +66,3 @@ class Service:
     def __call__(self, func):
         self.set_up = func
         return self
-
-
-service = Service
