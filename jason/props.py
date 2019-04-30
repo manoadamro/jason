@@ -1512,5 +1512,5 @@ class Config(Model):
         setattr(self, key, value)
 
     def __str__(self):
-        prop_strings = (f'    {key}={value}\n' for key, value in self.__dict__.items())
+        prop_strings = (f"    {key}={value}\n" for key, value in self.__dict__.items())
         return f"Config(\n{''.join(prop_strings)})"

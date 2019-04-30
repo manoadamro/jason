@@ -1,8 +1,9 @@
+import threading
 from typing import Any, Type
 
 import flask
+import kombu
 import waitress
-import threading
 
 from jason import mixins, props
 
