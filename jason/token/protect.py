@@ -27,6 +27,3 @@ class Protect(base.TokenHandlerBase):
             return func(*args, **kwargs)
 
         return call
-
-
-protect = Protect
