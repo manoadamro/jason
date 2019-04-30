@@ -48,12 +48,12 @@ workflows:
   build_test_deploy:
     jobs:
       - test
-      - dependency-check:
-          filters:
-            branches:
-              only:
-                - master
-                - develop
+#      - dependency-check:
+#          filters:
+#            branches:
+#              only:
+#                - master
+#                - develop
       - deploy:
           requires:
             - test
