@@ -215,11 +215,9 @@ class Property(SchemaAttribute):
 
 
 class Choice(Property):
-    def __init__(self,
-                 choices: List = None,
-                 nullable: bool = False,
-                 default: Any = None,
-                 ):
+    def __init__(
+        self, choices: List = None, nullable: bool = False, default: Any = None
+    ):
         super(Choice, self).__init__(nullable=nullable, default=default)
         self.choices = choices
 
