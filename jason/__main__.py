@@ -1,5 +1,5 @@
+import importlib
 import os
-from importlib import import_module as _import
 
 import fire
 
@@ -7,15 +7,10 @@ from jason.service import Service
 
 
 def cli(component):
-    """
-    runs a service from the components package by name.
-    package must implement `build` method in it's top level
-
-    """
     component = component.replace("/", ".")
 
     try:
-        module = _import(component)
+        module = importlib.import_module(component)
     except (ModuleNotFoundError, ImportError) as ex:
         raise ImportError(f"could not import {component} from {os.getcwd()}. {ex}")
 
