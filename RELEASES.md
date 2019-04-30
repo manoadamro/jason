@@ -2,6 +2,7 @@ v0.1.0
 ===
 
 - Removed services package
+- Moved config mix ins to "mixins" module
 - Added service module ([docs](./docs/service.md))
 - Added "choices" option to all properties in props ([docs](./docs/props.md))
 
