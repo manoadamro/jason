@@ -3,47 +3,12 @@ from typing import Any, Type
 import flask
 import waitress
 
-from jason import props
+from jason import mixins, props
 
 
 class ServiceConfig(props.Config):
     SERVE_HOST = props.String(default="localhost")
     SERVE_PORT = props.Int(default=5000)
-
-
-class RedisConfigMixin:
-    REDIS_DRIVER = props.String(default="redis")
-    REDIS_HOST = props.String(default="localhost")
-    REDIS_PORT = props.Int(default=6379)
-    REDIS_PASS = props.String(nullable=True)
-
-
-class RabbitConfigMixin:
-    RABBIT_DRIVER = props.String(default="ampq")
-    RABBIT_HOST = props.String(default="localhost")
-    RABBIT_PORT = props.Int(default=5672)
-    RABBIT_USER = props.String(default="guest")
-    RABBIT_PASS = props.String(default="guest")
-
-
-class PostgresConfigMixin:
-    TEST_DB_URL = props.String(default="sqlite:///:memory:")
-    DB_DRIVER = props.String(default="postgresql")
-    DB_HOST = props.String(default="localhost")
-    DB_PORT = props.String(default=5432)
-    DB_USER = props.String(nullable=True)
-    DB_PASS = props.String(nullable=True)
-
-
-class CeleryConfigMixin:
-    _CELERY_BACKENDS = ["rabbitmq", "redis"]
-    CELERY_BROKER_BACKEND = props.String(default="rabbitmq", choices=_CELERY_BACKENDS)
-    CELERY_RESULTS_BACKEND = props.String(default="rabbitmq", choices=_CELERY_BACKENDS)
-    CELERY_REDIS_DATABASE_ID = props.Int(default=0)
-
-
-class WorkforceConfigMixin:
-    ...
 
 
 class FlaskApp(flask.Flask):
@@ -53,7 +18,7 @@ class FlaskApp(flask.Flask):
         self.config = config
 
     def init_database(self, database, migrate=None):
-        self._assert_mixin(self.config, PostgresConfigMixin, "database")
+        self._assert_mixin(self.config, mixins.PostgresConfigMixin, "database")
         database_uri = self._database_uri()
         self.config["SQLALCHEMY_DATABASE_URI"] = database_uri
         self.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -62,7 +27,7 @@ class FlaskApp(flask.Flask):
             migrate.init_app(app=self, db=database)
 
     def init_cache(self, cache):
-        self._assert_mixin(self.config, RedisConfigMixin, "cache")
+        self._assert_mixin(self.config, mixins.RedisConfigMixin, "cache")
         cache.init_app(
             app=self,
             host=self.config.REDIS_HOST,
@@ -71,13 +36,13 @@ class FlaskApp(flask.Flask):
         )
 
     def init_celery(self, celery):
-        self._assert_mixin(self.config, CeleryConfigMixin, "celery")
+        self._assert_mixin(self.config, mixins.CeleryConfigMixin, "celery")
 
         def backend_url(backend):
             if backend == "rabbitmq":
                 self._assert_mixin(
                     self.config,
-                    RabbitConfigMixin,
+                    mixins.RabbitConfigMixin,
                     "celery broker",
                     "if broker backend is rabbitmq",
                 )
@@ -85,7 +50,7 @@ class FlaskApp(flask.Flask):
             elif backend == "redis":
                 self._assert_mixin(
                     self.config,
-                    RedisConfigMixin,
+                    mixins.RedisConfigMixin,
                     "celery broker",
                     "if broker backend is redis",
                 )
@@ -108,7 +73,7 @@ class FlaskApp(flask.Flask):
         celery.finalize()
 
     def init_consumer(self, consumer):
-        self._assert_mixin(self.config, WorkforceConfigMixin, "consumer")
+        self._assert_mixin(self.config, mixins.WorkforceConfigMixin, "consumer")
         consumer.init_app(app=self)  # TODO kwargs from config (WorkforceConfigMixin
 
     @staticmethod
