@@ -27,6 +27,6 @@ class PostgresConfigMixin:
 
 class CeleryConfigMixin:
     _CELERY_BACKENDS = ["ampq", "redis"]
-    CELERY_BROKER_BACKEND = props.String(default="ampq", choices=_CELERY_BACKENDS)
-    CELERY_RESULTS_BACKEND = props.String(default="ampq", choices=_CELERY_BACKENDS)
+    CELERY_BROKER_BACKEND = props.Choice(default="ampq", choices=_CELERY_BACKENDS)
+    CELERY_RESULTS_BACKEND = props.Choice(default="ampq", choices=_CELERY_BACKENDS)
     CELERY_REDIS_DATABASE_ID = props.String(default="0")
