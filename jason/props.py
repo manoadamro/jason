@@ -1,5 +1,5 @@
 """
-core.props
+props
 
 """
 import datetime
@@ -186,12 +186,11 @@ class Property(SchemaAttribute):
             raise PropertyValidationError(
                 f"Property was expected to be of type: {', '.join(t.__name__ for t in self.types)}. not {type(value).__name__}"
             )
-        value = self._validate(value)
         if self.choices and value not in self.choices:
             raise PropertyValidationError(
                 f"Property was expected to be one of: {', '.join((str(c) for c in self.choices))}"
             )
-        return value
+        return self._validate(value)
 
     def _validate(self, value: Any) -> Any:
         """

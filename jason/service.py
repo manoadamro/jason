@@ -14,7 +14,7 @@ class ServiceConfig(props.Config):
     SERVE_PORT = props.Int(default=5000)
 
 
-class FlaskConsumer:
+class Consumer:
     def __init__(self, app=None, **kwargs):
         self.app = None
         self.host = None
@@ -69,9 +69,9 @@ class FlaskConsumer:
         raise NotImplementedError
 
 
-class FlaskApp(flask.Flask):
+class App(flask.Flask):
     def __init__(self, name: str, config: Any, testing: bool = False, **kwargs: Any):
-        super(FlaskApp, self).__init__(name, **kwargs)
+        super(App, self).__init__(name, **kwargs)
         config.update(self.config)
         self.config = config
         self.testing = testing
@@ -176,7 +176,7 @@ class FlaskApp(flask.Flask):
 
 
 class Service:
-    def __init__(self, config_class: Type[ServiceConfig], _app_gen: Any = FlaskApp):
+    def __init__(self, config_class: Type[ServiceConfig], _app_gen: Any = App):
         self._app_gen = _app_gen
         self._config_class = config_class
         self._app = None
