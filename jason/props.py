@@ -1500,3 +1500,9 @@ class Config(Model):
         if len(errors):
             raise BatchValidationError("Failed to load config", errors)
         return instance
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+    def __setitem__(self, key, value):
+        setattr(self, key, value)

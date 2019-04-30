@@ -1,19 +1,9 @@
 from typing import Any, Type
 
-import celery
 import flask
-import flask_migrate
-import flask_redis
-import flask_sqlalchemy
 import waitress
 
-from jason import consumer, props
-
-db = flask_sqlalchemy.SQLAlchemy()
-migrate = flask_migrate.Migrate()
-cache = flask_redis.FlaskRedis()
-celery = celery.Celery()
-workforce = consumer.WorkForce()
+from jason import props
 
 
 class ServiceConfig(props.Config):
@@ -46,164 +36,120 @@ class PostgresConfigMixin:
 
 
 class CeleryConfigMixin:
-    CELERY_BROKER_BACKEND = props.String(
-        default="rabbitmq", choices=["rabbitmq", "redis"]
-    )
-    CELERY_RESULTS_BACKEND = props.String(
-        default="rabbitmq", choices=["rabbitmq", "redis"]
-    )
+    _CELERY_BACKENDS = ["rabbitmq", "redis"]
+    CELERY_BROKER_BACKEND = props.String(default="rabbitmq", choices=_CELERY_BACKENDS)
+    CELERY_RESULTS_BACKEND = props.String(default="rabbitmq", choices=_CELERY_BACKENDS)
     CELERY_REDIS_DATABASE_ID = props.Int(default=0)
 
 
-def _assert_mixin(config, mixin, item, condition=""):
-    if not isinstance(config, mixin):
-        raise TypeError(
-            f"could not initialise {item}. "
-            f"config must sub-class {mixin.__name__} {condition}"
+class WorkforceConfigMixin:
+    ...
+
+
+class FlaskApp(flask.Flask):
+    def __init__(self, name: str, config: Any, testing: bool = False, **kwargs: Any):
+        super(FlaskApp, self).__init__(name, **kwargs)
+        self.testing = testing
+        self.config = config
+
+    def init_database(self, database, migrate=None):
+        self._assert_mixin(self.config, PostgresConfigMixin, "database")
+        database_uri = self._database_uri()
+        self.config["SQLALCHEMY_DATABASE_URI"] = database_uri
+        self.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+        database.init_app(app=self)
+        if migrate:
+            migrate.init_app(app=self, db=database)
+
+    def init_cache(self, cache):
+        self._assert_mixin(self.config, RedisConfigMixin, "cache")
+        cache.init_app(
+            app=self,
+            host=self.config.REDIS_HOST,
+            port=self.config.REDIS_PORT,
+            password=self.config.REDIS_PASS,
         )
 
+    def init_celery(self, celery):
+        self._assert_mixin(self.config, CeleryConfigMixin, "celery")
 
-def _redis_uri(config: RedisConfigMixin, database_id: int = None):
-    if config.REDIS_PASS is not None:
-        credentials = f":{config.REDIS_PASS}@"
-    else:
-        credentials = None
-    uri = (
-        f"{config.REDIS_DRIVER}://{credentials}{config.REDIS_HOST}:{config.REDIS_PORT}"
-    )
-    if database_id is not None:
-        uri += f"/{database_id}"
-    return uri
+        def backend_url(backend):
+            if backend == "rabbitmq":
+                self._assert_mixin(
+                    self.config,
+                    RabbitConfigMixin,
+                    "celery broker",
+                    "if broker backend is rabbitmq",
+                )
+                return self._rabbit_uri()
+            elif backend == "redis":
+                self._assert_mixin(
+                    self.config,
+                    RedisConfigMixin,
+                    "celery broker",
+                    "if broker backend is redis",
+                )
+                return self._redis_uri(database_id=self.config.CELERY_REDIS_DATABASE_ID)
+            raise ValueError(f"invalid backend name '{backend}'")
 
+        celery.conf.broker_url = backend_url(self.config.CELERY_BROKER_BACKEND)
+        celery.conf.result_backend = backend_url(self.config.CELERY_RESULTS_BACKEND)
+        task_base = celery.Task
 
-def _rabbit_uri(config: RabbitConfigMixin):
-    return (
-        f"{config.RABBIT_DRIVER}://"
-        f"{config.RABBIT_USER}:{config.RABBIT_PORT}"
-        f"@{config.RABBIT_HOST}:{config.RABBIT_PORT}"
-    )
+        class AppContextTask(task_base):
+            abstract = True
 
+            def __call__(self, *args, **kwargs):
+                with self.app_context():
+                    return task_base.__call__(self, *args, **kwargs)
 
-def _database_uri(config: PostgresConfigMixin, testing: bool):
-    if testing:
-        return config.TEST_DB_URL
-    if config.DB_USER:
-        credentials = f"{config.DB_USER}:{config.DB_PASS}@"
-    else:
-        credentials = ""
-    host = f"{config.DB_HOST}:{config.DB_PORT}"
-    return f"{config.DB_DRIVER}://" f"{credentials}{host}"
+        # noinspection PyPropertyAccess
+        celery.Task = AppContextTask
+        celery.finalize()
 
+    def init_consumer(self, consumer):
+        self._assert_mixin(self.config, WorkforceConfigMixin, "consumer")
+        consumer.init_app(app=self)  # TODO kwargs from config (WorkforceConfigMixin
 
-def _init_database(app, config, testing):
-    _assert_mixin(config, PostgresConfigMixin, "database")
-    database_uri = _database_uri(config, testing=testing)
-    app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    db.init_app(app=app)
-
-
-def _init_cache(app, config):
-    _assert_mixin(config, RedisConfigMixin, "cache")
-    cache.init_app(
-        app=app,
-        host=config.REDIS_HOST,
-        port=config.REDIS_PORT,
-        password=config.REDIS_PASS,
-    )
-
-
-def _init_celery(app, config):
-    _assert_mixin(config, CeleryConfigMixin, "celery")
-
-    def backend_url(backend):
-        if backend == "rabbitmq":
-            _assert_mixin(
-                config,
-                RabbitConfigMixin,
-                "celery broker",
-                "if broker backend is rabbitmq",
+    @staticmethod
+    def _assert_mixin(config, mixin, item, condition=""):
+        if not isinstance(config, mixin):
+            raise TypeError(
+                f"could not initialise {item}. "
+                f"config must sub-class {mixin.__name__} {condition}"
             )
-            return _rabbit_uri(config)
-        elif backend == "redis":
-            _assert_mixin(
-                config, RedisConfigMixin, "celery broker", "if broker backend is redis"
-            )
-            return _redis_uri(
-                config=config, database_id=config.CELERY_REDIS_DATABASE_ID
-            )
-        raise ValueError(f"invalid backend name '{backend}'")
 
-    celery.conf.broker_url = backend_url(config.CELERY_BROKER_BACKEND)
-    celery.conf.result_backend = backend_url(config.CELERY_RESULTS_BACKEND)
-    task_base = celery.Task
+    def _redis_uri(self, database_id: int = None):
+        if self.config.REDIS_PASS is not None:
+            credentials = f":{self.config.REDIS_PASS}@"
+        else:
+            credentials = None
+        uri = f"{self.config.REDIS_DRIVER}://{credentials}{self.config.REDIS_HOST}:{self.config.REDIS_PORT}"
+        if database_id is not None:
+            uri += f"/{database_id}"
+        return uri
 
-    class AppContextTask(task_base):
-        abstract = True
+    def _rabbit_uri(self):
+        return (
+            f"{self.config.RABBIT_DRIVER}://"
+            f"{self.config.RABBIT_USER}:{self.config.RABBIT_PORT}"
+            f"@{self.config.RABBIT_HOST}:{self.config.RABBIT_PORT}"
+        )
 
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return task_base.__call__(self, *args, **kwargs)
-
-    # noinspection PyPropertyAccess
-    celery.Task = AppContextTask
-    celery.finalize()
-
-
-def _init_workforce(app, config):
-    workforce.init_app(app)  # TODO apply config
-
-
-class _FlaskApp(flask.Flask):
-    def __init__(self, *args, testing=False, **kwargs):
-        super(_FlaskApp, self).__init__(*args, **kwargs)
-        self.testing = testing
-
-    @classmethod
-    def new(
-        cls,
-        config: Any,
-        testing: bool = False,
-        use_db: bool = False,
-        use_cache: bool = False,
-        use_celery: bool = False,
-        use_migrate: bool = False,
-        use_workforce: bool = False,
-    ):
-        app = cls(__name__, testing=testing)
-        app.config.update(config.__dict__)
-        if use_migrate and not use_db:
-            raise ValueError(
-                "parameter 'use_migrate' can not be True if 'use_db' is False"
-            )
-        if use_cache:
-            _init_cache(app=app, config=config)
-        if use_db:
-            _init_database(app=app, config=config, testing=testing)
-        if use_celery:
-            _init_celery(app=app, config=config)
-        if use_migrate:
-            migrate.init_app(app=app, db=db, testing=testing)
-        if use_workforce:
-            _init_workforce(app=app, config=config)
-        return app
+    def _database_uri(self):
+        if self.testing:
+            return self.config.TEST_DB_URL
+        if self.config.DB_USER:
+            credentials = f"{self.config.DB_USER}:{self.config.DB_PASS}@"
+        else:
+            credentials = ""
+        host = f"{self.config.DB_HOST}:{self.config.DB_PORT}"
+        return f"{self.config.DB_DRIVER}://" f"{credentials}{host}"
 
 
 class FlaskService:
-    def __init__(
-        self,
-        config_class: Type[ServiceConfig],
-        use_db: bool = False,
-        use_cache: bool = False,
-        use_celery: bool = False,
-        use_workforce: bool = False,
-        _app_gen: Any = _FlaskApp,
-    ):
+    def __init__(self, config_class: Type[ServiceConfig], _app_gen: Any = FlaskApp):
         self._app_gen = _app_gen
-        self.use_db = use_db
-        self.use_cache = use_cache
-        self.use_celery = use_celery
-        self.use_workforce = use_workforce
         self.config_class = config_class
         self.app = None
         self.config = None
@@ -216,19 +162,11 @@ class FlaskService:
             waitress.serve(self.app, host=host, port=port)
 
     def __call__(self, func):
-        def call(debug=False, no_serve=False, no_workforce=False, **config_values):
+        def call(debug=False, no_serve=False, **config_values):
             self.debug = debug
             self.config = self.config_class.load(**config_values)
-            self.app = self._app_gen.new(
-                config=self.config,
-                testing=self.debug,
-                use_db=self.use_db,
-                use_cache=self.use_cache,
-                use_celery=self.use_celery,
-            )
+            self.app = self._app_gen.new(config=self.config, testing=self.debug)
             func(self.app, debug)
-            if not no_workforce:
-                workforce.start_all()
             if not no_serve:
                 self._serve(host=self.config.SERVE_HOST, port=self.config.SERVE_PORT)
 
