@@ -1,41 +1,8 @@
-import threading
-from typing import Any, Type
+from typing import Any
 
 import flask
-import waitress
 
-from jason import mixins, props
-
-
-class ServiceConfig(props.Config):
-    SERVE = props.Bool(default=True)
-    SERVE_HOST = props.String(default="localhost")
-    SERVE_PORT = props.Int(default=5000)
-
-
-class AppThreads:
-    def __init__(self):
-        self.app = None
-        self.config = None
-        self._app_threads = []
-
-    def init_app(self, app, config):
-        self.app = app
-        self.config = config
-        self.app.before_first_request(self.run_all)
-        self.app.extensions["app_threads"] = self
-
-    def add(self, method, args=None, kwargs=None):
-        self._app_threads.append(
-            {"method": method, "args": args or (), "kwargs": kwargs or {}}
-        )
-
-    def run_all(self):
-        for process in self._app_threads:
-            thread = threading.Thread(
-                target=process["method"], args=process["args"], kwargs=process["kwargs"]
-            )
-            thread.start()
+from jason import mixins
 
 
 class App(flask.Flask):
@@ -155,65 +122,3 @@ class App(flask.Flask):
                 username=self.config.REDIS_USER,
                 password=self.config.REDIS_PASS,
             )
-
-
-class Service:
-    def __init__(self, config_class: Type[ServiceConfig], _app_gen: Any = App):
-        self._app_gen = _app_gen
-        self._config_class = config_class
-        self._app = None
-        self._config = None
-        self._debug = False
-        self._callback = None
-
-    def _serve(self, host, port):
-        if self._debug:
-            self._app.run(host=host, port=port)
-        else:
-            waitress.serve(self._app, host=host, port=port)
-
-    def _pre_command(self, debug, config_values):
-        self._debug = debug
-        self._config = self._config_class.load(**config_values)
-        self._app = self._app_gen(__name__, config=self._config, testing=self._debug)
-        if self._callback:
-            self._callback(self._app, debug)
-
-    def run(self, debug=False, no_serve=False, detach=False, **config_values):
-        self._pre_command(debug, config_values)
-        if no_serve is False and self._config.SERVE is True:
-            if not detach:
-                self._serve(host=self._config.SERVE_HOST, port=self._config.SERVE_PORT)
-            else:
-                thread = threading.Thread(
-                    target=self._serve,
-                    kwargs={
-                        "host": self._config.SERVE_HOST,
-                        "port": self._config.SERVE_PORT,
-                    },
-                    daemon=True,
-                )
-                thread.start()
-        elif "app_threads" in self._app.extensions:
-            app_threads = self._app.extensions["app_threads"]
-            app_threads.run_all(threaded=False)
-            while threading.active_count():
-                ...
-
-    def config(self, debug=False, **config_values):
-        self._pre_command(debug, config_values)
-        prop_strings = (
-            f"{key}={value}" for key, value in self._config.__dict__.items()
-        )
-        return "\n".join(prop_strings)
-
-    def extensions(self, debug=False, **config_values):
-        self._pre_command(debug, config_values)
-        return "\n".join(e for e in self._app.extensions)
-
-    def __call__(self, func):
-        self._callback = func
-        return self
-
-
-service = Service
