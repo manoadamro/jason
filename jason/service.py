@@ -21,6 +21,7 @@ class FlaskConsumer:
         self.port = None
         self.username = None
         self.password = None
+        self.backend = None
         self.init_app(app)
         self.configure(**kwargs)
 
@@ -28,10 +29,10 @@ class FlaskConsumer:
         if not app:
             return
         self.app = app
-        self.app.before_first_request(self._start)
-        # TODO add to extensions
+        self.app.before_first_request(self.run)
+        self.app.extensions["consumer"] = self
 
-    def configure(self, host=None, port=None, username=None, password=None):
+    def configure(self, backend, host=None, port=None, username=None, password=None):
         if host is not None:
             self.host = host
         if port is not None:
@@ -40,22 +41,32 @@ class FlaskConsumer:
             self.username = username
         if password is not None:
             self.password = password
-
-    def create_connection(self):
-        raise NotImplementedError
-
-    def create_channel(self):
-        raise NotImplementedError
+        if backend is not None:
+            self.backend = backend
 
     def _main(self):
-        # TODO with connection
-        #   - create channel
-        #   - consume
-        ...
+        with self.create_connection() as connection, self.create_consumer(connection):
+            while True:
+                connection.drain_events()
 
-    def _start(self):
-        thread = threading.Thread(target=self._main)
-        thread.start()
+    def run(self, threaded=True):
+        if not threaded:
+            self._main()
+        else:
+            thread = threading.Thread(target=self._main)
+            thread.start()
+
+    def create_connection(self):
+        return kombu.Connection(
+            transport=self.backend,
+            host=self.host,
+            port=self.port,
+            user_id=self.username,
+            password=self.password,
+        )
+
+    def create_consumer(self, connection):
+        raise NotImplementedError
 
 
 class FlaskApp(flask.Flask):
@@ -192,7 +203,18 @@ class Service:
             if not detach:
                 self._serve(host=self._config.SERVE_HOST, port=self._config.SERVE_PORT)
             else:
-                ...  # TODO self._serve on daemon thread
+                thread = threading.Thread(
+                    target=self._serve,
+                    kwargs={
+                        "host": self._config.SERVE_HOST,
+                        "port": self._config.SERVE_PORT,
+                    },
+                    daemon=True,
+                )
+                thread.start()
+        elif "consumer" in self._app.extensions:
+            consumer = self._app.extensions["consumer"]
+            consumer.run(threaded=False)
 
     def config(self, debug=False, **config_values):
         self._pre_command(debug, config_values)
