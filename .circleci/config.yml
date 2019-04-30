@@ -13,11 +13,21 @@ jobs:
       - run:
           name: Check Source Code
           command: |
-            make check
+            make lint
       - run:
           name: Run Unit Tests
           command: |
             make test
+
+  dependency-check:
+    docker:
+      - image: circleci/python:3.7.3
+    steps:
+      - checkout
+      - run:
+          name: Check Dependencies
+          command: ./scripts/check_dependencies.sh
+
   deploy:
     docker:
       - image: circleci/python:3.7.3
@@ -28,16 +38,23 @@ jobs:
           command: python3 setup.py sdist
       - run:
           name: Upload to gemfury
-          command: .circleci/gem_fury_deploy.sh dist/$(ls dist | sort -nr | head -1)
+          command: ./scripts/gem_fury_deploy.sh dist/$(ls dist | sort -nr | head -1)
 
 workflows:
   version: 2
   build_test_deploy:
     jobs:
       - test
+      - dependency-check:
+          filters:
+            branches:
+              only:
+                - master
+                - develop
       - deploy:
           requires:
             - test
+            - dependency-check
           filters:
             branches:
               only:

@@ -1,4 +1,3 @@
-
 LANG=en_GB.UTF-8
 LC_ALL=en_GB.UTF-8
 
@@ -18,7 +17,7 @@ format:
 	python3 -m isort -rc ./tests ./jason ;
 	python3 -m black ./tests ./jason ;
 
-check:
+lint:
 	# python3 -m isort -rc --check-only ./tests ./jason ;
 	python3 -m black --check ./tests ./jason;
 
@@ -29,6 +28,6 @@ test:
 pre-commit:
 	python3 --version ;
 	make format ;
-	make check ;
+	make lint ;
 	make test ;
 	make cloc ;
