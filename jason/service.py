@@ -2,6 +2,7 @@ from typing import Any, Type
 
 import flask
 import waitress
+import threading
 
 from jason import mixins, props
 
@@ -9,6 +10,49 @@ from jason import mixins, props
 class ServiceConfig(props.Config):
     SERVE_HOST = props.String(default="localhost")
     SERVE_PORT = props.Int(default=5000)
+
+
+class FlaskConsumer:
+    def __init__(self, app=None, **kwargs):
+        self.app = None
+        self.host = None
+        self.port = None
+        self.username = None
+        self.password = None
+        self.init_app(app)
+        self.configure(**kwargs)
+
+    def init_app(self, app):
+        if not app:
+            return
+        self.app = app
+        self.app.before_first_request(self._start)
+
+    def configure(self, host=None, port=None, username=None, password=None):
+        if host is not None:
+            self.host = host
+        if port is not None:
+            self.port = port
+        if username is not None:
+            self.username = username
+        if password is not None:
+            self.password = password
+
+    def create_connection(self):
+        raise NotImplementedError
+
+    def create_channel(self):
+        raise NotImplementedError
+
+    def _main(self):
+        # TODO with connection
+        #   - create channel
+        #   - consume
+        ...
+
+    def _start(self):
+        thread = threading.Thread(target=self._main)
+        thread.start()
 
 
 class FlaskApp(flask.Flask):
@@ -73,8 +117,14 @@ class FlaskApp(flask.Flask):
         celery.finalize()
 
     def init_consumer(self, consumer):
-        self._assert_mixin(self.config, mixins.WorkforceConfigMixin, "consumer")
-        consumer.init_app(app=self)  # TODO kwargs from config (WorkforceConfigMixin
+        self._assert_mixin(self.config, mixins.RabbitConfigMixin, "consumer")
+        consumer.init_app(
+            app=self,
+            host=self.config.RABBIT_HOST,
+            port=self.config.RABBIT_PORT,
+            username=self.config.RABBIT_USER,
+            password=self.config.RABBIT_PASS,
+        )
 
     @staticmethod
     def _assert_mixin(config, mixin, item, condition=""):
@@ -108,8 +158,7 @@ class FlaskApp(flask.Flask):
             credentials = f"{self.config.DB_USER}:{self.config.DB_PASS}@"
         else:
             credentials = ""
-        host = f"{self.config.DB_HOST}:{self.config.DB_PORT}"
-        return f"{self.config.DB_DRIVER}://" f"{credentials}{host}"
+        return f"{self.config.DB_DRIVER}://{credentials}{self.config.DB_HOST}:{self.config.DB_PORT}"
 
 
 class FlaskService:

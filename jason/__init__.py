@@ -1,1 +1,1 @@
-from jason.service import flask_service, props, mixins
+from jason.service import flask_service, props, mixins, FlaskConsumer

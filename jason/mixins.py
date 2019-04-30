@@ -30,7 +30,3 @@ class CeleryConfigMixin:
     CELERY_BROKER_BACKEND = props.String(default="rabbitmq", choices=_CELERY_BACKENDS)
     CELERY_RESULTS_BACKEND = props.String(default="rabbitmq", choices=_CELERY_BACKENDS)
     CELERY_REDIS_DATABASE_ID = props.Int(default=0)
-
-
-class WorkforceConfigMixin:
-    ...

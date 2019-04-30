@@ -6,7 +6,7 @@ import fire
 
 class CommandLineInterface:
     @classmethod
-    def run(cls, component):
+    def run(cls, component, method="main"):
         """
         runs a service from the components package by name.
         package must implement `build` method in it's top level
@@ -19,10 +19,10 @@ class CommandLineInterface:
         except (ModuleNotFoundError, ImportError) as ex:
             raise ImportError(f"could not import {component} from {os.getcwd()}. {ex}")
 
-        main = getattr(module, "main")
+        main = getattr(module, method)
         if not main:
             raise AttributeError(
-                f"module {component} does not contain a 'main' method {dir(module)}"
+                f"module {component} does not contain a '{method}' method {dir(module)}"
             )
 
         return main
