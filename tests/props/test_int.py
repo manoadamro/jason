@@ -1,6 +1,6 @@
 import pytest
 
-from jason.schema import Int, PropertyValidationError
+from jason.props import Int, PropertyValidationError
 
 
 def test_does_not_accept_float():

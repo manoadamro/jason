@@ -2,8 +2,10 @@ v0.1.0
 ===
 
 - Removed services package
+- Moved config mix ins to "mixins" module
 - Added service module ([docs](./docs/service.md))
-- Added custom json encoder/decoder ([docs](./docs/json.md))
+- Added "choices" option to all properties in props ([docs](./docs/props.md))
+- Added "config" and "extensions" commands to service cli
 
 v0.0.15
 ===
@@ -49,7 +51,6 @@ v0.0.8
 ===
 
 - Added service module ([docs](./docs/service.md))
-- Added database module ([docs](./docs/database.md))
 - Added config module for config mixins
 - Added flask config mixin
 - Added rabbit config mixin
@@ -75,18 +76,18 @@ v0.0.5
 
 - created core namespace
     - moved config to jason.core
-    - moved schema to jason.core
+    - moved props to jason.core
     - moved utils to jason.core
 
 v0.0.4
 ===
 
-- Added request schema ([docs](./docs/schema.md))
+- Added request schema ([docs](docs/props.md))
 
 v0.0.3
 ===
 
-- Added config module ([docs](docs/config.md))
+- Added config module ([docs](docs/props.md))
 
 - Added `check` to makefile
 - Added basic instructions to `README.md`
@@ -94,7 +95,7 @@ v0.0.3
 v0.0.2
 ===
 
-- Added schema module ([docs](docs/schema.md))
+- Added props module ([docs](docs/props.md))
 
 v0.0.1
 ===

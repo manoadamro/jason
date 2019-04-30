@@ -1,216 +1,219 @@
+import threading
 from typing import Any, Type
 
-from celery import Celery
-from flask import Flask
-from flask_migrate import Migrate
-from flask_redis import FlaskRedis
-from flask_sqlalchemy import SQLAlchemy
-from waitress import serve
+import flask
+import waitress
 
-from .config import Config, props
-
-db = SQLAlchemy()
-migrate = Migrate()
-cache = FlaskRedis()
-celery = Celery()
+from jason import mixins, props
 
 
-class ServiceConfig(Config):
+class ServiceConfig(props.Config):
+    SERVE = props.Bool(default=True)
     SERVE_HOST = props.String(default="localhost")
     SERVE_PORT = props.Int(default=5000)
 
 
-class RedisConfigMixin:
-    REDIS_DRIVER = props.String(default="redis")
-    REDIS_HOST = props.String(default="localhost")
-    REDIS_PORT = props.Int(default=6379)
-    REDIS_PASS = props.String(default=None)
+class AppThreads:
+    def __init__(self):
+        self.app = None
+        self.config = None
+        self._app_threads = []
 
+    def init_app(self, app, config):
+        self.app = app
+        self.config = config
+        self.app.before_first_request(self.run_all)
+        self.app.extensions["app_threads"] = self
 
-class RabbitConfigMixin:
-    RABBIT_DRIVER = props.String(default="ampq")
-    RABBIT_HOST = props.String(default="localhost")
-    RABBIT_PORT = props.Int(default=5672)
-    RABBIT_USER = props.String(default="guest")
-    RABBIT_PASS = props.String(default="guest")
-
-
-class CeleryConfigMixin:
-    CELERY_BROKER_BACKEND = props.String(default="rabbitmq")
-    CELERY_RESULTS_BACKEND = props.String(default="rabbitmq")
-    CELERY_REDIS_DATABASE_ID = props.Int(default=0)
-
-
-class PostgresConfigMixin:
-    DB_DRIVER = props.String(default="postgresql")
-    DB_HOST = props.String(default="localhost")
-    DB_PORT = props.String(default=5432)
-    DB_USER = props.String(nullable=True)
-    DB_PASS = props.String(nullable=True)
-    TEST_DB_URL = props.String(default="sqlite:///:memory:")
-
-
-def _assert_mixin(config, mixin, item, condition=""):
-    if not isinstance(config, mixin):
-        raise TypeError(
-            f"could not initialise {item}. "
-            f"config must sub-class {mixin.__name__} {condition}"
+    def add(self, method, args=None, kwargs=None):
+        self._app_threads.append(
+            {"method": method, "args": args or (), "kwargs": kwargs or {}}
         )
 
-
-def _redis_uri(config: RedisConfigMixin, database_id: int = None):
-    if config.REDIS_PASS is not None:
-        credentials = f":{config.REDIS_PASS}@"
-    else:
-        credentials = None
-    uri = (
-        f"{config.REDIS_DRIVER}://{credentials}{config.REDIS_HOST}:{config.REDIS_PORT}"
-    )
-    if database_id is not None:
-        uri += f"/{database_id}"
-    return uri
+    def run_all(self):
+        for process in self._app_threads:
+            thread = threading.Thread(
+                target=process["method"], args=process["args"], kwargs=process["kwargs"]
+            )
+            thread.start()
 
 
-def _rabbit_uri(config: RabbitConfigMixin):
-    return (
-        f"{config.RABBIT_DRIVER}://"
-        f"{config.RABBIT_USER}:{config.RABBIT_PORT}"
-        f"@{config.RABBIT_HOST}:{config.RABBIT_PORT}"
-    )
+class App(flask.Flask):
+    def __init__(self, name: str, config: Any, testing: bool = False, **kwargs: Any):
+        super(App, self).__init__(name, **kwargs)
+        config.update(self.config)
+        self.config = config
+        self.testing = testing
 
+    def init_threads(self, app_threads):
+        app_threads.init_app(app=self, config=self.config)
 
-def _database_uri(config: PostgresConfigMixin, testing: bool):
-    if testing:
-        return config.TEST_DB_URL
-    if config.DB_USER:
-        credentials = f"{config.DB_USER}:{config.DB_PASS}@"
-    else:
-        credentials = ""
-    host = f"{config.DB_HOST}:{config.DB_PORT}"
-    return f"{config.DB_DRIVER}://" f"{credentials}{host}"
+    def init_sqlalchemy(self, database, migrate=None):
+        self._assert_mixin(self.config, mixins.PostgresConfigMixin, "database")
+        self.config.SQLALCHEMY_DATABASE_URI = self._database_uri()
+        self.config.SQLALCHEMY_TRACK_MODIFICATIONS = False
+        database.init_app(app=self)
+        if migrate:
+            migrate.init_app(app=self, db=database)
 
+    def init_redis(self, cache):
+        self._assert_mixin(self.config, mixins.RedisConfigMixin, "cache")
+        self.config.REDIS_URL = self._redis_uri()
+        cache.init_app(app=self)
 
-def _init_database(app, config, testing):
-    _assert_mixin(config, PostgresConfigMixin, "database")
-    database_uri = _database_uri(config, testing=testing)
-    app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    db.init_app(app=app)
+    def init_celery(self, celery):
+        self._assert_mixin(self.config, mixins.CeleryConfigMixin, "celery")
 
+        celery.conf.broker_url = self._backend_url(self.config.CELERY_BROKER_BACKEND)
+        celery.conf.result_backend = self._backend_url(
+            self.config.CELERY_RESULTS_BACKEND
+        )
+        task_base = celery.Task
 
-def _init_cache(app, config, testing):
-    _assert_mixin(config, RedisConfigMixin, "cache")
-    cache.init_app(
-        app=app,
-        host=config.REDIS_HOST,
-        port=config.REDIS_PORT,
-        password=config.REDIS_PASS,
-    )
+        class AppContextTask(task_base):
+            abstract = True
 
+            def __call__(self, *args, **kwargs):
+                with self.app_context():
+                    return task_base.__call__(self, *args, **kwargs)
 
-def _init_celery(app, config, testing):
-    _assert_mixin(config, CeleryConfigMixin, "celery")
+        # noinspection PyPropertyAccess
+        celery.Task = AppContextTask
+        celery.finalize()
 
-    def backend_url(backend):
+    @staticmethod
+    def _assert_mixin(config, mixin, item, condition=""):
+        if not isinstance(config, mixin):
+            raise TypeError(
+                f"could not initialise {item}. "
+                f"config must sub-class {mixin.__name__} {condition}"
+            )
+
+    def _redis_uri(self, database_id: int = None):
+        if self.config.REDIS_PASS is not None:
+            credentials = f":{self.config.REDIS_PASS}@"
+        else:
+            credentials = None
+        uri = f"{self.config.REDIS_DRIVER}://{credentials}{self.config.REDIS_HOST}:{self.config.REDIS_PORT}"
+        if database_id is not None:
+            uri += f"/{database_id}"
+        return uri
+
+    def _rabbit_uri(self):
+        return (
+            f"{self.config.RABBIT_DRIVER}://"
+            f"{self.config.RABBIT_USER}:{self.config.RABBIT_PORT}"
+            f"@{self.config.RABBIT_HOST}:{self.config.RABBIT_PORT}"
+        )
+
+    def _database_uri(self):
+        if self.testing:
+            return self.config.TEST_DB_URL
+        if self.config.DB_USER:
+            credentials = f"{self.config.DB_USER}:{self.config.DB_PASS}@"
+        else:
+            credentials = ""
+        return f"{self.config.DB_DRIVER}://{credentials}{self.config.DB_HOST}:{self.config.DB_PORT}"
+
+    def _check_backend_config(self, backend):
         if backend == "rabbitmq":
-            _assert_mixin(
-                config,
-                RabbitConfigMixin,
+            self._assert_mixin(
+                self.config,
+                mixins.RabbitConfigMixin,
                 "celery broker",
                 "if broker backend is rabbitmq",
             )
-            return _rabbit_uri(config)
         elif backend == "redis":
-            _assert_mixin(
-                config, RedisConfigMixin, "celery broker", "if broker backend is redis"
+            self._assert_mixin(
+                self.config,
+                mixins.RedisConfigMixin,
+                "celery broker",
+                "if broker backend is redis",
             )
-            return _redis_uri(
-                config=config, database_id=config.CELERY_REDIS_DATABASE_ID
-            )
+
+    def _backend_url(self, backend):
+        self._check_backend_config(backend=backend)
+        if backend == "rabbitmq":
+            return self._rabbit_uri()
+        elif backend == "redis":
+            return self._redis_uri(database_id=self.config.CELERY_REDIS_DATABASE_ID)
         raise ValueError(f"invalid backend name '{backend}'")
 
-    celery.conf.broker_url = backend_url(config.CELERY_BROKER_BACKEND)
-    celery.conf.result_backend = backend_url(config.CELERY_RESULTS_BACKEND)
-    task_base = celery.Task
-
-    class AppContextTask(task_base):
-        abstract = True
-
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return task_base.__call__(self, *args, **kwargs)
-
-    celery.Task = AppContextTask
-    celery.finalize()
-
-
-def create_app(
-    config: Any,
-    testing: bool = False,
-    use_db: bool = False,
-    use_cache: bool = False,
-    use_celery: bool = False,
-    use_migrate: bool = False,
-):
-    app = Flask(__name__)
-    app.testing = testing
-    app.config.update(config.__dict__)
-    if use_migrate and not use_db:
-        raise ValueError("parameter 'use_migrate' can not be True if 'use_db' is False")
-    if use_cache:
-        _init_cache(app=app, config=config, testing=testing)
-    if use_db:
-        _init_database(app=app, config=config, testing=testing)
-    if use_celery:
-        _init_celery(app=app, config=config, testing=testing)
-    if use_migrate:
-        migrate.init_app(app=app, db=db)
-    return app
+    def _backend_config(self, backend):
+        self._check_backend_config(backend=backend)
+        if backend == "rabbitmq":
+            return dict(
+                host=self.config.RABBIT_HOST,
+                port=self.config.RABBIT_PORT,
+                username=self.config.RABBIT_USER,
+                password=self.config.RABBIT_PASS,
+            )
+        elif backend == "redis":
+            return dict(
+                host=self.config.REDIS_HOST,
+                port=self.config.REDIS_PASS,
+                username=self.config.REDIS_USER,
+                password=self.config.REDIS_PASS,
+            )
 
 
-class FlaskService:
-    def __init__(
-        self,
-        config_class: Type[ServiceConfig],
-        use_db: bool = False,
-        use_cache: bool = False,
-        use_celery: bool = False,
-    ):
-
-        self.config_class = config_class
-        self.use_db = use_db
-        self.use_cache = use_cache
-        self.use_celery = use_celery
-        self.app = None
-        self.config = None
-        self.debug = False
-
-    def _create_app(self):
-        return create_app(
-            config=self.config,
-            testing=self.debug,
-            use_db=self.use_db,
-            use_cache=self.use_cache,
-            use_celery=self.use_celery,
-        )
+class Service:
+    def __init__(self, config_class: Type[ServiceConfig], _app_gen: Any = App):
+        self._app_gen = _app_gen
+        self._config_class = config_class
+        self._app = None
+        self._config = None
+        self._debug = False
+        self._callback = None
 
     def _serve(self, host, port):
-        if self.debug:
-            self.app.run(host=host, port=port)
+        if self._debug:
+            self._app.run(host=host, port=port)
         else:
-            serve(self.app, host=host, port=port)
+            waitress.serve(self._app, host=host, port=port)
+
+    def _pre_command(self, debug, config_values):
+        self._debug = debug
+        self._config = self._config_class.load(**config_values)
+        self._app = self._app_gen(__name__, config=self._config, testing=self._debug)
+        if self._callback:
+            self._callback(self._app, debug)
+
+    def run(self, debug=False, no_serve=False, detach=False, **config_values):
+        self._pre_command(debug, config_values)
+        if no_serve is False and self._config.SERVE is True:
+            if not detach:
+                self._serve(host=self._config.SERVE_HOST, port=self._config.SERVE_PORT)
+            else:
+                thread = threading.Thread(
+                    target=self._serve,
+                    kwargs={
+                        "host": self._config.SERVE_HOST,
+                        "port": self._config.SERVE_PORT,
+                    },
+                    daemon=True,
+                )
+                thread.start()
+        elif "app_threads" in self._app.extensions:
+            app_threads = self._app.extensions["app_threads"]
+            app_threads.run_all(threaded=False)
+            while threading.active_count():
+                ...
+
+    def config(self, debug=False, **config_values):
+        self._pre_command(debug, config_values)
+        prop_strings = (
+            f"{key}={value}" for key, value in self._config.__dict__.items()
+        )
+        return "\n".join(prop_strings)
+
+    def extensions(self, debug=False, **config_values):
+        self._pre_command(debug, config_values)
+        return "\n".join(e for e in self._app.extensions)
 
     def __call__(self, func):
-        def call(debug=False, no_serve=False, **config_values):
-            self.debug = debug
-            self.config = self.config_class.load(**config_values)
-            self.app = self._create_app()
-            func(self.app, debug)
-            if no_serve:
-                return
-            self._serve(host=self.config.SERVE_HOST, port=self.config.SERVE_PORT)
-
-        return call
+        self._callback = func
+        return self
 
 
-flask_service = FlaskService
+service = Service

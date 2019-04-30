@@ -3,10 +3,12 @@ from importlib import import_module as _import
 
 import fire
 
+from jason.service import Service
 
-class CommandLineInterface:
+
+class CLI:
     @classmethod
-    def run(cls, component):
+    def run_service(cls, component):
         """
         runs a service from the components package by name.
         package must implement `build` method in it's top level
@@ -19,14 +21,20 @@ class CommandLineInterface:
         except (ModuleNotFoundError, ImportError) as ex:
             raise ImportError(f"could not import {component} from {os.getcwd()}. {ex}")
 
-        main = getattr(module, "main")
-        if not main:
+        service = None
+        for item in dir(module):
+            attr = getattr(module, item)
+            if isinstance(attr, Service):
+                # TODO found service {item}
+                service = attr
+                break
+        if not service:
             raise AttributeError(
-                f"module {component} does not contain a 'main' method {dir(module)}"
+                f"module {component} does not contain an instance '{Service.__name__}'"
             )
 
-        return main
+        return service
 
 
 if __name__ == "__main__":
-    fire.Fire(CommandLineInterface, name="jason")
+    fire.Fire(CLI.run_service, name="jason")

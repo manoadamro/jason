@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 
-from jason import schema
+from jason import props
 
 
 def mock_request(args=None, query=None, json=None, form=None):
@@ -14,7 +14,7 @@ def mock_request(args=None, query=None, json=None, form=None):
 
 @contextmanager
 def patch_request(**kwargs):
-    with mock.patch("jason.schema.request", mock_request(**kwargs)) as request:
+    with mock.patch("jason.props.request", mock_request(**kwargs)) as request:
         try:
             yield request
         finally:
@@ -22,8 +22,8 @@ def patch_request(**kwargs):
 
 
 def test_validates_request_query():
-    @schema.request_schema(
-        query=schema.Inline(props=dict(q=schema.String, i=schema.Int(nullable=True)))
+    @props.request_schema(
+        query=props.Inline(props=dict(q=props.String, i=props.Int(nullable=True)))
     )
     def mock_route(query):
         return query
@@ -35,8 +35,8 @@ def test_validates_request_query():
 
 
 def test_validates_request_view_args():
-    @schema.request_schema(
-        args=schema.Inline(props=dict(thing_id=schema.Int, other_id=schema.Int))
+    @props.request_schema(
+        args=props.Inline(props=dict(thing_id=props.Int, other_id=props.Int))
     )
     def mock_route(thing_id, other_id):
         return thing_id, other_id
@@ -48,8 +48,8 @@ def test_validates_request_view_args():
 
 
 def test_validates_request_json():
-    @schema.request_schema(
-        json=schema.Inline(props=dict(q=schema.String, i=schema.Int(nullable=True)))
+    @props.request_schema(
+        json=props.Inline(props=dict(q=props.String, i=props.Int(nullable=True)))
     )
     def mock_route(json):
         return json
@@ -61,7 +61,7 @@ def test_validates_request_json():
 
 
 def test_json_true():
-    @schema.request_schema(json=True)
+    @props.request_schema(json=True)
     def mock_route(json):
         return json
 
@@ -70,12 +70,12 @@ def test_json_true():
 
     assert parsed_json == {"q": "hello"}
 
-    with patch_request(json=None), pytest.raises(schema.BatchValidationError):
+    with patch_request(json=None), pytest.raises(props.BatchValidationError):
         mock_route()
 
 
 def test_json_false():
-    @schema.request_schema(json=False)
+    @props.request_schema(json=False)
     def mock_route(json):
         return json
 
@@ -84,14 +84,12 @@ def test_json_false():
 
     assert parsed_json is None
 
-    with patch_request(json=dict(q="hello")), pytest.raises(
-        schema.BatchValidationError
-    ):
+    with patch_request(json=dict(q="hello")), pytest.raises(props.BatchValidationError):
         mock_route()
 
 
 def test_json_none():
-    @schema.request_schema(json=None)
+    @props.request_schema(json=None)
     def mock_route(json):
         return json
 
@@ -107,8 +105,8 @@ def test_json_none():
 
 
 def test_validates_request_form():
-    @schema.request_schema(
-        form=schema.Inline(props=dict(q=schema.String, i=schema.Int(nullable=True)))
+    @props.request_schema(
+        form=props.Inline(props=dict(q=props.String, i=props.Int(nullable=True)))
     )
     def mock_route(form):
         return form
@@ -120,7 +118,7 @@ def test_validates_request_form():
 
 
 def test_form_true():
-    @schema.request_schema(form=True)
+    @props.request_schema(form=True)
     def mock_route(form):
         return form
 
@@ -129,12 +127,12 @@ def test_form_true():
 
     assert parsed_form == {"q": "hello"}
 
-    with patch_request(form=None), pytest.raises(schema.BatchValidationError):
+    with patch_request(form=None), pytest.raises(props.BatchValidationError):
         mock_route()
 
 
 def test_form_false():
-    @schema.request_schema(form=False)
+    @props.request_schema(form=False)
     def mock_route(form):
         return form
 
@@ -143,14 +141,12 @@ def test_form_false():
 
     assert parsed_form is None
 
-    with patch_request(form=dict(q="hello")), pytest.raises(
-        schema.BatchValidationError
-    ):
+    with patch_request(form=dict(q="hello")), pytest.raises(props.BatchValidationError):
         mock_route()
 
 
 def test_form_none():
-    @schema.request_schema(form=None)
+    @props.request_schema(form=None)
     def mock_route(form):
         return form
 
@@ -169,18 +165,18 @@ def test_form_none():
 def model():
     class MyModel:
 
-        args = schema.Inline(props=dict(thing_id=schema.Int, other_id=schema.Int))
+        args = props.Inline(props=dict(thing_id=props.Int, other_id=props.Int))
 
-        JSON = schema.Inline(props=dict(name=schema.String))
+        JSON = props.Inline(props=dict(name=props.String))
 
         class Query:
-            i = schema.Int
+            i = props.Int
 
     return MyModel
 
 
 def test_validates_request_from_model(model):
-    @schema.request_schema(model=model)
+    @props.request_schema(model=model)
     def mock_route(thing_id, other_id, json, query):
         return thing_id, other_id, json, query
 
@@ -198,7 +194,7 @@ def test_validates_request_from_model(model):
 
 
 def test_kwargs_override_model(model):
-    @schema.request_schema(model=model, json=schema.Inline(props=dict(age=schema.Int)))
+    @props.request_schema(model=model, json=props.Inline(props=dict(age=props.Int)))
     def mock_route(thing_id, other_id, json):
         return thing_id, other_id, json
 

@@ -3,6 +3,7 @@ api.token
 
 """
 import functools
+import json
 import time
 from typing import Any, Callable, Dict, List, NoReturn
 
@@ -10,8 +11,7 @@ import flask
 import jsonpointer
 import jwt
 
-from .crypto import ChaCha20
-from .json import JsonEncoder, json
+from . import crypto
 
 
 class TokenValidationError(Exception):
@@ -51,7 +51,7 @@ class TokenHandler(TokenHandlerBase):
     """
 
     HEADER_KEY = "Authorization"
-    CIPHER = ChaCha20
+    CIPHER = crypto.ChaCha20
 
     DECODER_OPTIONS = {
         "require_exp": True,
@@ -130,7 +130,7 @@ class TokenHandler(TokenHandlerBase):
             self.DECODER_OPTIONS[key] = value
 
     def _encode(
-        self, token_data: Dict[str, Any], json_encoder: json.JSONEncoder = JsonEncoder
+        self, token_data: Dict[str, Any], json_encoder: Any = json.JSONEncoder
     ) -> str:
         """
         encodes a token from dict to string
@@ -367,7 +367,7 @@ class MatchValues(TokenRule):
             assert self._check_equal(
                 [matcher[0](matcher[1], token) for matcher in self.matchers]
             )
-        except jsonpointer.JsonPointerException as ex:
+        except jsonpointer.JsonPointerException:
             raise TokenValidationError(f"path to value does not exist in token")
         except AssertionError:
             raise TokenValidationError("one or more values do not match")

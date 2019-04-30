@@ -2,12 +2,12 @@ from unittest.mock import patch
 
 import pytest
 
-from jason.config import Config, props
+from jason import props
 
 
 @pytest.fixture
 def model():
-    class MyConfig(Config):
+    class MyConfig(props.Config):
         MY_INT = props.Int()
         MY_FLOAT = props.Float()
         MY_STRING = props.String()

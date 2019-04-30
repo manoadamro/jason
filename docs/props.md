@@ -413,7 +413,7 @@ maximum value accepted, if `None` any value will be accepted (default: None)
 
 Used for validating content in flask requests.
 
-documentation for schema properties and models is [here](schema.md)
+documentation for schema properties and models is [here](props.md)
 
 ### `request_schema(...)`
 

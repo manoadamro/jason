@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from jason.schema import Date, PropertyValidationError
+from jason.props import Date, PropertyValidationError
 
 
 @pytest.fixture
