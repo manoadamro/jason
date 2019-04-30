@@ -5,6 +5,7 @@ v0.1.0
 - Moved config mix ins to "mixins" module
 - Added service module ([docs](./docs/service.md))
 - Added "choices" option to all properties in props ([docs](./docs/props.md))
+- Added "config" and "extensions" commands to service cli
 
 v0.0.15
 ===
