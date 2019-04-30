@@ -1,1 +1,1 @@
-from jason.service import service, props, mixins, Consumer
+from jason.service import AppThreads, mixins, props, service

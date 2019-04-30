@@ -2,7 +2,6 @@ import threading
 from typing import Any, Type
 
 import flask
-import kombu
 import waitress
 
 from jason import mixins, props
@@ -14,59 +13,29 @@ class ServiceConfig(props.Config):
     SERVE_PORT = props.Int(default=5000)
 
 
-class Consumer:
-    def __init__(self, app=None, **kwargs):
+class AppThreads:
+    def __init__(self):
         self.app = None
-        self.host = None
-        self.port = None
-        self.username = None
-        self.password = None
-        self.backend = None
-        self.init_app(app)
-        self.configure(**kwargs)
+        self.config = None
+        self._app_threads = []
 
-    def init_app(self, app):
-        if not app:
-            return
+    def init_app(self, app, config):
         self.app = app
-        self.app.before_first_request(self.run)
-        self.app.extensions["consumer"] = self
+        self.config = config
+        self.app.before_first_request(self.run_all)
+        self.app.extensions["app_threads"] = self
 
-    def configure(self, backend, host=None, port=None, username=None, password=None):
-        if host is not None:
-            self.host = host
-        if port is not None:
-            self.port = port
-        if username is not None:
-            self.username = username
-        if password is not None:
-            self.password = password
-        if backend is not None:
-            self.backend = backend
-
-    def _main(self):
-        with self.create_connection() as connection, self.create_consumer(connection):
-            while True:
-                connection.drain_events()
-
-    def run(self, threaded=True):
-        if not threaded:
-            self._main()
-        else:
-            thread = threading.Thread(target=self._main)
-            thread.start()
-
-    def create_connection(self):
-        return kombu.Connection(
-            transport=self.backend,
-            host=self.host,
-            port=self.port,
-            user_id=self.username,
-            password=self.password,
+    def add(self, method, args=None, kwargs=None):
+        self._app_threads.append(
+            {"method": method, "args": args or (), "kwargs": kwargs or {}}
         )
 
-    def create_consumer(self, connection):
-        raise NotImplementedError
+    def run_all(self):
+        for process in self._app_threads:
+            thread = threading.Thread(
+                target=process["method"], args=process["args"], kwargs=process["kwargs"]
+            )
+            thread.start()
 
 
 class App(flask.Flask):
@@ -75,6 +44,9 @@ class App(flask.Flask):
         config.update(self.config)
         self.config = config
         self.testing = testing
+
+    def init_threads(self, app_threads):
+        app_threads.init_app(app=self, config=self.config)
 
     def init_sqlalchemy(self, database, migrate=None):
         self._assert_mixin(self.config, mixins.PostgresConfigMixin, "database")
@@ -86,37 +58,16 @@ class App(flask.Flask):
 
     def init_redis(self, cache):
         self._assert_mixin(self.config, mixins.RedisConfigMixin, "cache")
-        cache.init_app(
-            app=self,
-            host=self.config.REDIS_HOST,
-            port=self.config.REDIS_PORT,
-            password=self.config.REDIS_PASS,
-        )
+        self.config.REDIS_URL = self._redis_uri()
+        cache.init_app(app=self)
 
     def init_celery(self, celery):
         self._assert_mixin(self.config, mixins.CeleryConfigMixin, "celery")
 
-        def backend_url(backend):
-            if backend == "rabbitmq":
-                self._assert_mixin(
-                    self.config,
-                    mixins.RabbitConfigMixin,
-                    "celery broker",
-                    "if broker backend is rabbitmq",
-                )
-                return self._rabbit_uri()
-            elif backend == "redis":
-                self._assert_mixin(
-                    self.config,
-                    mixins.RedisConfigMixin,
-                    "celery broker",
-                    "if broker backend is redis",
-                )
-                return self._redis_uri(database_id=self.config.CELERY_REDIS_DATABASE_ID)
-            raise ValueError(f"invalid backend name '{backend}'")
-
-        celery.conf.broker_url = backend_url(self.config.CELERY_BROKER_BACKEND)
-        celery.conf.result_backend = backend_url(self.config.CELERY_RESULTS_BACKEND)
+        celery.conf.broker_url = self._backend_url(self.config.CELERY_BROKER_BACKEND)
+        celery.conf.result_backend = self._backend_url(
+            self.config.CELERY_RESULTS_BACKEND
+        )
         task_base = celery.Task
 
         class AppContextTask(task_base):
@@ -129,16 +80,6 @@ class App(flask.Flask):
         # noinspection PyPropertyAccess
         celery.Task = AppContextTask
         celery.finalize()
-
-    def init_consumer(self, consumer):
-        self._assert_mixin(self.config, mixins.RabbitConfigMixin, "consumer")
-        consumer.init_app(
-            app=self,
-            host=self.config.RABBIT_HOST,
-            port=self.config.RABBIT_PORT,
-            username=self.config.RABBIT_USER,
-            password=self.config.RABBIT_PASS,
-        )
 
     @staticmethod
     def _assert_mixin(config, mixin, item, condition=""):
@@ -173,6 +114,47 @@ class App(flask.Flask):
         else:
             credentials = ""
         return f"{self.config.DB_DRIVER}://{credentials}{self.config.DB_HOST}:{self.config.DB_PORT}"
+
+    def _check_backend_config(self, backend):
+        if backend == "rabbitmq":
+            self._assert_mixin(
+                self.config,
+                mixins.RabbitConfigMixin,
+                "celery broker",
+                "if broker backend is rabbitmq",
+            )
+        elif backend == "redis":
+            self._assert_mixin(
+                self.config,
+                mixins.RedisConfigMixin,
+                "celery broker",
+                "if broker backend is redis",
+            )
+
+    def _backend_url(self, backend):
+        self._check_backend_config(backend=backend)
+        if backend == "rabbitmq":
+            return self._rabbit_uri()
+        elif backend == "redis":
+            return self._redis_uri(database_id=self.config.CELERY_REDIS_DATABASE_ID)
+        raise ValueError(f"invalid backend name '{backend}'")
+
+    def _backend_config(self, backend):
+        self._check_backend_config(backend=backend)
+        if backend == "rabbitmq":
+            return dict(
+                host=self.config.RABBIT_HOST,
+                port=self.config.RABBIT_PORT,
+                username=self.config.RABBIT_USER,
+                password=self.config.RABBIT_PASS,
+            )
+        elif backend == "redis":
+            return dict(
+                host=self.config.REDIS_HOST,
+                port=self.config.REDIS_PASS,
+                username=self.config.REDIS_USER,
+                password=self.config.REDIS_PASS,
+            )
 
 
 class Service:
@@ -212,9 +194,11 @@ class Service:
                     daemon=True,
                 )
                 thread.start()
-        elif "consumer" in self._app.extensions:
-            consumer = self._app.extensions["consumer"]
-            consumer.run(threaded=False)
+        elif "app_threads" in self._app.extensions:
+            app_threads = self._app.extensions["app_threads"]
+            app_threads.run_all(threaded=False)
+            while threading.active_count():
+                ...
 
     def config(self, debug=False, **config_values):
         self._pre_command(debug, config_values)
