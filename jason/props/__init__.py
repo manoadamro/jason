@@ -1,5 +1,3 @@
-from jason.request import RequestSchema as _RequestSchema
-
 from .error import BatchValidationError, PropertyValidationError, RequestValidationError
 from .rules import AnyOf
 from .types import (
@@ -22,5 +20,3 @@ from .types import (
     String,
     Uuid,
 )
-
-request_schema = _RequestSchema

@@ -27,11 +27,7 @@ from jason import make_config, service
 
 
 @service(make_config())
-def awesome_service(app, debug):
-
-    if debug:
-        print(f"running in debug mode")
-    
+def awesome_service(app):
     # register blueprints
     app.register_blueprint(...)
 ```
@@ -56,7 +52,7 @@ Define a service using the decorator:
 from jason import make_config, service
 
 @service(make_config())
-def awesome_service(app, debug):
+def awesome_service(app):
     # ...app set up happens here...
     ...
 
@@ -70,7 +66,7 @@ NOTE: you will need to override the `_set_up` method
 from jason import make_config, Service
 
 class MyAwesomeService(Service):
-    def _set_up(self, app, debug):
+    def _set_up(self, app):
         # ...app set up happens here...
         ...
 
@@ -92,12 +88,12 @@ You can define multiple entry points in one file:
 from jason import make_config, service
 
 @service(make_config())
-def service_1(app, debug):
+def service_1(app):
     # ...app set up happens here...
     ...
 
 @service(make_config())
-def service_2(app, debug):
+def service_2(app):
     # ...app set up happens here...
     ...
 
@@ -120,7 +116,7 @@ To create a basic configuration, call `make_config` with flags for each required
 from jason import make_config, service
 
 @service(make_config(postgres=True, redis=True))
-def awesome_service(app, debug):
+def awesome_service(app):
     ...
 ```
 
@@ -134,7 +130,7 @@ class MyConfig(ServiceConfig):
     OTHER_VAR = props.Int()
 
 @service(make_config(base=MyConfig, postgres=True, redis=True))
-def awesome_service(app, debug):
+def awesome_service(app):
     ...
 ```
 
@@ -149,7 +145,7 @@ class MyConfig(ServiceConfig, mixins.PostgresConfigMixin, mixins.RedisConfigMixi
 
 
 @service(MyConfig)
-def awesome_service(app, debug):
+def awesome_service(app):
     ...
 ```
 
@@ -181,7 +177,7 @@ class MyConfig(ServiceConfig, mixins.PostgresConfigMixin):
 db = SQLAlchemy()
 
 @service(MyConfig)
-def awesome_service(app, debug):
+def awesome_service(app):
     app.init_sqlalchemy(db)
 ```
 Now your app is using SqlAlchemy!
@@ -210,7 +206,7 @@ import flask_sqlalchemy
 db = flask_sqlalchemy.SQLAlchemy()
 
 @service(make_config())
-def awesome_service(app, debug):
+def awesome_service(app):
     app.init_sqlalchemy(db)
     
 ```
@@ -240,7 +236,7 @@ import flask_redis
 cache = flask_redis.FlaskRedis()
 
 @service(make_config())
-def awesome_service(app, debug):
+def awesome_service(app):
     app.init_redis(cache)
     
 ```
@@ -269,7 +265,7 @@ import celery
 cel = celery.Celery()
 
 @service(make_config())
-def awesome_service(app, debug):
+def awesome_service(app):
     app.init_celery(cel)
     
 ```
@@ -317,7 +313,7 @@ from jason import make_config, service, AppThreads
 my_threads = AppThreads()
 
 @service(make_config())
-def awesome_service(app, debug):
+def awesome_service(app):
     app.init_threads(my_threads)
 
 # with no parameters
@@ -340,7 +336,7 @@ Commands are run using `jason -m ...`
 from jason import service
 
 @service(...)
-def awesome_service(app, debug):
+def awesome_service(app):
     ...
 ```
 To invoke Jason CLI, run `python3 jason -m ...`
