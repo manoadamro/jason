@@ -11,7 +11,7 @@ Jason is a framework for building flask based micro services.
     - [Service Extensions](#Service-Extensions)
     - [Service Threads](#Service-Threads)
     - [Command Line Interface](#Command-Line-Interface)
-- [Schema Properties](#Schema-Properties)
+- [Schema](#Schema)
     - [Content Validation](#Content-Validation)
     - [Schema Model](#Schema-Model)
     - [Property Types](#Property-Types)
@@ -157,7 +157,7 @@ possible config flags:
 - postgres
 - celery
 
-see [here](#Schema-Properties) for more information about defining a config object
+see [here](#Schema) for more information about defining a config object
 
 ---
 
@@ -450,7 +450,7 @@ python3 -m my_service extensions --debug --my-var=123
 ---
 
 
-## Schema Properties
+## Schema
 
 ---
 
