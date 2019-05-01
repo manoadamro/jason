@@ -1,11 +1,12 @@
 v0.1.0
 ===
 
-- Removed services package
-- Moved config mix ins to "mixins" module
 - Added service module
 - Added "choices" option to all properties in props
 - Added "config" and "extensions" commands to service cli
+- Moved config mix ins to "mixins" module
+- Removed services package
+- Updated readme and docs
 
 v0.0.15
 ===

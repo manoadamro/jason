@@ -279,14 +279,14 @@ def awesome_service(app, debug):
 | Name                      | Type                        | Default               | Nullable  |
 | :-----------------------: | :-------------------------: | :-------------------: | :-------: |
 | CELERY_BROKER_BACKEND     | Choice (ampq, redis)        | ampq                  | False     |
-| CELERY_RESULTS_BACKEND    | String (ampq, redis)        | ampq                  | False     |
+| CELERY_RESULTS_BACKEND    | Choice (ampq, redis)        | ampq                  | False     |
 | CELERY_REDIS_DATABASE_ID  | Int                         | 0                     | False     |
 
 
 Backends:
     
+- `redis`: uses redis, requires `RedisConfigMixin` (see above)
 - `ampq`: uses rabbitmq, requires `RabbitConfigMixin` (see below)
-- `redis`: uses redis, requires `RedisConfigMixin` (see below)
 
 ([celery docs](https://pypi.org/project/celery/))
 
