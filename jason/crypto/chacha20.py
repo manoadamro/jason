@@ -8,10 +8,12 @@ class ChaCha20:
     encoding = "utf8"
     join_char = "-"
     join_string = join_char * 2
+    key_length = 32
     escape = (join_char, f"%{join_char}")
 
     def __init__(self, key):
-        self.key = key.rjust(32).encode(self.encoding)
+        key = key.rjust(self.key_length)
+        self.key = key.encode(self.encoding)
 
     def _escape(self, string):
         return re.sub(self.escape[0], self.escape[1], string)
