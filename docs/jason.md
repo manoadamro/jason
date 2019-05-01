@@ -11,9 +11,10 @@ Jason is a framework for building flask based micro services.
     - [Service Extensions](#Service-Extensions)
     - [Service Threads](#Service-Threads)
     - [Command Line Interface](#Command-Line-Interface)
-- [Schema](#Schema)
-    - [Schema Properties](#Schema-Properties)
+- [Schema Properties](#Schema-Properties)
     - [Content Validation](#Content-Validation)
+    - [Schema Model](#Schema-Model)
+    - [Property Types](#Property-Types)
 - [Request Tokens](#Request-Tokens)
 
 ---
@@ -156,7 +157,7 @@ possible config flags:
 - postgres
 - celery
 
-see [here](#Schema) for more information about defining a config object
+see [here](#Schema-Properties) for more information about defining a config object
 
 ---
 
@@ -166,6 +167,18 @@ Jason will also initialise extensions for you.
 The only pre-requisite is that your config either uses the relevant mixin, 
 or you use `make_config` 
 
+using `make_config`:
+```python
+from jason import service, make_config
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
+
+@service(make_config(postgres=True))
+def awesome_service(app):
+    app.init_sqlalchemy(db)
+```
+using mixin:
 ```python
 
 from jason import ServiceConfig, service, mixins
@@ -180,7 +193,6 @@ db = SQLAlchemy()
 def awesome_service(app):
     app.init_sqlalchemy(db)
 ```
-Now your app is using SqlAlchemy!
 
 ### Extensions
 
@@ -438,11 +450,21 @@ python3 -m my_service extensions --debug --my-var=123
 ---
 
 
-## Schema
+## Schema Properties
 
 ---
 
-### Config
+
+### Content Validation
+
+TODO
+
+```python
+
+
+```
+
+---
 
 
 ### Schema Model
@@ -456,22 +478,11 @@ TODO
 ---
 
 
-### Schema Properties
+### Property Types
 
 TODO
 
 ```python
-
-```
-
----
-
-### Content Validation
-
-TODO
-
-```python
-
 
 ```
 
