@@ -2,7 +2,6 @@
 
 import setuptools
 
-
 setuptools.setup(
     name='jason',
     version='0.1.0',
