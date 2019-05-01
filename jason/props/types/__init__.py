@@ -1,4 +1,4 @@
-# TODO break up
+# TODO break this up, one module per class.... good luck and god speed
 
 import datetime
 import os
@@ -6,7 +6,7 @@ import re
 import uuid
 from typing import Any, Callable, Dict, List, Pattern, Tuple, Type, Union
 
-from . import base, error, range, utils
+from .. import base, error, range, utils
 
 
 class Property(base.SchemaAttribute):
