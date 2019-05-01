@@ -9,9 +9,16 @@ from .mixins import (
 from .service import Service
 from .threads import AppThreads
 
+from typing import Type
+
 
 def make_config(
-    base, redis=False, rabbit=False, postgres=False, celery=False, fields=None
+    base: Type[ServiceConfig] = None,
+    redis: bool = False,
+    rabbit: bool = False,
+    postgres: bool = False,
+    celery: bool = False,
+    fields: bool = None,
 ):
     types = []
     if redis:
@@ -22,5 +29,5 @@ def make_config(
         types.append(PostgresConfigMixin)
     if celery:
         types.append(CeleryConfigMixin)
-    types.append(base)
+    types.append(base or ServiceConfig)
     return type("Config", tuple(types), fields or {})

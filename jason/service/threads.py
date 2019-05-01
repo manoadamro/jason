@@ -13,14 +13,18 @@ class AppThreads:
         self.app.before_first_request(self.run_all)
         self.app.extensions["app_threads"] = self
 
-    def add(self, method, args=None, kwargs=None):
+    def add(self, method):
         self._app_threads.append(
-            {"method": method, "args": args or (), "kwargs": kwargs or {}}
+            {"method": method, "kwargs": {"app": self.app}}
         )
 
     def run_all(self):
         for process in self._app_threads:
             thread = threading.Thread(
-                target=process["method"], args=process["args"], kwargs=process["kwargs"]
+                target=process["method"], kwargs=process["kwargs"]
             )
             thread.start()
+
+    def thread(self, func):
+        self.add(method=func)
+        return func
