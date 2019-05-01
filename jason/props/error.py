@@ -1,18 +1,8 @@
 class PropertyValidationError(Exception):
-    """
-    raised when a property fails to validate a value
-
-    """
-
     ...
 
 
 class RequestValidationError(PropertyValidationError):
-    """
-    raised when `RequestSchema` fails to validate a request
-
-    """
-
     ...
 
 

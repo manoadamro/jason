@@ -11,23 +11,6 @@ from . import base
 
 
 class TokenHandler(base.TokenHandlerBase):
-    """
-    handles the encoding, decoding and generation of jwt tokens
-
-    >>> import flask
-    >>> app = flask.Flask(__name__)
-
-
-    configure all in one
-    >>> handler = TokenHandler(app=app, lifespan=600, key="secret", issuer="someone", audience="something")
-
-
-    configure bit by bit
-    >>> handler = TokenHandler()
-    >>> handler.init_app(app=app)
-    >>> handler.configure(lifespan=600, key="secret", issuer="someone", audience="something")
-
-    """
 
     HEADER_KEY = "Authorization"
     CIPHER = crypto.ChaCha20
