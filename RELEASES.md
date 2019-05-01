@@ -3,8 +3,8 @@ v0.1.0
 
 - Removed services package
 - Moved config mix ins to "mixins" module
-- Added service module ([docs](./docs/service.md))
-- Added "choices" option to all properties in props ([docs](./docs/props.md))
+- Added service module
+- Added "choices" option to all properties in props
 - Added "config" and "extensions" commands to service cli
 
 v0.0.15
@@ -15,7 +15,7 @@ v0.0.15
 v0.0.14
 ===
 
-- Added crypto module ([docs](./docs/crypto.md))
+- Added crypto module
 
 v0.0.13
 ===
@@ -45,12 +45,12 @@ v0.0.10
 v0.0.9
 ===
 
-- Added basic cli for running services ([docs](./docs/cli.md))
+- Added basic cli for running services
 
 v0.0.8
 ===
 
-- Added service module ([docs](./docs/service.md))
+- Added service module
 - Added config module for config mixins
 - Added flask config mixin
 - Added rabbit config mixin
@@ -60,7 +60,7 @@ v0.0.8
 v0.0.7
 ===
 
-- Added api.token ([docs](docs/token.md))
+- Added token module
 
 v0.0.6
 ===
@@ -82,12 +82,12 @@ v0.0.5
 v0.0.4
 ===
 
-- Added request schema ([docs](docs/props.md))
+- Added request schema
 
 v0.0.3
 ===
 
-- Added config module ([docs](docs/props.md))
+- Added config module
 
 - Added `check` to makefile
 - Added basic instructions to `README.md`
@@ -95,7 +95,7 @@ v0.0.3
 v0.0.2
 ===
 
-- Added props module ([docs](docs/props.md))
+- Added props module
 
 v0.0.1
 ===
