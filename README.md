@@ -1,6 +1,6 @@
 # jason
 
-- [Documentation](./docs)
+- [Documentation](./docs/jason.md)
 - [Release Notes](./RELEASES.md)
 
 ### Installation
