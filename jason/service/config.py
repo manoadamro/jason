@@ -1,4 +1,4 @@
-from jason import config, props
+from .. import config, props
 
 
 class ServiceConfig(config.Config):
