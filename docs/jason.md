@@ -11,11 +11,10 @@ Jason is a framework for building flask based micro services.
     - [Service Extensions](#Service-Extensions)
     - [Service Threads](#Service-Threads)
     - [Command Line Interface](#Command-Line-Interface)
-- [Incoming Requests](#Incoming-Requests)
-    - [Content Validation](#Content-Validation)
-    - [Request Tokens](#Tokens)
 - [Schema](#Schema)
     - [Schema Properties](#Schema-Properties)
+    - [Content Validation](#Content-Validation)
+- [Request Tokens](#Request-Tokens)
 
 ---
 
@@ -153,6 +152,13 @@ class MyConfig(ServiceConfig, mixins.PostgresConfigMixin, mixins.RedisConfigMixi
 def awesome_service(app, debug):
     ...
 ```
+
+possible config flags:
+
+- redis
+- rabbit
+- postgres
+- celery
 
 see [here](#Schema) for more information about defining a config object
 
@@ -350,16 +356,16 @@ assuming you have the following structure:
   - module2
 ```
 
-to run a service in `./my_package/module1`, you would run:
+to run a service in `./my_package/module1`:
 ```bash
 python3 -m jason my_package.module1
 ```
 
-to run a service in `./module2`, you would run:
+to run a service in `./module2`:
 ```bash
 python3 -m jason module2
 ```
-If not service attribute is defined, jason will pick up the first one it finds.
+If no service attribute is defined, jason will pick up the first one it finds.
 
 If your module contains more than one service instances (eg. `my_service` and `my_other_service`), 
 you can specify the service you wish to interact with:
@@ -371,11 +377,6 @@ python3 -m jason my_package.module1:my_service
 python3 -m jason my_package.module1:my_other_service
 ```
 
-So, jason can find our services, great, but they don't actually do anything...
-
-introducing service methods!
-(following on from the above examples)
-
 ### `run`
 
 This will configure the service, call the set up method and run it.
@@ -386,11 +387,12 @@ python3 -m jason my_package.module1:my_service run
 
 `--debug`: 
 - runs flask app in debug mode (not using waitress).
-- uses in memory sqlite database instead of postgres (if database is being used)
+- uses `TEST_DB_URL` for database
 
 `--no-serve`
 - acts as a sort of "dry run". configures and calls set up, 
-but does not serve the app. (app threads are run as normal)
+but does not serve the app. (threads will run as normal). 
+This is useful if you only want to run the threads, with no flask app
 
 `--detach`
 - runs as daemon thead.
@@ -439,7 +441,18 @@ python3 -m my_service extensions --debug --my-var=123
 
 ---
 
-## Incoming Requests
+
+## Schema
+
+---
+
+### Schema Properties
+
+TODO
+
+```python
+
+```
 
 ---
 
@@ -454,27 +467,12 @@ TODO
 
 ---
 
-### Tokens
+## Request Tokens
 
 TODO
 
 ```python
 
-
-```
-
----
-
-
-## Schema
-
----
-
-### Schema Properties
-
-TODO
-
-```python
 
 ```
 
