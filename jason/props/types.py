@@ -1,35 +1,12 @@
 # TODO break up
 
 import datetime
-import functools
-import inspect
 import os
 import re
 import uuid
-from typing import Any, Callable, Dict, List, Optional, Pattern, Tuple, Type, Union
-
-from flask import request
+from typing import Any, Callable, Dict, List, Pattern, Tuple, Type, Union
 
 from . import base, error, range, utils
-
-
-class AnyOf(base.SchemaAttribute):
-    def __init__(self, *rules: Union[base.SchemaAttribute, Type[base.SchemaAttribute]]):
-        self.rules = rules
-
-    def load(self, value: Any) -> Any:
-        errors = []
-        for rule in self.rules:
-            if utils.is_type(rule):
-                rule = rule()
-            try:
-                return rule.load(value)
-            except error.PropertyValidationError as ex:
-                errors.append(f"could not validate against '{rule}': {ex}")
-                continue
-        raise error.BatchValidationError(
-            f"AllOf failed to validate value '{value}' with any rules", errors
-        )
 
 
 class Property(base.SchemaAttribute):
@@ -74,21 +51,6 @@ class Property(base.SchemaAttribute):
         return self
 
 
-class Choice(Property):
-    def __init__(
-        self, choices: List = None, nullable: bool = False, default: Any = None
-    ):
-        super(Choice, self).__init__(nullable=nullable, default=default)
-        self.choices = choices
-
-    def _validate(self, value: Any) -> Any:
-        if self.choices and value not in self.choices:
-            raise error.PropertyValidationError(
-                f"Property was expected to be one of: {', '.join((str(c) for c in self.choices))}"
-            )
-        return value
-
-
 class Model:
     __strict__ = True
     __props__ = None
@@ -104,6 +66,54 @@ class Model:
             if isinstance(value, Property):
                 props[field] = value
         cls.__props__ = props
+
+
+class Config(Model):
+    @classmethod
+    def load(cls, **fields: Any) -> "Config":
+        instance = cls()
+        errors = []
+        fields = {name.lower(): value for name, value in fields.items()}
+        for name, prop in cls.__props__.items():
+            value = fields.get(name.lower(), None)
+            if value is None:
+                value = os.environ.get(name.upper(), None)
+            try:
+                value = prop.load(value)
+            except error.PropertyValidationError as ex:
+                errors.append(f"could not load property '{name}': {ex}")
+                continue
+            setattr(instance, name, value)
+        if len(errors):
+            raise error.BatchValidationError("Failed to load config", errors)
+        return instance
+
+    def __getattribute__(self, item):
+        try:
+            return super(Config, self).__getattribute__(item)
+        except AttributeError:
+            return getattr(self.__dict__, item)
+
+    def __getitem__(self, item):
+        return self.__dict__[item]
+
+    def __setitem__(self, key, value):
+        self.__dict__[key] = value
+
+
+class Choice(Property):
+    def __init__(
+        self, choices: List = None, nullable: bool = False, default: Any = None
+    ):
+        super(Choice, self).__init__(nullable=nullable, default=default)
+        self.choices = choices
+
+    def _validate(self, value: Any) -> Any:
+        if self.choices and value not in self.choices:
+            raise error.PropertyValidationError(
+                f"Property was expected to be one of: {', '.join((str(c) for c in self.choices))}"
+            )
+        return value
 
 
 class Array(Property):
@@ -498,152 +508,3 @@ class Email(Regex):
 
     def __init__(self, **kwargs: Any):
         super(Email, self).__init__(self.matcher, **kwargs)
-
-
-class RequestSchema:
-    def __init__(
-        self,
-        model: Type[Model] = None,
-        args: Model = None,
-        json: Model = None,
-        query: Model = None,
-        form: Model = None,
-    ):
-        self.args = (
-            args if args is not None else self.from_model(model, "Args", default=False)
-        )
-        self.json = (
-            json if json is not None else self.from_model(model, "Json", default=False)
-        )
-        self.query = (
-            query
-            if query is not None
-            else self.from_model(model, "Query", default=False)
-        )
-        self.form = (
-            form if form is not None else self.from_model(model, "Form", default=False)
-        )
-
-    @staticmethod
-    def load(
-        kwargs: Dict[str, Any],
-        func_params: Dict[str, Any],
-        **funcs: Callable[[], Dict[str, Any]],
-    ) -> Dict[str, Any]:
-        errors = []
-        for name, func in funcs.items():
-            try:
-                data = func()
-                if name in func_params:
-                    kwargs[name] = data
-            except (error.PropertyValidationError, error.BatchValidationError) as ex:
-                errors.append(f"failed to load {name}: {ex}")
-        if errors:
-            raise error.BatchValidationError("failed to validate request", errors)
-        return kwargs
-
-    @staticmethod
-    def from_model(model: Type[Model], name: str, default: Any = None) -> Any:
-        if model is None:
-            return None
-        if hasattr(model, name):
-            return getattr(model, name)
-        upper = name.upper()
-        if hasattr(model, upper):
-            return getattr(model, upper)
-        lower = name.lower()
-        if hasattr(model, lower):
-            return getattr(model, lower)
-        return default
-
-    def load_view_args(self) -> Optional[Dict[str, Any]]:
-        args = request.view_args or {}
-        if utils.is_instance_or_type(self.args, base.SchemaAttribute):
-            return self.args.load(args)
-        return args
-
-    def load_query(self) -> Optional[Dict[str, Any]]:
-        query = request.args
-        if utils.is_instance_or_type(self.query, base.SchemaAttribute):
-            return self.query.load(query)
-        return query
-
-    def load_form(self) -> Optional[Dict[str, Any]]:
-        if self.form is True:
-            if request.form is None:
-                raise error.RequestValidationError("request requires a form")
-            return request.form
-        if self.form is False:
-            if request.form is not None:
-                raise error.RequestValidationError("request should not contain a form")
-            return None
-        if utils.is_instance_or_type(self.form, base.SchemaAttribute):
-            return self.form.load(request.form)
-        return request.form
-
-    def load_json(self) -> Optional[Dict[str, Any]]:
-        if self.json is True:
-            if request.is_json is False:
-                raise error.RequestValidationError("request requires a json body")
-            return request.json
-        elif self.json is False:
-            if request.is_json is True:
-                raise error.RequestValidationError(
-                    "request should not contain a json body"
-                )
-            return None
-        elif utils.is_instance_or_type(self.json, base.SchemaAttribute):
-            return self.json.load(request.json)
-        return request.json
-
-    def __call__(self, func: Callable) -> Callable:
-        func_info = inspect.signature(func)
-        func_params = func_info.parameters
-
-        @functools.wraps(func)
-        def call(**kwargs: Any) -> Any:
-            for name, value in self.load_view_args().items():
-                kwargs[name] = value
-            kwargs = self.load(
-                kwargs,
-                func_params,
-                json=self.load_json,
-                query=self.load_query,
-                form=self.load_form,
-            )
-            return func(**kwargs)
-
-        return call
-
-
-class Config(Model):
-    @classmethod
-    def load(cls, **fields: Any) -> "Config":
-        instance = cls()
-        errors = []
-        fields = {name.lower(): value for name, value in fields.items()}
-        for name, prop in cls.__props__.items():
-            value = fields.get(name.lower(), None)
-            if value is None:
-                value = os.environ.get(name.upper(), None)
-            try:
-                value = prop.load(value)
-            except error.PropertyValidationError as ex:
-                errors.append(f"could not load property '{name}': {ex}")
-                continue
-            setattr(instance, name, value)
-        if len(errors):
-            raise error.BatchValidationError("Failed to load config", errors)
-        return instance
-
-    def __getattribute__(self, item):
-        try:
-            return super(Config, self).__getattribute__(item)
-        except AttributeError:
-            return getattr(self.__dict__, item)
-
-    def __getitem__(self, item):
-        return self.__dict__[item]
-
-    def __setitem__(self, key, value):
-        self.__dict__[key] = value

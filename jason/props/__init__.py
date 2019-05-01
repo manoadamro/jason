@@ -1,6 +1,7 @@
 from .error import BatchValidationError, PropertyValidationError, RequestValidationError
+from .request import RequestSchema as _RequestSchema
+from .rules import AnyOf
 from .types import (
-    AnyOf,
     Array,
     Bool,
     Choice,
@@ -18,9 +19,8 @@ from .types import (
     Password,
     Property,
     Regex,
-    RequestSchema,
     String,
     Uuid,
 )
 
-request_schema = RequestSchema
+request_schema = _RequestSchema
