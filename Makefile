@@ -30,4 +30,3 @@ pre-commit:
 	make format ;
 	make lint ;
 	make test ;
-	make cloc ;
