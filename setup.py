@@ -6,12 +6,8 @@ setuptools.setup(
     name='jason',
     version='0.1.0',
     install_requires=[
-        "celery==4.3.0",
         'fire==0.1.3',
         "flask==1.0.2",
-        "flask_migrate==2.4.0",
-        "flask_sqlalchemy==2.1",
-        "flask_redis==0.3.0",
         "jsonpointer==2.0",
         "pycryptodome==3.8.1",
         "pyJWT==1.7.1",

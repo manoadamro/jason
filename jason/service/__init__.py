@@ -1,3 +1,5 @@
+from typing import Type
+
 from .app import App
 from .config import ServiceConfig
 from .mixins import (
@@ -9,7 +11,7 @@ from .mixins import (
 from .service import Service
 from .threads import AppThreads
 
-from typing import Type
+service = Service
 
 
 def make_config(

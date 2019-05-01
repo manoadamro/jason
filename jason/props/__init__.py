@@ -1,5 +1,6 @@
+from jason.request import RequestSchema as _RequestSchema
+
 from .error import BatchValidationError, PropertyValidationError, RequestValidationError
-from .request import RequestSchema as _RequestSchema
 from .rules import AnyOf
 from .types import (
     Array,

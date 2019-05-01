@@ -31,8 +31,10 @@ class App(flask.Flask):
     def init_celery(self, celery):
         self._assert_mixin(self.config, mixins.CeleryConfigMixin, "celery")
 
-        celery.conf.broker_url = self._backend_url(self.config.CELERY_BROKER_BACKEND)
-        celery.conf.result_backend = self._backend_url(
+        celery.conf.broker_url = self._celery_backend_url(
+            self.config.CELERY_BROKER_BACKEND
+        )
+        celery.conf.result_backend = self._celery_backend_url(
             self.config.CELERY_RESULTS_BACKEND
         )
         task_base = celery.Task
@@ -98,7 +100,7 @@ class App(flask.Flask):
                 "if broker backend is redis",
             )
 
-    def _backend_url(self, backend):
+    def _celery_backend_url(self, backend):
         self._check_backend_config(backend=backend)
         if backend == "rabbitmq":
             return self._rabbit_uri()
@@ -106,7 +108,7 @@ class App(flask.Flask):
             return self._redis_uri(database_id=self.config.CELERY_REDIS_DATABASE_ID)
         raise ValueError(f"invalid backend name '{backend}'")
 
-    def _backend_config(self, backend):
+    def _celery_backend_config(self, backend):
         self._check_backend_config(backend=backend)
         if backend == "rabbitmq":
             return dict(

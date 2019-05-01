@@ -14,9 +14,7 @@ class AppThreads:
         self.app.extensions["app_threads"] = self
 
     def add(self, method):
-        self._app_threads.append(
-            {"method": method, "kwargs": {"app": self.app}}
-        )
+        self._app_threads.append({"method": method, "kwargs": {"app": self.app}})
 
     def run_all(self):
         for process in self._app_threads:
