@@ -9,7 +9,7 @@ from jason.service import Service
 def cli(component):
     component = component.replace("/", ".")
 
-    if ':' in component:
+    if ":" in component:
         component, service_name = component.split(":")
     else:
         service_name = None
