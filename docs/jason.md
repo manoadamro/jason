@@ -42,7 +42,7 @@ The app can now be run with:
 python3 -m jason my_service run
 ```
 
-More information on running a service can be found [here](#Command Line Interface)
+More information on running a service can be found [here](#Command-Line-Interface)
 
 ---
 
@@ -184,7 +184,7 @@ Now your app is using SqlAlchemy!
 
 For each extension used, you will need to add the relevant mixin to yor config object.
 This can be achieved either by using `make_config` or using the mix in in your class definition.
-More info about config and mix ins can be found [here](#Configuring a Service)
+More info about config and mix ins can be found [here](#Configuring-a-Service)
 
 #### `jason.AppThreads`
 
@@ -192,7 +192,7 @@ Adds threads to the flask app (intended mostly for consumers, see [kombu](https:
 
 no mix in required. (yet)
 
-([jason.AppThreads docs](#Service Threads))
+([jason.AppThreads docs](#Service-Threads))
 
 #### `flask_sqlalchemy`
 
