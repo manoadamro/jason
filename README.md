@@ -52,3 +52,22 @@ make pre-commit
 ```
 
 this will run the formatter, unit tests and doc tests.
+
+
+### The Future of Jason
+
+This is a start, but there is a lot left to do...
+
+Definitely:
+- Create an `ext` package and sub-class each extension (flask_sqlalchemy, flask_redis, celery),
+override the init_app method and use `some_extension.init_app(app)` instead of `app.init_some_extension(extension)`
+- Use green threads for the AppThreads extension
+
+Probably:
+- A testing package complete with mocks for everything in jason
+- A module wrapping `kombu`, taking advantage of `AppThreads`
+
+Maybe:
+- Optional response validation (for api-testing)
+- A python-docker module (for integration testing)
+- A package to handle file uploads/downloads

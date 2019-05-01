@@ -24,12 +24,10 @@ Jason is a framework for building flask based micro services.
 ```python
 # my_service.py
 
-import jason
-
-MyConfig = jason.make_config()
+from jason import make_config, service
 
 
-@jason.service(MyConfig)
+@service(make_config())
 def awesome_service(app, debug):
 
     if debug:
@@ -41,10 +39,10 @@ def awesome_service(app, debug):
 
 The app can now be run with:
 ```bash
-python3 -m jason my_service
+python3 -m jason my_service run
 ```
 
-for more information on running a service: [Command Line Interface](#Command Line Interface)
+More information on running a service can be found [here](#Command Line Interface)
 
 ---
 
@@ -65,7 +63,8 @@ def awesome_service(app, debug):
 
 ```
 
-Or sub-class the `Service` class.
+...or sub-class the `Service` class.
+
 NOTE: you will need to override the `_set_up` method
 
 ```python
@@ -82,7 +81,9 @@ awesome_service = MyAwesomeService(make_config())
 ```
 
 Now, either one can be run with the following.
+
 NOTE: the name you pass in to the CLI is the attribute that your service INSTANCE is assigned to
+
 ```bash
 python3 -m jason my_service
 ```
@@ -179,12 +180,123 @@ def awesome_service(app, debug):
 ```
 Now your app is using SqlAlchemy!
 
-_Extensions_
+### Extensions
 
-- app threads (jason.AppThreads) `app.init_threads(app_threads)`
-- database & migrate (flask_sqlalchemy / flask_migrate) `app.init_database(db)` or `app.init_database(db, migrate)`
-- cache (flask_redis) `app.init_cache(cache)`
-- celery (celery) `app.init_celery(celery)`
+For each extension used, you will need to add the relevant mixin to yor config object.
+This can be achieved either by using `make_config` or using the mix in in your class definition.
+More info about config and mix ins can be found [here](#Configuring a Service)
+
+#### `jason.AppThreads`
+
+Adds threads to the flask app (intended mostly for consumers, see [kombu](https://pypi.org/project/kombu/))
+
+no mix in required. (yet)
+
+([jason.AppThreads docs](#Service Threads))
+
+#### `flask_sqlalchemy`
+
+```python
+
+from jason import service, make_config
+import flask_sqlalchemy
+
+db = flask_sqlalchemy.SQLAlchemy()
+
+@service(make_config())
+def awesome_service(app, debug):
+    app.init_sqlalchemy(db)
+    
+```
+
+NOTE: don't use `db.init_app()`, it won't initialise properly. (it's on the ToDo list)
+
+`PostgresConfigMixin`
+
+| Name          | Type          | Default               | Nullable  |
+| :-----------: | :------------:| :-------------------: | :-------: |
+| TEST_DB_URL   | String        | sqlite:///:memory:    | False     |
+| DB_DRIVER     | String        | postgresql            | False     |
+| DB_HOST       | String        | localhost             | False     |
+| DB_PORT       | Int           | 5432                  | False     |
+| DB_USER       | String        | None                  | True      |
+| DB_PASS       | String        | None                  | True      |
+
+[flask_sqlalchemy docs](https://pypi.org/project/Flask-SQLAlchemy/)
+
+#### `flask_redis`
+
+```python
+
+from jason import service, make_config
+import flask_redis
+
+cache = flask_redis.FlaskRedis()
+
+@service(make_config())
+def awesome_service(app, debug):
+    app.init_redis(cache)
+    
+```
+
+NOTE: don't use `cache.init_app()`, it won't initialise properly. (it's on the ToDo list)
+
+
+`RedisConfigMixin`
+
+| Name             | Type          | Default               | Nullable  |
+| :--------------: | :------------:| :-------------------: | :-------: |
+| REDIS_DRIVER     | String        | redis                 | False     |
+| REDIS_HOST       | String        | localhost             | False     |
+| REDIS_PORT       | Int           | 6379                  | False     |
+| REDIS_PASS       | String        | None                  | True      |
+
+([flask_redis docs](https://pypi.org/project/Flask-Redis/))
+
+#### `celery`
+
+```python
+
+from jason import service, make_config
+import celery
+
+cel = celery.Celery()
+
+@service(make_config())
+def awesome_service(app, debug):
+    app.init_celery(cel)
+    
+```
+
+`CeleryConfigMixin`
+
+| Name                      | Type                        | Default               | Nullable  |
+| :-----------------------: | :-------------------------: | :-------------------: | :-------: |
+| CELERY_BROKER_BACKEND     | Choice (ampq, redis)        | ampq                  | False     |
+| CELERY_RESULTS_BACKEND    | String (ampq, redis)        | ampq                  | False     |
+| CELERY_REDIS_DATABASE_ID  | Int                         | 0                     | False     |
+
+
+Backends:
+    
+- `ampq`: uses rabbitmq, requires `RabbitConfigMixin` (see below)
+- `redis`: uses redis, requires `RedisConfigMixin` (see below)
+
+([celery docs](https://pypi.org/project/celery/))
+
+#### `rabbit`
+
+This one isn't really an extension, it's just a mix in for rabbitmq
+
+`RabbitConfigMixin`
+
+| Name          | Type          | Default               | Nullable  |
+| :-----------: | :------------:| :-------------------: | :-------: |
+| RABBIT_DRIVER | String        | ampq                  | False     |
+| RABBIT_HOST   | String        | localhost             | False     |
+| RABBIT_PORT   | Int           | 5672                  | False     |
+| RABBIT_USER   | String        | guest                 | False     |
+| RABBIT_PASS   | String        | guest                 | False     |
 
 ---
 
