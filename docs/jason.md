@@ -4,18 +4,18 @@ Jason is a framework for building flask based micro services.
 
 ### Table Of Contents:
 
-- [Quick Start](#Quick Start)
+- [Quick Start](#Quick-Start)
 - [Services](#Services)
-    - [Creating a Service](#Creating a Service)
-    - [Configuring a Service](#Configuring a Service)
-    - [Service Extensions](#Service Extensions)
-    - [Service Threads](#Service Threads)
-    - [Command Line Interface](#Command Line Interface)
-- [Incoming Requests](#Incoming Requests)
-    - [Content Validation](#Content Validation)
+    - [Creating a Service](#Creating-a-Service)
+    - [Configuring a Service](#Configuring-a-Service)
+    - [Service Extensions](#Service-Extensions)
+    - [Service Threads](#Service-Threads)
+    - [Command Line Interface](#Command-Line-Interface)
+- [Incoming Requests](#Incoming-Requests)
+    - [Content Validation](#Content-Validation)
     - [Request Tokens](#Tokens)
 - [Schema](#Schema)
-    - [Schema Properties](#Schema Properties)
+    - [Schema Properties](#Schema-Properties)
 
 ---
 
