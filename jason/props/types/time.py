@@ -8,8 +8,8 @@ from .property import Property
 class Date(Property):
     def __init__(
         self,
-        min_value: Union[Callable[[], int], int] = None,
-        max_value: Union[Callable[[], int], int] = None,
+        min_value: Union[Callable[[], int], int, str] = None,
+        max_value: Union[Callable[[], int], int, str] = None,
         allow_strings: bool = True,
         **kwargs: Any,
     ):
@@ -41,8 +41,8 @@ class Date(Property):
 class Datetime(Property):
     def __init__(
         self,
-        min_value: Union[Callable[[], int], int] = None,
-        max_value: Union[Callable[[], int], int] = None,
+        min_value: Union[Callable[[], int], int, str] = None,
+        max_value: Union[Callable[[], int], int, str] = None,
         allow_strings: bool = True,
         **kwargs: Any,
     ):
