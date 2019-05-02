@@ -150,7 +150,7 @@ def awesome_service(app):
     ...
 ```
 
-possible config flags:
+possible flags for `make_config`:
 
 - redis
 - rabbit
@@ -165,7 +165,7 @@ see [here](#Schema) for more information about defining a config object
 
 Jason will also initialise extensions for you. 
 The only pre-requisite is that your config either uses the relevant mixin, 
-or you use `make_config` 
+or you use `make_config`  with the required flags.
 
 using `make_config`:
 ```python
