@@ -137,20 +137,203 @@ If false, verification of the token signature will be skipped
 
 ## Token Protect
 
-```python
+Used to decorate flask routes.
+Takes an unpacked tuple of rules, pulls the token from the request header, decrypts, decodes and validates.
 
+If not rules are provides, it will still ensure that any token string is present
+
+NOTE: a `TokenHandler` will need to have been initialised. 
+see [Token Handler](#Token-Handler) and [Service Extensions](./jason.md#Service-Extensions)
+
+```python
+from flask import Blueprint
+from jason import token
+
+blueprint = Blueprint("my-blueprint", __name__)
+
+@blueprint.route("/")
+@token.protect(...)
+def my_route():
+    ...
 ```
 
-TODO
+#### `*rules` (required)
+
+an unpacked tuple of token rules.
 
 ---
 
 ## Token Rules
 
-```python
+Rules used to validate tokens
 
+- [AllOf](#AllOf)
+- [AnyOf](#AnyOf)
+- [HasKeys](#HasKeys)
+- [HasScopes](#HasScopes)
+- [HasValue](#HasValue)
+- [MatchValues](#MatchValues)
+- [NoneOf](#NoneOf)
+
+### AllOf
+
+The token must conform to all of the defined rules.
+
+```python
+from jason import token
+
+@token.protect(token.AllOf(..., ...))
+def my_route():
+    ...
 ```
 
-TODO
+#### `*rules` (required)
+
+An unpacked tuple of token rules.
+
+### AnyOf
+
+The token must conform to at least one of the defined rules.
+
+```python
+from jason import token
+
+@token.protect(token.AnyOf(..., ...))
+def my_route():
+    ...
+```
+
+#### `*rules` (required)
+
+An unpacked tuple of token rules.
+
+### HasKeys
+
+Ensures that the token body contains all of the defined keys
+
+```python
+from jason import token
+
+@token.protect(token.HasKeys("some-key", "another-key"))
+def my_route():
+    ...
+```
+
+#### `*keys` (required)
+
+An unpacked tuple of string keys.
+
+### HasScopes
+
+Ensures that the token contains all of the defined scopes
+
+```python
+from jason import token
+
+@token.protect(token.HasScopes("read:thing", "write:thing"))
+def my_route():
+    ...
+```
+
+#### `*scopes` (required)
+
+An unpacked tuple of string scopes.
+
+### HasValue
+
+Ensures that a values is present and valid at a given pointer
+
+If a property or rule from `jason.props` is given as a value, whatever value is found at the pointer will be validated agaisnt it.
+Otherwise, the value found must match the value defined.
+
+```python
+from jason import token, props
+
+@token.protect(token.HasValue("/thing/id", 123))  # value found must == 123
+def my_route():
+    ...
+
+@token.protect(token.HasValue("/thing/id", props.Int()))  # value will be validated against defined property
+def my_route():
+    ...
+```
+
+#### `pointer` (required)
+
+A pointer to a value within the token body.
+
+see [jsonpointer](https://pypi.org/project/jsonpointer/) for more info
+
+#### `value` (required)
+
+either a value or a property to match with or validate against.
+
+### MatchValues
+
+ensures that the values at all defined pointers are the same
+
+```python
+from jason import token
+
+@token.protect(token.MatchValues("url:user_id", "jwt:user_id"))
+def my_route():
+    ...
+```
+
+Matchers:
+
+#### header
+
+`header:path/to/value`
+
+flask request header
+
+#### json
+
+`json:path/to/value`
+
+flask request json
+
+#### url
+
+`url:path/to/value`
+
+flask request url args eg. `/user/<user_id>`
+
+#### query
+
+`query:path/to/value`
+
+flask request url query eg. `?thing=123&other=something`
+
+#### form
+
+`form:path/to/value`
+
+flask request form
+
+#### token
+
+`token:path/to/value`
+
+flask request token
+
+see [jsonpointer](https://pypi.org/project/jsonpointer/) for more info on pointers
+
+### NoneOf
+
+The token must conform to none of the defined rules.
+
+```python
+from jason import token
+
+@token.protect(token.NoneOf(..., ...))
+def my_route():
+    ...
+```
+
+#### `*rules` (required)
+
+An unpacked tuple of token rules.
 
 ---
