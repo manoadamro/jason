@@ -16,9 +16,11 @@ class BatchValidationError(PropertyValidationError):
             if isinstance(error, BatchValidationError):
                 count += error.count
                 for line in error.lines:
+                    if not line.strip().startswith("-"):
+                        line = f"- {line}"
                     lines.append(f"{self.tab}{line}")
             else:
-                lines.append(f"{self.tab}-{error}")
+                lines.append(f"{self.tab}- {error}")
                 count += 1
         message = "\n".join(lines)
         self.lines = lines
