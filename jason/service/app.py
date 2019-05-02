@@ -52,6 +52,7 @@ class App(flask.Flask):
         # noinspection PyPropertyAccess
         celery.Task = AppContextTask
         celery.finalize()
+        self.extensions["celery"] = celery
 
     @staticmethod
     def _assert_mixin(config, mixin, item, condition=""):
