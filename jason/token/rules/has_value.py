@@ -3,6 +3,7 @@ from typing import Any, Dict, NoReturn
 import jsonpointer
 
 from jason.props.base import SchemaAttribute, SchemaRule
+
 from .. import base, error
 
 
