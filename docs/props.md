@@ -86,6 +86,17 @@ All properties can be used as a decorator
 this allows you to extend the validation.
 
 ```python
+from jason import props
+
+@props.Property()
+def my_prop(value):
+    # do stuff with value or raise props.PropertyValidationError
+    return value
+    
+@props.Int()
+def my_prop(value):
+    # do stuff with value or raise props.PropertyValidationError
+    return value
 
 ```
 
