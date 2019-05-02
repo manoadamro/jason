@@ -86,15 +86,7 @@ All properties can be used as a decorator
 this allows you to extend the validation.
 
 ```python
-from jason import props
 
-class MySchema(props.Model):
-
-    my_prop = props.Int(default=15, min_value=10, max_value=20)
-    
-    @props.Int(default=15, min_value=10, max_value=20)
-    def my_prop(self, value):
-        return value * 2
 ```
 
 ---
@@ -106,7 +98,15 @@ You can create your own property types by sub-classing `Property`
 ```python
 from jason import props
 
-class MyProperty(props.Property):
+class MyProperty(props.Prfrom jason import props
+
+class MySchema(props.Model):
+
+    my_prop = props.Int(default=15, min_value=10, max_value=20)
+    
+    @props.Int(default=15, min_value=10, max_value=20)
+    def my_prop(self, value):
+        return value * 2operty):
 
     def _validate(self, value):
         ...  # custom validation.
@@ -234,7 +234,6 @@ class ModeB(props.Model):
     d = props.Int()
 
 prop = props.Compound(ModelA, ModeB)
-
 ```
 
 ##### `*objects` (required)
@@ -257,7 +256,6 @@ A property to validate a date against.
 from jason import props
 
 d = props.Date(min_value="1970-01-01")
-
 ```
 
 ##### `min_value` (default None)
@@ -285,11 +283,9 @@ allow date to be loaded from iso8601 strings
 A property to validate a datetime against.
 
 ```python
-
 from jason import props
 
 d = props.Datetime(min_value="1970-01-01T00:00:00.000Z")
-
 ```
 
 ##### `min_value` (default None)
@@ -320,7 +316,6 @@ validates strings against the following regex:
 ```
 
 ```python
-
 from jason import props
 
 d = props.Email()
@@ -336,23 +331,152 @@ The default to use if the value is `None`.  Can be a callable returning a value
 
 ### Float
 
-TODO
+A property to validate a float value.
+It will accept `int` values, but will convert them to float. eg `12` -> `12.0`
+by default, floats can be loaded from strings like `"12""` or `"12.0"`.
+To disable this, use `allow_strings` to false in property constructor
+
+```python
+from jason import props
+
+d = props.Float()
+```
+
+##### `min_value` (default None)
+
+minimum date, can also be a callable returning value
+
+##### `max_value` (default None)
+
+maximum date, can also be a callable returning value
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of value?
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
+
+##### `allow_strings` (default True)
+
+allow datetime to be loaded from strings such as `"12.0""`
 
 ### Inline
 
-TODO
+allows the definition of models using a simple constructor.
+
+```python
+from jason import props
+
+d = props.Inline(props=dict(x=props.Int(), y=props.Int()))
+
+```
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of value?
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
 
 ### Int
 
-TODO
+A property to validate a int value.
+It will not accept `float` values.
+by default, ints can be loaded from strings like `"12""`.
+To disable this, use `allow_strings` to false in property constructor
+
+```python
+from jason import props
+
+d = props.Int()
+```
+
+##### `min_value` (default None)
+
+minimum date, can also be a callable returning value
+
+##### `max_value` (default None)
+
+maximum date, can also be a callable returning value
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of value?
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
+
+##### `allow_strings` (default True)
+
+allow datetime to be loaded from strings such as `"12""`
+
+##### `strict` (default True)
+
+should the resulting model be `strict`?
 
 ### Nested
 
-TODO
+Allows the nesting of models.
+
+```python
+from jason import props
+
+class MyNestedModel(props.Model):
+    ...
+
+class MySchema(props.Model):
+    nested = props.Nested(MyNestedModel, default=None)
+    other_nested = props.Nested(props.Inline(props=dict(x=props.Int(), y=props.Int())))   
+```
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
+
+##### `allow_strings` (default True)
+
+allow datetime to be loaded from strings such as `"12""`
+
+##### `strict` (default True)
+
+should the resulting model be `strict`?
 
 ### Number
 
-TODO
+A property to validate a numeric value.
+It will accept `int` or `float` values.
+by default, numbers can be loaded from strings like `"12""` or `"12.0"`.
+To disable this, use `allow_strings` to false in property constructor
+
+```python
+from jason import props
+
+d = props.Number()
+```
+
+##### `min_value` (default None)
+
+minimum date, can also be a callable returning value
+
+##### `max_value` (default None)
+
+maximum date, can also be a callable returning value
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of value?
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
+
+##### `allow_strings` (default True)
+
+allow datetime to be loaded from strings such as `"12.0""`
 
 ### Password
 
