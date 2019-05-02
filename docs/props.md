@@ -98,19 +98,23 @@ You can create your own property types by sub-classing `Property`
 ```python
 from jason import props
 
-class MyProperty(props.Prfrom jason import props
-
-class MySchema(props.Model):
-
-    my_prop = props.Int(default=15, min_value=10, max_value=20)
-    
-    @props.Int(default=15, min_value=10, max_value=20)
-    def my_prop(self, value):
-        return value * 2operty):
+class MyProperty(props.Property):
 
     def _validate(self, value):
         ...  # custom validation.
 
+```
+
+Or extend an existing one:
+
+```python
+from jason import props
+
+class MyProperty(props.Int):
+
+    def _validate(self, value):
+        value = super(MyProperty, self)._validate(value)
+        ...  # custom validation.
 ```
 
 ---
@@ -480,11 +484,70 @@ allow datetime to be loaded from strings such as `"12.0""`
 
 ### Password
 
-TODO
+A property to validate a string password.
+
+```python
+from jason import props
+
+d = props.Password()
+```
+
+##### `uppercase` (default None)
+
+if `True`: will fail unless at least one upper case character is present
+if `False`: will fail if any upper case character is present
+if `None`: will accept any amount of upper/lower case characters
+
+##### `numbers` (default None)
+
+if `True`: will fail unless at least one numeric character is present
+if `False`: will fail if any numeric character is present
+if `None`: will accept any amount of numeric characters
+
+##### `symbols` (default None)
+
+if `True`: will fail unless at least one symbol character is present
+if `False`: will fail if any symbol character is present
+if `None`: will accept any amount of symbol characters
+
+##### `score` (default 0)
+
+The minimum score for the password to be considered valid.
+at least one upper case character increments score by 1
+at least one numeric character increments score by 1
+at least one digit character increments score by 1
+if score is 0, any score is considered acceptable.
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of value?
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
 
 ### Regex
 
-TODO
+A property to validate a string against a regex matcher.
+matchers can either be strings or `re` compiled patterns.
+
+```python
+from jason import props
+
+d = props.Regex("[a-z]+")
+```
+
+##### `matcher` (required)
+
+either a string pattern or `re` compiled pattern
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of value?
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
 
 ### String
 
