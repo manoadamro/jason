@@ -551,20 +551,72 @@ The default to use if the value is `None`.  Can be a callable returning a value
 
 ### String
 
-TODO
+A property to validate a string value.
+
+```python
+from jason import props
+
+d = props.String(min_length=10, max_length=20)
+```
+
+##### `min_length` (default None)
+
+The minimum length of the string. Can be a callable returning a value
+
+##### `max_length` (default None)
+
+The maximum length of the string. Can be a callable returning a value
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of an array?
+
+##### `default` (default None)
+
+The default value to use if the value is `None`.  Can be a callable returning a value
 
 ### Uuid
 
-TODO
+A property to validate a uuid string.
+
+```python
+from jason import props
+
+d = props.Uuid()
+```
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of an array?
+
+##### `default` (default None)
+
+The default value to use if the value is `None`.  Can be a callable returning a value
 
 ---
 
 ## Property Rules
 
+Property rules are used to wrap one or more properties.
+
 - [AnyOf](#AnyOf)
 
 ### AnyOf
 
-TODO
+Ensures that the value conforms at least one property.
+The value from the first valid property is returned.
+
+```python
+from jason import props
+
+prop = props.AnyOf(
+    props.Int(),
+    props.String()
+)
+```
+
+##### `*rules` (required)
+
+properties or rules.
 
 ---
