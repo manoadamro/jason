@@ -1,6 +1,6 @@
 from typing import Any, Type, Union
 
-from . import base, error, utils
+from .. import base, error, utils
 
 
 class AnyOf(base.SchemaRule):

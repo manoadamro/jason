@@ -22,7 +22,9 @@ class MatchValues(base.TokenRule):
         except jsonpointer.JsonPointerException:
             raise error.TokenValidationError(f"path to value does not exist in token")
         except AssertionError:
-            raise error.TokenValidationError("one or more values do not match")
+            raise error.TokenValidationError(
+                f"one or more values at paths {', '.join(self.matchers)} do not match"
+            )
 
     def _resolve_path(self, path: str) -> (Callable, str):
         if ":" not in path:

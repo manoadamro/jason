@@ -1,5 +1,5 @@
 from .app import App
-from .config import ServiceConfig
+from .config import ServiceConfig, make_config
 from .mixins import (
     CeleryConfigMixin,
     PostgresConfigMixin,
