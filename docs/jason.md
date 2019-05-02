@@ -13,9 +13,8 @@ Jason is a framework for building flask based micro services.
     - [Command Line Interface](#Command-Line-Interface)
 - [Schema](#Schema)
     - [Content Validation](#Content-Validation)
-    - [Schema Model](#Schema-Model)
-    - [Property Types](#Property-Types)
 - [Request Tokens](#Request-Tokens)
+- [Cryptography](#Cryptography)
 
 ---
 
@@ -122,6 +121,8 @@ def awesome_service(app):
 ```
 
 To include your custom_configuration
+
+NOTE: you will need to sub-class `ServiceConfig`
 ```python
 from jason import make_config, props, ServiceConfig, service
 
@@ -136,6 +137,8 @@ def awesome_service(app):
 ```
 
 or build your own configuration:
+
+NOTE: you will need to sub-class `ServiceConfig`
 ```python
 from jason import props, ServiceConfig, service, mixins
 
@@ -312,6 +315,20 @@ This one isn't really an extension, it's just a mix in for rabbitmq
 | RABBIT_USER   | String        | guest                 | False     |
 | RABBIT_PASS   | String        | guest                 | False     |
 
+#### `token_handler`
+
+```python
+from jason import service, make_config, token
+
+token_handler = token.TokenHandler()
+
+@service(make_config())
+def awesome_service(app):
+    app.init_token_handler(token_handler)
+```
+
+More information about request tokens can be found [here](#Request-Tokens)
+
 ---
 
 ### Service Threads
@@ -449,52 +466,181 @@ python3 -m my_service extensions --debug --my-var=123
 
 ---
 
-
 ## Schema
 
----
+Schema properties are used to validate bits of data. 
 
+You can validate individual values:
+```python
+from jason import props
+
+prop = props.Int()
+
+prop.load(123)
+# 123
+
+prop.load("hello")
+# props.PropertyValidationError
+```
+
+... or entire structures:
+```python
+from jason import props
+
+class MySchema(props.Model):
+    x = props.Int()
+    y = props.String()
+
+prop = props.Nested(MySchema)
+
+prop.load({"x": 123, "y": "hello"})
+```
+
+Full documentation for `jason.props` can be found [here](./props.md)
+
+---
 
 ### Content Validation
 
-TODO
+Used to validate `flask` requests.
 
+request schemas can be defined in a few different ways.
+
+using models:
 ```python
+from jason import request_schema, props
+from flask import Blueprint
 
+blueprint = Blueprint("my-bp", __name__)
+
+
+class MyRouteSchema:
+    
+    # using a nested class
+    class Query(props.Model):
+        q = props.String()
+        id= props.Int()
+    
+    # using an inline model
+    jason = props.Inline(props=dict(...))
+
+    # from another model
+    form = props.Nested(...)
+    
+    # from a compound object
+    args = props.Compound(...) 
+    
+    
+
+@blueprint.route("/")
+@request_schema(MyRouteSchema)
+def my_route():
+    ...
+```
+
+... or inline:
+```python
+from jason import request_schema, props
+from flask import Blueprint
+
+blueprint = Blueprint("my-bp", __name__)
+
+
+@blueprint.route("/")
+@request_schema(json=props.Inline(props=dict(...)), form=props.Nested(...), args=props.Compound(...) )
+def my_route():
+    ...
 
 ```
 
----
+`RequestSchema` used method inspection to work out what to pass to the decorated method.
+you can have it pass through any of the following objects, simply by adding it to the method signature.
+`args` are passed unpacked, the others are passed as objects. 
+Objects don't have to be defined in the request_schema to be passed to the method 
+and they don't have to be passed to the method if they are.
 
-
-### Schema Model
-
-TODO
-
-```python
-
-```
-
----
-
-
-### Property Types
-
-TODO
+- json (json body of request)
+- query (url query, eg. `?x=1&y=thing`)
+- args (url variables, eg `/user/<user_id>`)
+- form (form of passed in the request)
 
 ```python
+from jason import request_schema, props
+from flask import Blueprint
 
+blueprint = Blueprint("my-bp", __name__)
+
+
+@blueprint.route("/user/<user_id>")
+@request_schema(json=props.Inline(props=dict(...)), args=props.Compound(...) )
+def my_route(user_id, json):
+    ...
+    
+
+@blueprint.route("/user/<user_id>")
+@request_schema(args=props.Compound(...) )
+def my_other_route(user_id, json):
+    ...
 ```
+
+Full documentation for `jason.props` can be found [here](./props.md)
 
 ---
 
 ## Request Tokens
 
-TODO
+Request tokens are used for authentication.
 
 ```python
+from jason import token, service
+
+handler = token.TokenHandler()
 
 
+@service(...)
+def my_service(app):
+    app.init_token_handler(app)
+    
+
+@token.protect(...)
+def my_route():
+    ...
+```
+
+
+```python
+from jason import token
+from flask import Blueprint
+
+blueprint = Blueprint("my-bp", __name__)
+
+@blueprint.route("/")
+@token.protect(...)
+def my_route():
+    ...
+```
+
+Full documentation for `jason.token` can be found [here](./token.md)
+
+---
+
+## Cryptography
+
+This is mostly used internally, but there is a `ChaCha20` cipher that can be used.
+It is modified to receive and return strings (not bytes) and the nonce is handled automatically.
+
+```python
+from jason.crypto import ChaCha20
+
+# create an instance
+cipher = ChaCha20(key="some-secret-key")
+
+# encrypt a messgae
+encrypted = cipher.encrypt("a secret message")
+# ksuUkdssZTuljO8ZGc829w==---0I3bCFYDPTM=
+
+decrypted = cipher.decrypt(encrypted)
+# 'a secret message'
 ```
 
 ---

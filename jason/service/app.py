@@ -12,6 +12,9 @@ class App(flask.Flask):
         self.config = config
         self.testing = testing
 
+    def init_token_handler(self, handler):
+        handler.init_app(self)
+
     def init_threads(self, app_threads):
         app_threads.init_app(app=self, config=self.config)
 

@@ -49,6 +49,7 @@ class TokenHandler(base.TokenHandlerBase):
         self.app.before_first_request(self.before_first_request)
         self.app.before_request(self.before_request)
         self.app.after_request(self.after_request)
+        app.extensions["token-handler"] = self
 
     def configure(
         self,

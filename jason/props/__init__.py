@@ -1,5 +1,6 @@
 from .error import BatchValidationError, PropertyValidationError, RequestValidationError
 from .rules import AnyOf
+from .config import ConfigObject
 from .types import (
     Array,
     Bool,
