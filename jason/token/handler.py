@@ -21,12 +21,12 @@ class TokenHandler(base.TokenHandlerBase):
         "require_iat": True,
         "require_aud": True,
         "require_iss": True,
-        "verify_signature": True,
         "verify_exp": True,
         "verify_nbf": True,
         "verify_iat": True,
         "verify_aud": True,
         "verify_iss": True,
+        "verify_signature": True,
     }
 
     def __init__(self, app: flask.Flask = None, **kwargs: Any):
@@ -39,8 +39,7 @@ class TokenHandler(base.TokenHandlerBase):
         self.verify = None
         self.auto_update = None
         self.cipher = None
-        self.init_app(app)
-        self.configure(**kwargs)
+        self.init_app(app, **kwargs)
 
     def init_app(self, app: flask.Flask) -> NoReturn:
         if not app:
@@ -113,10 +112,8 @@ class TokenHandler(base.TokenHandlerBase):
             missing.append("lifespan")
         if self.key is None:
             missing.append("key")
-        if self.issuer is None:
-            missing.append("issuer")
-        if self.audience is None:
-            missing.append("audience")
+        if self.verify is None:
+            self.verify = True
         if len(missing) > 0:
             raise ValueError(
                 "TokenHandler is missing the values for: " f"{', '.join(missing)}"
@@ -142,14 +139,16 @@ class TokenHandler(base.TokenHandlerBase):
         response.headers[self.HEADER_KEY] = token_string
         return response
 
-    def generate_token(self, user_id, scopes, token_data=None, not_before=None):
+    def generate_token(self, user_id=None, scopes=(), token_data=None, not_before=None):
         token_data = token_data or {}
         token_data["nbf"] = not_before or time.time()
         token_data["uid"] = user_id
         token_data["scp"] = scopes
         token_data["exp"] = time.time() + self.lifespan
-        token_data["iss"] = self.issuer
-        token_data["aud"] = self.audience
+        if self.issuer:
+            token_data["iss"] = self.issuer
+        if self.audience:
+            token_data["aud"] = self.audience
         token_string = self._encode(token_data=token_data)
         if self.cipher:
             token_string = self.cipher.encrypt(token_string)

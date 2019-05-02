@@ -599,7 +599,8 @@ handler = token.TokenHandler()
 
 @service(...)
 def my_service(app):
-    app.init_token_handler(app)
+    handler.configure(...)
+    app.init_token_handler(handler)
     
 
 @token.protect(...)
