@@ -31,7 +31,7 @@ class ConfigObject(types.Model):
             return getattr(self.__dict__, item)
 
     def __getitem__(self, item):
-        return self.__dict__[item]
+        return getattr(self, item)
 
     def __setitem__(self, key, value):
-        self.__dict__[key] = value
+        setattr(self, key, value)
