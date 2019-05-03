@@ -38,7 +38,7 @@ class Compound(Inline):
                         f"can only combine objects of types: "
                         f"'Model', 'SchemaAttribute'. Not '{value}'"
                     )
-                if key in schema and schema[key] != value:
+                if key in schema and not schema[key].is_identical_to(value):
                     raise ValueError(
                         f"A property with name '{key}' already exists in combined object but is not identical. "
                         f"{schema[key].__dict__} != {value.__dict__}"
