@@ -57,3 +57,35 @@ def test_wrong_type():
 def test_default():
     prop = props.Compound(ModelA, ModelB, default={"x": 1, "y": 2})
     assert prop.load(None) == {"x": 1, "y": 2}
+
+
+def test_write_identical_items():
+    class ModelA(props.Model):
+        x = props.Int(min_value=5, max_value=10)
+
+    class ModelB(props.Model):
+        x = props.Int(min_value=5, max_value=10)
+
+    props.Compound(ModelA, ModelB)
+
+
+def test_fails_to_write_non_identical_items():
+    class ModelA(props.Model):
+        x = props.Int(min_value=5, max_value=10)
+
+    class ModelB(props.Model):
+        x = props.Int(min_value=5, max_value=11)
+
+    with pytest.raises(ValueError):
+        props.Compound(ModelA, ModelB)
+
+
+def test_fails_to_combine_wrong_types():
+    class ModelA(props.Model):
+        x = props.Int()
+
+    class ModelB(props.Model):
+        x = props.String()
+
+    with pytest.raises(ValueError):
+        props.Compound(ModelA, ModelB)
