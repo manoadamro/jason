@@ -37,8 +37,8 @@ class Regex(String):
 
 
 class Uuid(String):
-    def __init__(self):
-        super(Uuid, self).__init__()
+    def __init__(self, **kwargs):
+        super(Uuid, self).__init__(**kwargs)
 
     def _validate(self, value: str) -> str:
 
