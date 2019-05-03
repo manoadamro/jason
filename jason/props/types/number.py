@@ -17,7 +17,7 @@ class Number(Property):
         self.range = range.RangeCheck(min_value=min_value, max_value=max_value)
         self.allow_strings = allow_strings
 
-    def _from_string(self, value: str) -> Union[int, float]:
+    def _from_string(self, value: str) -> Union[int, float, None]:
         if not self.allow_strings:
             raise error.PropertyValidationError(
                 "Loading number from string is not allowed"
@@ -32,9 +32,12 @@ class Number(Property):
             )
         return value
 
-    def _validate(self, value: Union[int, float, str]) -> Union[int, float]:
+    def load(self, value: Any) -> Any:
         if isinstance(value, str):
             value = self._from_string(value)
+        return super(Number, self).load(value)
+
+    def _validate(self, value: Union[int, float, str]) -> Union[int, float]:
         self.range.validate(value)
         return value
 
