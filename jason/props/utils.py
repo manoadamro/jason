@@ -5,7 +5,7 @@ def maybe_call(value):
 
 
 def is_bool(value):
-    return value in [True, False]
+    return type(value) is bool
 
 
 def is_type(value, typ=None):
