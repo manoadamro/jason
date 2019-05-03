@@ -88,3 +88,13 @@ def test_enforce_no_symbols_fails():
 
 def test_enforce_no_symbols():
     assert props.Password(symbols=False).load("abc") == "abc"
+
+
+def test_score():
+    with pytest.raises(props.PropertyValidationError):
+        assert props.Password(score=3).load("abc")
+    with pytest.raises(props.PropertyValidationError):
+        assert props.Password(score=3).load("aBc")
+    with pytest.raises(props.PropertyValidationError):
+        assert props.Password(score=3).load("1Bc")
+    assert props.Password(score=3).load("1Bc$") == "1Bc$"
