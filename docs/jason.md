@@ -115,7 +115,7 @@ To create a basic configuration, call `make_config` with flags for each required
 ```python
 from jason import make_config, service
 
-@service(make_config(postgres=True, redis=True))
+@service(make_config("postgres", "redis"))
 def awesome_service(app):
     ...
 ```
@@ -131,7 +131,7 @@ class MyConfig(ServiceConfig):
     SOME_VAR = props.Bool(default=True)
     OTHER_VAR = props.Int()
 
-@service(make_config(base=MyConfig, postgres=True, redis=True))
+@service(make_config("postgres", "redis", base=MyConfig))
 def awesome_service(app):
     ...
 ```
@@ -177,7 +177,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-@service(make_config(postgres=True))
+@service(make_config("postgres"))
 def awesome_service(app):
     app.init_sqlalchemy(db)
 ```

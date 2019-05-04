@@ -10,22 +10,22 @@ class ServiceConfig(props.ConfigObject):
     SERVE_PORT = props.Int(default=5000)
 
 
-def make_config(
-    base: Type[ServiceConfig] = None,
-    redis: bool = False,
-    rabbit: bool = False,
-    postgres: bool = False,
-    celery: bool = False,
-    fields: bool = None,
-):
+_CONFIG_MIXIN_MAP = {
+    "redis": mixins.RedisConfigMixin,
+    "rabbit": mixins.RabbitConfigMixin,
+    "postgres": mixins.PostgresConfigMixin,
+    "celery": mixins.CeleryConfigMixin,
+}
+
+
+def make_config(*configs, base: Type[ServiceConfig] = None, **fields):
     types = []
-    if redis:
-        types.append(mixins.RedisConfigMixin)
-    if rabbit:
-        types.append(mixins.RabbitConfigMixin)
-    if postgres:
-        types.append(mixins.PostgresConfigMixin)
-    if celery:
-        types.append(mixins.CeleryConfigMixin)
+    for name in configs:
+        if name not in _CONFIG_MIXIN_MAP:
+            raise KeyError(
+                f"can not add config mix in for '{name}'. "
+                f"valid mix ins are: {', '.join(_CONFIG_MIXIN_MAP.keys())}"
+            )
+        types.append(_CONFIG_MIXIN_MAP[name])
     types.append(base or ServiceConfig)
     return type("Config", tuple(types), fields or {})
