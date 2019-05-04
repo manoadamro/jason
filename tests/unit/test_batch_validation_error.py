@@ -1,4 +1,4 @@
-from jason.props import BatchValidationError
+from jason.error import BatchValidationError
 
 
 def test_error():
