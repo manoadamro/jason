@@ -5,6 +5,4 @@ from .service import Service, ServiceConfig, make_config, mixins
 from .token import Protect as _Protect
 from .token import TokenHandler, TokenValidationError
 
-token_protect = _Protect
-request_schema = _RequestSchema
 service = Service
