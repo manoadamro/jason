@@ -16,19 +16,21 @@ class ChaCha20:
     _key_length = 32
     _escape = (_join_char, f"%{_join_char}")
 
-    def __init__(self, key):
+    def __init__(self, key: str):
         key = key.rjust(self._key_length)
         self.key = key.encode(self.encoding)
 
-    def escape(self, string):
+    def escape(self, string: str) -> str:
         return re.sub(self._escape[0], self._escape[1], string)
 
-    def un_escape(self, string):
+    def un_escape(self, string: str) -> str:
         return re.sub(self._escape[1], self._escape[0], string)
 
     def encrypt(self, plain_text: str) -> str:
         cipher = _ChaCha20.new(key=self.key)
-        cipher_bytes = cipher.encrypt(plain_text.encode(self.encoding))
+        if isinstance(plain_text, str):
+            plain_text = plain_text.encode(self.encoding)
+        cipher_bytes = cipher.encrypt(plain_text)
         nonce = base64.b64encode(cipher.nonce).decode(self.encoding)
         cipher_text = base64.b64encode(cipher_bytes).decode(self.encoding)
         return f"{self.escape(cipher_text)}{self._join_string}{self.escape(nonce)}"
