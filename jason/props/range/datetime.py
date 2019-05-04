@@ -5,7 +5,9 @@ from .range import RangeCheck
 
 
 class DateTimeRangeCheck(RangeCheck):
-    def _mod(self, param):
+    def _mod(
+        self, param: Union[datetime.datetime, datetime.date, str]
+    ) -> Union[datetime.datetime, datetime.date]:
         if isinstance(param, str):
             if param.endswith("Z"):
                 param = f"{param[:-1]}+00:00"
