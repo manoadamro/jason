@@ -26,5 +26,5 @@ def test_default():
 
 
 def test_collects_errors():
-    with pytest.raises(props.PropertyValidationError):
+    with pytest.raises(props.BatchValidationError):
         props.Nested(MyModel).load({"y": "nope"})

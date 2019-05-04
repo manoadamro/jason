@@ -27,7 +27,7 @@ def test_validates(prop, err):
 
 
 def test_fails(err):
-    with pytest.raises(props.PropertyValidationError):
+    with pytest.raises(props.BatchValidationError):
         props.Array(err).load([1, 2, 3, 4])
 
 

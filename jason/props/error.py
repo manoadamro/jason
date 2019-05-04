@@ -6,7 +6,7 @@ class RequestValidationError(PropertyValidationError):
     ...
 
 
-class BatchValidationError(PropertyValidationError):
+class BatchValidationError(Exception):
     tab = "    "
 
     def __init__(self, message, errors):

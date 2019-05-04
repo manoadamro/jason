@@ -27,7 +27,7 @@ def test_validates(prop, err):
 
 
 def test_fails(err):
-    with pytest.raises(props.PropertyValidationError):
+    with pytest.raises(props.BatchValidationError):
         props.AnyOf(err, err, err).load("thing")
 
 
