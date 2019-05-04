@@ -2,12 +2,17 @@ from typing import Any
 
 import flask
 
-from jason.service import mixins
+from jason import props
+
+from . import mixins
+from ..props.utils import is_type
 
 
 class App(flask.Flask):
     def __init__(self, name: str, config: Any, testing: bool = False, **kwargs: Any):
         super(App, self).__init__(name, **kwargs)
+        if is_type(config, props.ConfigObject):
+            config = config.load()
         config.update(self.config)
         self.config = config
         self.testing = testing
@@ -89,7 +94,7 @@ class App(flask.Flask):
         return f"{self.config.DB_DRIVER}://{credentials}{self.config.DB_HOST}:{self.config.DB_PORT}"
 
     def _check_backend_config(self, backend):
-        if backend == "rabbitmq":
+        if backend == "ampq":
             self._assert_mixin(
                 self.config,
                 mixins.RabbitConfigMixin,
@@ -106,25 +111,8 @@ class App(flask.Flask):
 
     def _celery_backend_url(self, backend):
         self._check_backend_config(backend=backend)
-        if backend == "rabbitmq":
+        if backend == "ampq":
             return self._rabbit_uri()
         elif backend == "redis":
             return self._redis_uri(database_id=self.config.CELERY_REDIS_DATABASE_ID)
         raise ValueError(f"invalid backend name '{backend}'")
-
-    def _celery_backend_config(self, backend):
-        self._check_backend_config(backend=backend)
-        if backend == "rabbitmq":
-            return dict(
-                host=self.config.RABBIT_HOST,
-                port=self.config.RABBIT_PORT,
-                username=self.config.RABBIT_USER,
-                password=self.config.RABBIT_PASS,
-            )
-        elif backend == "redis":
-            return dict(
-                host=self.config.REDIS_HOST,
-                port=self.config.REDIS_PASS,
-                username=self.config.REDIS_USER,
-                password=self.config.REDIS_PASS,
-            )

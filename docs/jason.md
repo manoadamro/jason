@@ -320,7 +320,7 @@ This one isn't really an extension, it's just a mix in for rabbitmq
 ```python
 from jason import service, make_config, token
 
-token_handler = token.TokenHandler()
+token_handler = token.Handler()
 
 @service(make_config())
 def awesome_service(app):
@@ -594,7 +594,7 @@ Request tokens are used for authentication.
 ```python
 from jason import token, service
 
-handler = token.TokenHandler()
+handler = token.Handler()
 
 
 @service(...)
