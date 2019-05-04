@@ -28,4 +28,6 @@ def make_config(*configs, base: Type[ServiceConfig] = None, **fields):
             )
         types.append(_CONFIG_MIXIN_MAP[name])
     types.append(base or ServiceConfig)
-    return type("Config", tuple(types), fields)
+    return type(
+        "Config", tuple(types), {key.upper(): value for key, value in fields.items()}
+    )
