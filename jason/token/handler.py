@@ -39,7 +39,8 @@ class TokenHandler(base.TokenHandlerBase):
         self.verify = None
         self.auto_update = None
         self.cipher = None
-        self.init_app(app, **kwargs)
+        self.init_app(app)
+        self.configure(**kwargs)
 
     def init_app(self, app: flask.Flask) -> NoReturn:
         if not app:
