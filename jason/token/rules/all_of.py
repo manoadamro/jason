@@ -14,7 +14,7 @@ class AllOf(base.TokenRule):
         for rule in self.rules:
             try:
                 rule.validate(token)
-            except error.TokenValidationError as ex:
+            except (error.TokenValidationError, error.BatchValidationError) as ex:
                 errors.append(ex)
         if len(errors):
             raise props.BatchValidationError(

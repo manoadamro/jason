@@ -26,7 +26,7 @@ class Array(Property):
         for item in value:
             try:
                 value = self.prop.load(item)
-            except error.PropertyValidationError as ex:
+            except (error.PropertyValidationError, error.BatchValidationError) as ex:
                 errors.append(f"could not validate {value}: {ex}")
                 continue
             validated.append(value)
