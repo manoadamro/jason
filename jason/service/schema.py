@@ -4,7 +4,7 @@ from typing import Any, Callable, Dict, Optional, Type
 
 from flask import request
 
-from . import base, error, types, utils
+from jason.props import base, error, types, utils
 
 
 class RequestSchema:

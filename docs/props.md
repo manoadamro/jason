@@ -1,485 +1,633 @@
-jason.schema
-===
+# jason.props
 
-## Model
+[back to jason docs](./jason.md)
 
-used to validate dictionaries
+---
+
+### Table Of Contents:
+
+- [Models](#Models)
+- [Config Objects](#Config-Objects)
+- [Property Decorator](#Property-Decorator)
+- [Custom Properties](#Custom-Properties)
+- [Property Types](#Property-Types)
+- [Property Rules](#Property-Rules)
+
+---
+
+## Models
+
+Models are used to define a structure.
 
 ```python
-from jason import schema
+from jason import props
 
-class MyModel(schema.Model):
-    uuid = schema.Uuid()
-    name = schema.String(min_length=3, default=10)
-    email = schema.Email()
+
+class MySchema(props.Model):
+    x = props.Int()
+    y = props.String()
+
+```
+
+Models are strict by default. To disable this and allow extra keys to be ignored during validation:
+
+```python
+from jason import props
+
+
+class MySchema(props.Model):
+    __strict__ = False
+    x = props.Int()
+    y = props.String()
+```
+
+---
+
+## Config Objects
+
+`ConfigObject` is an extension of [Models](#Models).
+Fields are defined, just as with the model (usually upper case).
+
+Fields defined as environment variables will use the environment variables value (unless overridden in constructor),
+If no environment variable is defined, the default is used. 
+If no default is used and the value is not nullable, an error is raised
+
+values can be defined in the constructor, they can be passes in any case and will be converted to upper case.
+
+```python
+from jason import props
+
+class MyConfig(props.ConfigObject):
+    SOME_VARIABLE = props.String(default="something")
+    ANOTHER_VARIABLE = props.Int()
+    NULLABLE_VARIABLE = props.Int(nullable=True)
+
+
+config = MyConfig.load(another_variable=123)
+
+print(config.SOME_VARIABLE)
+# 'something'
+
+print(config.ANOTHER_VARIABLE)
+# 123
+
+print(config.NULLABLE_VARIABLE)
+# None
+```
+
+variables can be accessed either using dot notation: `config.MY_VARIABLE`
+or with an indexer `config["MY_VARIABLE:"]`
+
+---
+
+## Property Decorator
+
+All properties can be used as a decorator
+this allows you to extend the validation.
+
+```python
+from jason import props
+
+@props.Property()
+def my_prop(value):
+    # do stuff with value or raise props.PropertyValidationError
+    return value
     
+@props.Int()
+def my_prop(value):
+    # do stuff with value or raise props.PropertyValidationError
+    return value
+
 ```
 
 ---
 
-## Property:
+## Custom Properties
+
+You can create your own property types by sub-classing `Property`
 
 ```python
-from jason import schema
+from jason import props
 
-prop = schema.Property()
-prop.load("some thing")
+class MyProperty(props.Property):
+
+    def _validate(self, value):
+        ...  # custom validation.
+
 ```
 
----
-
-#### Decorator
-
-use any property as a decorator
+Or extend an existing one:
 
 ```python
-from jason import schema
+from jason import props
 
-@schema.Int(default=10)
-def some_int(value):
-    return value * 2
+class MyProperty(props.Int):
 
-some_int.load(5)
-# 10
+    def _validate(self, value):
+        value = super(MyProperty, self)._validate(value)
+        ...  # custom validation.
 ```
 
 ---
 
-#### Rules
+## Property Types
+
+All properties are sub classes of `Property`.
+
+- [Array](#Array)
+- [Bool](#Bool)
+- [Choice](#Choice)
+- [Compound](#Compound)
+- [Date](#Date)
+- [Datetime](#Datetime)
+- [Email](#Email)
+- [Float](#Float)
+- [Inline](#Inline)
+- [Int](#Int)
+- [Nested](#Nested)
+- [Number](#Number)
+- [Password](#Password)
+- [Regex](#Regex)
+- [String](#String)
+- [Uuid](#Uuid)
+
+### Array
+
+A property to validate an array against.
 
 ```python
-from jason import schema
+from jason import props
 
-prop = schema.AnyOf(schema.Int, schema.String)
-prop.load("some thing")
+arr = props.Array(
+    prop=props.Int(min_value=1, max_value=10),
+    min_length=1,
+    max_length=10,
+)
 ```
 
-#### `AnyOf`
+##### `prop` (required)
 
-validate against at least one property or rule in a defined list
+An instance of property to validate each array item against.
 
-parameters:
+##### `min_length` (default None)
 
-- __*rules__: 
-list of rules or properties
+The minimum length of the array. Can be a callable returning a value
 
----
+##### `max_length` (default None)
 
-#### Types
+The maximum length of the array. Can be a callable returning a value
 
+##### `nullable` (default False)
 
-#### `Property`
+Will `None` be accepted in place of an array?
 
-base class for all properties, can be subclassed to create custom ones
+##### `default` (default None)
 
-parameters:
+The default value to use if the array is `None`.  Can be a callable returning a value
 
-- __default__: 
-a value or callable (no args) to be used if a value is `None` (default: `None`)
 
-- __nullable__: 
-if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
+### Bool
 
-- __types__: 
-a tuple of types that a value must be an instance or subclass of. if `None` any type will be accepted (default: `None`)
-
-
-#### `Array`
-
-validate a list or tuple
-
-parameters:
-
-- __prop__: (required) 
-a property or rule to validate each item of the list against
-
-- __default__: 
-a value or callable (no args) to be used if a value is `None` (default: `None`)
-
-- __nullable__: 
-if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
-
-- __min_length__: 
-minimum length of the array, if `None` any length will be accepted (default: None)
-
-- __max_length__: 
-maximum length of the array, if `None` any length will be accepted (default: None)
-
-
-#### `Nested`
-
-create a property from a model
-
-parameters:
-
-- __model__: (required)
-a subclass of `Model` to load properties from
-
-- __default__: 
-a value or callable (no args) to be used if a value is `None` (default: `None`)
-
-- __nullable__: 
-if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
-
-- __strict__: 
-if `True` any value found in the subject dict will cause `PropertyValidationError` to be raised.
-if `None`, the value will be taken from the model.  (default: None)
-
-
-#### `Inline`
-
-create a nested property from a dictionary of property
-
-parameters:
-
-- __props__: (required)
-a list or tuples or rules to make a nested object from
-
-- __default__: 
-a value or callable (no args) to be used if a value is `None` (default: `None`)
-
-- __nullable__: 
-if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
-
-
-#### `Combine`
-
-combine two or more models, inline properties or nested properties into one nested property
-
-parameters:
-
-- __*objects__: (required)
-two or more objects to get properties from and merge into a single object. and duplicates will cause `PropertyValidationError` to be raised
-
-- __default__: 
-a value or callable (no args) to be used if a value is `None` (default: `None`)
-
-- __nullable__: 
-if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
-
-
-#### `Bool`
-
-validate a boolean
-
-parameters:
-
-- __allow_strings__: 
-if `True` the property will attempt to create a bool from a string like "true" or "false" (default: `True`)
-
-- __default__: 
-a value or callable (no args) to be used if a value is `None` (default: `None`)
-
-- __nullable__: 
-if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
-
-
-#### `Number`
-
-validate an int or float
-
-parameters:
-
-- __allow_strings__: 
-if `True` the property will attempt to create an int or float from a string like "12" or "12.3" (default: `True`)
-
-- __min_value__: 
-minimum value accepted, if `None` any value will be accepted (default: None)
-
-- __max_value__: 
-maximum value accepted, if `None` any value will be accepted (default: None)
-
-- __default__: 
-a value or callable (no args) to be used if a value is `None` (default: `None`)
-
-- __nullable__: 
-if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
-
-
-#### `Int`
-
-validate an int
-
-parameters:
-
-- __allow_strings__: 
-if `True` the property will attempt to create an int or float from a string like "12" or "12.3" (default: `True`)
-
-- __min_value__: 
-minimum value accepted, if `None` any value will be accepted (default: None)
-
-- __max_value__: 
-maximum value accepted, if `None` any value will be accepted (default: None)
-
-- __default__: 
-a value or callable (no args) to be used if a value is `None` (default: `None`)
-
-- __nullable__: 
-if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
-
-
-#### `Float`
-
-validate a float. (ints will be converted to floats)
-
-parameters:
-
-- __allow_strings__: 
-if `True` the property will attempt to create an int or float from a string like "12" or "12.3" (default: `True`)
-
-- __min_value__: 
-minimum value accepted, if `None` any value will be accepted (default: None)
-
-- __max_value__: 
-maximum value accepted, if `None` any value will be accepted (default: None)
-
-- __default__: 
-a value or callable (no args) to be used if a value is `None` (default: `None`)
-
-- __nullable__: 
-if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
-
-
-#### `String`
-
-validate a string
-
-parameters:
-
-- __default__: 
-a value or callable (no args) to be used if a value is `None` (default: `None`)
-
-- __nullable__: 
-if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
-
-- __min_length__: 
-minimum length of the string, if `None` any length will be accepted (default: None)
-
-- __max_length__: 
-maximum length of the string, if `None` any length will be accepted (default: None)
-
-
-#### `Regex`
-
-validate a string against a regex matcher
-
-parameters:
-
-- __matcher__: (required)
-either a regex string or compiled regex pattern to match a value against
-
-- __default__: 
-a value or callable (no args) to be used if a value is `None` (default: `None`)
-
-- __nullable__: 
-if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
-
-- __min_length__: 
-minimum length of the string, if `None` any length will be accepted (default: None)
-
-- __max_length__: 
-maximum length of the string, if `None` any length will be accepted (default: None)
-
-
-#### `Uuid`
-
-validate a string against the uuid4 standard
-
-parameters:
-
- - None!
-
-
-#### `Date`
-
-validate a date or iso8601 date
-
-parameters:
-
-- __allow_strings__: 
-if `True` the property will attempt to create an datetime from an iso8601 string like (default: `True`)
-
-- __min_value__: 
-minimum value accepted, if `None` any datetime will be accepted (default: None)
-
-- __max_value__: 
-maximum value accepted, if `None` any datetime will be accepted (default: None)
-
-- __default__: 
-a value or callable (no args) to be used if a value is `None` (default: `None`)
-
-- __nullable__: 
-if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
-
-
-#### `Datetime`
-
-validate a datetime or iso8601 datetime
-
-parameters:
-
-- __allow_strings__: 
-if `True` the property will attempt to create an int or float from a string like "12" or "12.3" (default: `True`)
-
-- __min_value__: 
-minimum value accepted, if `None` any date will be accepted (default: None)
-
-- __max_value__: 
-maximum value accepted, if `None` any date will be accepted (default: None)
-
-- __default__: 
-a value or callable (no args) to be used if a value is `None` (default: `None`)
-
-- __nullable__: 
-if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
-
-
-#### `Password`
-
-validate a string against password rules
-
-parameters:
-
-- __uppercase__: 
-if `True`, value must contain at least one upper case character, if `False`, value must not contain upper case characters (default: `None`)
-
-- __numbers__: 
-if `True`, value must contain at least one number, if `False`, value must not contain numberss (default: `None`)
-
-- __symbols__: 
-if `True`, value must contain at least one symbol, if `False`, value must not contain symbols (default: `None`)
-
-- __min_score__: 
-for each positive check a score count is incremented by 1, at the end `PropertyValidationError` if it is lower then min_score (default: `0`)
-
-- __default__: 
-a value or callable (no args) to be used if a value is `None` (default: `None`)
-
-- __nullable__: 
-if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
-
-
-#### `Email`
-
-validate a string against email rules
-
-parameters:
-
-- __default__: 
-a value or callable (no args) to be used if a value is `None` (default: `None`)
-
-- __nullable__: 
-if `False`, `None` values will cause `PropertyValidationError` to be raised (default `False`)
-
----
-
-#### Checks
-
-#### `RangeCheck`
-
-parameters:
-
-- __min_value__: 
-minimum value accepted, if `None` any value will be accepted (default: None)
-
-- __max_value__: 
-maximum value accepted, if `None` any value will be accepted (default: None)
-
-
-#### `SizeRangeCheck`
-
-parameters:
-
-- __min_value__: 
-minimum length accepted, if `None` any length will be accepted (default: None)
-
-- __max_value__: 
-maximum length accepted, if `None` any length will be accepted (default: None)
-
-
-#### `DateTimeRangeCheck`
-
-parameters:
-
-- __min_value__: 
-minimum value accepted, if `None` any value will be accepted (default: None)
-
-- __max_value__: 
-maximum value accepted, if `None` any value will be accepted (default: None)
-
----
-
-## RequestSchema
-
-Used for validating content in flask requests.
-
-documentation for schema properties and models is [here](props.md)
-
-### `request_schema(...)`
+A property to validate a boolean against.
+by default, booleans can be loaded from strings like `"true""` or `"false"`.
+To disable this, use `allow_strings` to false in property constructor
 
 ```python
-from jason.schema import *
+from jason import props
 
+boolean = props.Bool()
+```
 
-# Schemas can be defined with either a model or inline.
+##### `nullable` (default False)
 
-class MyRequestSchema:
-  
-    class Args(Model):
-        q = String(default="something")
-        i = Int(nullable=True)
+Will `None` be accepted in place of boolean?
 
-    json = Inline(props={"q": String(default="something")})
+##### `default` (default None)
 
+The default value to use if the boolean is `None`.  Can be a callable returning a value
 
-@request_schema(model=MyRequestSchema)
-def some_route(q, json):
-    ...
+##### `allow_strings` (default True)
 
+If `True`, string values `true` and `false` will be accepted and converted to the relevant bool value.
 
-@request_schema(
-    args=Nested(MyRequestSchema.Args),
-    json=Inline(props={"q": String(default="something")})
-)
-def some_route(q, json):
-    ...
+### Choice
 
-# the decorated method will work like pytest fixtures
-# in the way that you can have validatable elements passed to it, regardless of validation rules.
-# simply by adding it to the signature.
+A property containing a collection of values.
+When validating, the value must be one of these values (or `None` if nullable)
 
-# NOTE: view_args (args) will not be packaged as a dict but passed individually.
+```python
+from jason import props
 
-# example:
+boolean = props.Choice(choices=[1,2,3,4,5], nullable=True)
+```
 
-@request_schema(
-    args=Nested(MyRequestSchema.Args),
-    json=Inline(props={"something": String(default="hello")})
-)
-def some_route(q, i, json):
-    ...
+##### `choices` (required)
 
+A list or tuple of values that any validating value must be one of.
 
-@request_schema(
-    args=Nested(MyRequestSchema.Args),
-    json=Inline(props={"something": String(default="hello")})
-)
-def some_route(q, i, json):  # this will receive the url args and json
-    ...
+##### `nullable` (default False)
 
-@request_schema(
-    args=Nested(MyRequestSchema.Args),
-    json=Inline(props={"something": String(default="hello")})
-)
-def some_route(json):  # this will receive only the json
-    ...
+Will `None` be accepted in place of value?
 
-@request_schema(
-    args=Nested(MyRequestSchema.Args),
-    json=Inline(props={"something": String(default="hello")})
-)
-def some_route(q, i, query, form, json):  # this will receive everything (form and query will be un-validated)
-    ...
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
+
+### Compound
+
+merges multiple objects into one.
+
+```python
+from jason import props
+
+class ModelA(props.Model):
+    a = props.Int()
+    b = props.Int()
+
+class ModeB(props.Model):
+    c = props.Int()
+    d = props.Int()
+
+prop = props.Compound(ModelA, ModeB)
+```
+
+##### `*objects` (required)
+
+instances of `Model`, `Inline`, `Nested`, `Dict[str, Property]` or `Compound` to merge into one.
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of value?
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
+
+### Date
+
+A property to validate a date against.
+
+```python
+from jason import props
+
+d = props.Date(min_value="1970-01-01")
+```
+
+##### `min_value` (default None)
+
+minimum date, can also be iso8601 string or callable returning date
+
+##### `max_value` (default None)
+
+maximum date, can also be iso8601 string or callable returning date
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of value?
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
+
+##### `allow_strings` (default True)
+
+allow date to be loaded from iso8601 strings
+
+### Datetime
+
+A property to validate a datetime against.
+
+```python
+from jason import props
+
+d = props.Datetime(min_value="1970-01-01T00:00:00.000Z")
+```
+
+##### `min_value` (default None)
+
+minimum datetime, can also be iso8601 string or callable returning datetime
+
+##### `max_value` (default None)
+
+maximum datetime, can also be iso8601 string or callable returning datetime
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of value?
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
+
+##### `allow_strings` (default True)
+
+allow datetime to be loaded from iso8601 strings
+
+### Email
+
+validates strings against the following regex:
+```regexp
+^[^@]+@[^@]+\\.[^@]+$
+```
+
+```python
+from jason import props
+
+d = props.Email()
+```
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of value?
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
+
+### Float
+
+A property to validate a float value.
+It will accept `int` values, but will convert them to float. eg `12` -> `12.0`
+by default, floats can be loaded from strings like `"12""` or `"12.0"`.
+To disable this, use `allow_strings` to false in property constructor
+
+```python
+from jason import props
+
+d = props.Float()
+```
+
+##### `min_value` (default None)
+
+minimum date, can also be a callable returning value
+
+##### `max_value` (default None)
+
+maximum date, can also be a callable returning value
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of value?
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
+
+##### `allow_strings` (default True)
+
+allow datetime to be loaded from strings such as `"12.0""`
+
+### Inline
+
+allows the definition of models using a simple constructor.
+
+```python
+from jason import props
+
+d = props.Inline(props=dict(x=props.Int(), y=props.Int()))
 
 ```
 
+##### `nullable` (default False)
+
+Will `None` be accepted in place of value?
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
+
+### Int
+
+A property to validate a int value.
+It will not accept `float` values.
+by default, ints can be loaded from strings like `"12""`.
+To disable this, use `allow_strings` to false in property constructor
+
+```python
+from jason import props
+
+d = props.Int()
+```
+
+##### `min_value` (default None)
+
+minimum date, can also be a callable returning value
+
+##### `max_value` (default None)
+
+maximum date, can also be a callable returning value
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of value?
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
+
+##### `allow_strings` (default True)
+
+allow datetime to be loaded from strings such as `"12""`
+
+##### `strict` (default True)
+
+should the resulting model be `strict`?
+
+### Nested
+
+Allows the nesting of models.
+
+```python
+from jason import props
+
+class MyNestedModel(props.Model):
+    ...
+
+class MySchema(props.Model):
+    nested = props.Nested(MyNestedModel, default=None)
+    other_nested = props.Nested(props.Inline(props=dict(x=props.Int(), y=props.Int())))   
+```
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
+
+##### `allow_strings` (default True)
+
+allow datetime to be loaded from strings such as `"12""`
+
+##### `strict` (default True)
+
+should the resulting model be `strict`?
+
+### Number
+
+A property to validate a numeric value.
+It will accept `int` or `float` values.
+by default, numbers can be loaded from strings like `"12""` or `"12.0"`.
+To disable this, use `allow_strings` to false in property constructor
+
+```python
+from jason import props
+
+d = props.Number()
+```
+
+##### `min_value` (default None)
+
+minimum date, can also be a callable returning value
+
+##### `max_value` (default None)
+
+maximum date, can also be a callable returning value
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of value?
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
+
+##### `allow_strings` (default True)
+
+allow datetime to be loaded from strings such as `"12.0""`
+
+### Password
+
+A property to validate a string password.
+
+```python
+from jason import props
+
+d = props.Password()
+```
+
+##### `uppercase` (default None)
+
+if `True`: will fail unless at least one upper case character is present
+if `False`: will fail if any upper case character is present
+if `None`: will accept any amount of upper/lower case characters
+
+##### `numbers` (default None)
+
+if `True`: will fail unless at least one numeric character is present
+if `False`: will fail if any numeric character is present
+if `None`: will accept any amount of numeric characters
+
+##### `symbols` (default None)
+
+if `True`: will fail unless at least one symbol character is present
+if `False`: will fail if any symbol character is present
+if `None`: will accept any amount of symbol characters
+
+##### `score` (default 0)
+
+The minimum score for the password to be considered valid.
+at least one upper case character increments score by 1
+at least one numeric character increments score by 1
+at least one digit character increments score by 1
+if score is 0, any score is considered acceptable.
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of value?
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
+
+### Regex
+
+A property to validate a string against a regex matcher.
+matchers can either be strings or `re` compiled patterns.
+
+```python
+from jason import props
+
+d = props.Regex("[a-z]+")
+```
+
+##### `matcher` (required)
+
+either a string pattern or `re` compiled pattern
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of value?
+
+##### `default` (default None)
+
+The default to use if the value is `None`.  Can be a callable returning a value
+
+### String
+
+A property to validate a string value.
+
+```python
+from jason import props
+
+d = props.String(min_length=10, max_length=20)
+```
+
+##### `min_length` (default None)
+
+The minimum length of the string. Can be a callable returning a value
+
+##### `max_length` (default None)
+
+The maximum length of the string. Can be a callable returning a value
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of an array?
+
+##### `default` (default None)
+
+The default value to use if the value is `None`.  Can be a callable returning a value
+
+### Uuid
+
+A property to validate a uuid string.
+
+```python
+from jason import props
+
+d = props.Uuid()
+```
+
+##### `nullable` (default False)
+
+Will `None` be accepted in place of an array?
+
+##### `default` (default None)
+
+The default value to use if the value is `None`.  Can be a callable returning a value
+
+---
+
+## Property Rules
+
+Property rules are used to wrap one or more properties.
+
+- [AnyOf](#AnyOf)
+
+### AnyOf
+
+Ensures that the value conforms at least one property.
+The value from the first valid property is returned.
+
+```python
+from jason import props
+
+prop = props.AnyOf(
+    props.Int(),
+    props.String()
+)
+```
+
+##### `*rules` (required)
+
+properties or rules.
+
+---

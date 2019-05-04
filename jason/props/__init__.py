@@ -1,5 +1,6 @@
+from .base import SchemaAttribute, SchemaRule
+from .config import ConfigObject
 from .error import BatchValidationError, PropertyValidationError, RequestValidationError
-from .request import RequestSchema as _RequestSchema
 from .rules import AnyOf
 from .types import (
     Array,
@@ -21,5 +22,3 @@ from .types import (
     String,
     Uuid,
 )
-
-request_schema = _RequestSchema

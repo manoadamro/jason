@@ -23,7 +23,7 @@ class Nested(Property):
             value = obj.get(field, None)
             try:
                 validated[field] = prop.load(value)
-            except error.PropertyValidationError as ex:
+            except (error.PropertyValidationError, error.BatchValidationError) as ex:
                 errors.append(f"could not load property '{field}': {ex}")
                 continue
         if self.strict:

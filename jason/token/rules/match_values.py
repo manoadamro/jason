@@ -8,6 +8,7 @@ from .. import base, error
 
 class MatchValues(base.TokenRule):
     def __init__(self, *paths: str):
+        self.paths = paths
         self.matchers: List[(Callable, str)] = [
             self._resolve_path(path) for path in paths
         ]
@@ -22,7 +23,9 @@ class MatchValues(base.TokenRule):
         except jsonpointer.JsonPointerException:
             raise error.TokenValidationError(f"path to value does not exist in token")
         except AssertionError:
-            raise error.TokenValidationError("one or more values do not match")
+            raise error.TokenValidationError(
+                f"one or more values at paths {', '.join(self.paths)} do not match"
+            )
 
     def _resolve_path(self, path: str) -> (Callable, str):
         if ":" not in path:

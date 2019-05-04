@@ -1,6 +1,8 @@
 from typing import Any, Dict, NoReturn
 
-from .. import base, error
+from jason import props
+
+from .. import base
 
 
 class HasKeys(base.TokenRule):
@@ -8,6 +10,11 @@ class HasKeys(base.TokenRule):
         self.keys = keys
 
     def validate(self, token: Dict[str, Any]) -> NoReturn:
-
-        if not all(key in token for key in self.keys):
-            raise error.TokenValidationError(f"token is missing a required key")
+        errors = []
+        for key in self.keys:
+            if key not in token:
+                errors.append(f"token is missing a required key {key}")
+        if len(errors):
+            raise props.BatchValidationError(
+                f"token is missing one or more required keys", errors
+            )

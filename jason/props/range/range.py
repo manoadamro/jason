@@ -1,7 +1,6 @@
-import datetime
-from typing import Any, Union
+from typing import Any
 
-from . import error, utils
+from .. import error, utils
 
 
 class RangeCheck:
@@ -33,18 +32,4 @@ class RangeCheck:
         return value
 
     def mod_param(self, param: Any) -> Any:
-        return param
-
-
-class SizeRangeCheck(RangeCheck):
-    def mod_value(self, value: Any) -> int:
-        return len(value)
-
-
-class DateTimeRangeCheck(RangeCheck):
-    def mod_param(
-        self, param: Union[datetime.datetime, datetime.date]
-    ) -> Union[datetime.datetime, datetime.date]:
-        if param.tzinfo is None:
-            param = param.replace(tzinfo=datetime.timezone.utc)
         return param

@@ -11,7 +11,7 @@ class AnyOf(base.TokenRule):
         for rule in self.rules:
             try:
                 rule.validate(token)
-            except error.TokenValidationError:
+            except (error.TokenValidationError, error.BatchValidationError):
                 continue
             else:
                 return

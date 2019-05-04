@@ -43,3 +43,8 @@ class Property(base.SchemaAttribute):
 
         self._validate = wrapped_validator
         return self
+
+    def is_identical_to(self, other):
+        if not isinstance(other, type(self)):
+            return False
+        return utils.deep_compare(self, other)

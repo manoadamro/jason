@@ -29,6 +29,7 @@ class Regex(String):
         self.matcher = matcher
 
     def _validate(self, value: str) -> str:
+        value = super(Regex, self)._validate(value)
         if re.match(self.matcher, value) is None:
             raise error.PropertyValidationError(
                 f"String value '{value}' did not match regex pattern '{self.matcher.pattern}'"
@@ -37,11 +38,11 @@ class Regex(String):
 
 
 class Uuid(String):
-    def __init__(self):
-        super(Uuid, self).__init__()
+    def __init__(self, **kwargs):
+        super(Uuid, self).__init__(**kwargs)
 
     def _validate(self, value: str) -> str:
-
+        value = super(Uuid, self)._validate(value)
         try:
             uuid.UUID(value)
         except ValueError:
@@ -72,7 +73,7 @@ class Password(String):
         self.min_score = min(score, self.max_score)
 
     def _validate(self, value: str) -> str:
-
+        value = super(Password, self)._validate(value)
         score = 0
         if re.search(self.whitespace_matcher, value):
             raise error.PropertyValidationError(

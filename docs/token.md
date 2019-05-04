@@ -1,174 +1,339 @@
-# jason.api.schema
+# jason.token
 
-```python
-
-import flask
-from jason.api import token
-
-app = flask.Flask(__name__)
-handler = token.TokenHandler(app=app, key="secret", issuer="someone", audience="someone")
-
-
-@app.route('/')
-@token.protect(token.HasScopes("read:index"))
-def index():
-    ...
-    
-
-@app.route('/user/<user_id>')
-@token.protect(token.HasScopes("read:user"), token.MatchValues("jwt:user_id", "url:user_id"))
-def index(user_id):
-    ...
-    
-    
-```
-
-### Token Handler
-
-```python
-import flask
-from jason.api import token
-
-app = flask.Flask(__name__)
-
-handler = token.TokenHandler(app=app, key="secret", issuer="someone", audience="someone")
-
-# or
-
-handler = token.TokenHandler(key="secret", issuer="someone", audience="someone")
-handler.init_app(app=app)
-
-# or
-
-handler = token.TokenHandler()
-handler.init_app(app=app)
-handler.configure(key="secret", issuer="someone", audience="someone")
-
-```
-
-#### `__init__`
-
-takes all parameters from `configure` and `init_app`. None are required
-
-#### `init_app`
-
-__app__: instance of a flask app.
-
-
-#### `configure`
-
-__key__: string key for signing tokens. if the flask app is started before this is configured, an exception is raised
-
-__lifespan__: number of seconds a token lasts for before being considered expired .if the flask app is started before this is configured, an exception is raised
-
-__issuer__: the token issuer. if the flask app is started before this is configured, an exception is raised
-
-__audience__: the token audience. if the flask app is started before this is configured, an exception is raised
-
-__algorithm__: the signing algorithm. (defaults `HS256`)
-
-__verify__: (for testing mode) will not verify tokens if `False` (default `True`)
-
-__auto_update__: if `True`, after each valid request, a token with an updated expiry is returned to the client. (default `False`)
-
-__require_exp__: require an `exp` field in the token (default `True`)
-
-__require_nbf__: require an `nbf` field in the token (default `True`)
-
-__require_iat__: require an `iat` field in the token (default `True`)
-
-__require_aud__: require an `aud` field in the token (default `True`)
-
-__require_iss__: require an `iss` field in the token (default `True`)
- 
-__verify_signature__: should the tokens signature be verified? (default `True`)
-
-__verify_exp__: should the tokens expiry be verified? (default `True`)
-
-__verify_nbf__: should the tokens "not-before" be verified? (default `True`)
-
-__verify_iat__:  should the tokens "issued-at" be verified? (default `True`)
-
-__verify_aud__:  should the tokens audience be verified? (default `True`)
-
-__verify_iss__:  should the tokens issuer be verified? (default `True`)
+[back to jason docs](./jason.md)
 
 ---
 
-### Protect
+### Table Of Contents:
+
+- [Token Handler](#Token-Handler)
+- [Token Protect](#Token-Protect)
+- [Token Rules](#Token-Rules)
+
+---
+
+## Token Handler
 
 ```python
-from jason.api import token
+from jason import token
 
-
-@token.protect(token.HasScopes("read:index"))
-def index():
-    ...
-    
-
-@token.protect(token.HasScopes("read:user"), token.MatchValues("jwt:user_id", "json:user/uuid", "url:user_id"))
-def index():
-    ...
-    
-    
+handler = token.TokenHandler()
 ```
 
-__rules__: one or more token rules to validate tokens against
 
+### Generate Token
 
-### Rules
+```python
+from jason import token
 
-#### `AllOf`
+handler = token.TokenHandler()
 
-All rules will have to pass in order for the token to be considered valid
+handler.generate_token(...)
+```
 
-__rules__: two or more token rules to validate tokens against. 
- 
-#### `AnyOf`
+#### `user_id` (default: None)
 
-At least one rule will have to pass in order for the token to be considered valid
+Users unique identifier
 
-__rules__: two or more token rules to validate tokens against. 
+#### `scopes` (default: [])
 
-#### `NoneOf`
+a list or tuple of scopes, usually something like `read:thing`, `write:thing`
 
-None of the rules can pass in order for the token to be considered valid
+#### `token_data` (default: None)
 
-__rules__: two or more token rules to validate tokens against. 
+A dictionary of data to be stored in the token
 
-#### `HasScopes`
+#### `not_before` (default: None)
 
-All scopes will have to exist in the token for it to be considered valid
+Timestamp representing the earliest time that a token can be used.
 
-__scopes__: one or more scopes to check.
+### Config Options
 
-#### `HasKeys`
+```python
+from jason import token
 
-All keys will have to exist in the token for it to be considered valid
+handler = token.TokenHandler()
 
-__keys__: one or more keys to check.
+handler.configure(...)
+```
 
-#### `HasValue`
+#### `key` (default: None)
 
-Value must exist at pointer
+Key used to sign the tokens. Must be populated before app is run or an error is raised
 
-__pointer__: json pointer path to a value in the token
+#### `lifespan` (default: None)
 
-__value__: the expected value at the defined pointer
+lifespan of tokens, in seconds. Must be populated before app is run or an error is raised
 
+#### `issuer` (default: None)
 
-#### `MatchValues`
+The tokens issuer.
 
-all values at defined paths must match.
-paths are prefixed with object names.
+#### `audience` (default: None)
 
-__paths__: one or more prefixed paths, eg. `jwt:path/to/object` or `url:path/to/object`
-options are:
-- header (request headers)
-- json (request json)
-- url (url view args)
-- query (url query)
-- form (request form)
-- token
+The tokens audience.
+
+#### `algorithm` (default: HS256)
+
+Algorithm used to sign tokens.
+
+#### `verify` (default: True)
+
+Verify token fields when decoding
+
+#### `auto_update` (default: None)
+
+If true, a token with an upgraded expiry is returned in the headers of each response.
+
+#### `encryption_key` (default: None)
+
+If not `None`, the token is encrypted using `ChaCha20` and the defined key.
+
+#### `require_exp` (default: True)
+
+An error is raised if a token is received without an expiry
+
+#### `require_nbf` (default: True)
+
+An error is raised if a token is received without a "not before"
+
+#### `require_iat` (default: True)
+
+An error is raised if a token is received without an issued time
+
+#### `require_aud` (default: True)
+
+An error is raised if a token is received without an audience
+
+#### `require_iss` (default: True)
+
+An error is raised if a token is received without an issuer
+
+#### `verify_exp` (default: True)
+
+If false, verification of the expiry will be skipped
+
+#### `verify_nbf` (default: True)
+
+If false, verification of the "not before" will be skipped
+
+#### `verify_iat` (default: True)
+
+If false, verification of the "issued at" time will be skipped
+
+#### `verify_aud` (default: True)
+
+If false, verification of the audience will be skipped
+
+#### `verify_iss` (default: True)
+
+If false, verification of the issuer will be skipped
+
+#### `verify_signature` (default: True)
+
+If false, verification of the token signature will be skipped
+
+---
+
+## Token Protect
+
+Used to decorate flask routes.
+Takes an unpacked tuple of rules, pulls the token from the request header, decrypts, decodes and validates.
+
+If not rules are provides, it will still ensure that any token string is present
+
+NOTE: a `TokenHandler` will need to have been initialised. 
+see [Token Handler](#Token-Handler) and [Service Extensions](./jason.md#Service-Extensions)
+
+```python
+from flask import Blueprint
+from jason import token
+
+blueprint = Blueprint("my-blueprint", __name__)
+
+@blueprint.route("/")
+@token.protect(...)
+def my_route():
+    ...
+```
+
+#### `*rules` (required)
+
+an unpacked tuple of token rules.
+
+---
+
+## Token Rules
+
+Rules used to validate tokens
+
+- [AllOf](#AllOf)
+- [AnyOf](#AnyOf)
+- [HasKeys](#HasKeys)
+- [HasScopes](#HasScopes)
+- [HasValue](#HasValue)
+- [MatchValues](#MatchValues)
+- [NoneOf](#NoneOf)
+
+### AllOf
+
+The token must conform to all of the defined rules.
+
+```python
+from jason import token
+
+@token.protect(token.AllOf(..., ...))
+def my_route():
+    ...
+```
+
+#### `*rules` (required)
+
+An unpacked tuple of token rules.
+
+### AnyOf
+
+The token must conform to at least one of the defined rules.
+
+```python
+from jason import token
+
+@token.protect(token.AnyOf(..., ...))
+def my_route():
+    ...
+```
+
+#### `*rules` (required)
+
+An unpacked tuple of token rules.
+
+### HasKeys
+
+Ensures that the token body contains all of the defined keys
+
+```python
+from jason import token
+
+@token.protect(token.HasKeys("some-key", "another-key"))
+def my_route():
+    ...
+```
+
+#### `*keys` (required)
+
+An unpacked tuple of string keys.
+
+### HasScopes
+
+Ensures that the token contains all of the defined scopes
+
+```python
+from jason import token
+
+@token.protect(token.HasScopes("read:thing", "write:thing"))
+def my_route():
+    ...
+```
+
+#### `*scopes` (required)
+
+An unpacked tuple of string scopes.
+
+### HasValue
+
+Ensures that a values is present and valid at a given pointer
+
+If a property or rule from `jason.props` is given as a value, whatever value is found at the pointer will be validated agaisnt it.
+Otherwise, the value found must match the value defined.
+
+```python
+from jason import token, props
+
+@token.protect(token.HasValue("/thing/id", 123))  # value found must == 123
+def my_route():
+    ...
+
+@token.protect(token.HasValue("/thing/id", props.Int()))  # value will be validated against defined property
+def my_route():
+    ...
+```
+
+#### `pointer` (required)
+
+A pointer to a value within the token body.
+
+see [jsonpointer](https://pypi.org/project/jsonpointer/) for more info
+
+#### `value` (required)
+
+either a value or a property to match with or validate against.
+
+### MatchValues
+
+ensures that the values at all defined pointers are the same
+
+```python
+from jason import token
+
+@token.protect(token.MatchValues("url:user_id", "jwt:user_id"))
+def my_route():
+    ...
+```
+
+Matchers:
+
+#### header
+
+`header:path/to/value`
+
+flask request header
+
+#### json
+
+`json:path/to/value`
+
+flask request json
+
+#### url
+
+`url:path/to/value`
+
+flask request url args eg. `/user/<user_id>`
+
+#### query
+
+`query:path/to/value`
+
+flask request url query eg. `?thing=123&other=something`
+
+#### form
+
+`form:path/to/value`
+
+flask request form
+
+#### token
+
+`token:path/to/value`
+
+flask request token
+
+see [jsonpointer](https://pypi.org/project/jsonpointer/) for more info on pointers
+
+### NoneOf
+
+The token must conform to none of the defined rules.
+
+```python
+from jason import token
+
+@token.protect(token.NoneOf(..., ...))
+def my_route():
+    ...
+```
+
+#### `*rules` (required)
+
+An unpacked tuple of token rules.
 
 ---

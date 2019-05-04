@@ -4,9 +4,9 @@ from typing import Any
 from jason.props import error, types
 
 
-class Config(types.Model):
+class ConfigObject(types.Model):
     @classmethod
-    def load(cls, **fields: Any) -> "Config":
+    def load(cls, **fields: Any) -> "ConfigObject":
         instance = cls()
         errors = []
         fields = {name.lower(): value for name, value in fields.items()}
@@ -26,12 +26,12 @@ class Config(types.Model):
 
     def __getattribute__(self, item):
         try:
-            return super(Config, self).__getattribute__(item)
+            return super(ConfigObject, self).__getattribute__(item)
         except AttributeError:
             return getattr(self.__dict__, item)
 
     def __getitem__(self, item):
-        return self.__dict__[item]
+        return getattr(self, item)
 
     def __setitem__(self, key, value):
-        self.__dict__[key] = value
+        setattr(self, key, value)

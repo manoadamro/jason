@@ -1,6 +1,6 @@
 from typing import Any, Callable, List, Tuple, Type, Union
 
-from .. import base, error, range
+from .. import base, error, range, utils
 from .property import Property
 
 
@@ -12,7 +12,7 @@ class Array(Property):
         max_length: Union[int, Callable[[], int]] = None,
         **kwargs: Any,
     ):
-        if isinstance(prop, type):
+        if utils.is_type(prop):
             prop = prop()
         super(Array, self).__init__(types=(list, tuple), **kwargs)
         self.range = range.SizeRangeCheck(min_value=min_length, max_value=max_length)
@@ -26,7 +26,7 @@ class Array(Property):
         for item in value:
             try:
                 value = self.prop.load(item)
-            except error.PropertyValidationError as ex:
+            except (error.PropertyValidationError, error.BatchValidationError) as ex:
                 errors.append(f"could not validate {value}: {ex}")
                 continue
             validated.append(value)

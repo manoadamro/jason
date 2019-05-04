@@ -26,9 +26,9 @@ class Service:
         self._debug = debug
         self._config = self._config_class.load(**config_values)
         self._app = self._app_gen(__name__, config=self._config, testing=self._debug)
-        self.set_up(self._app, self._debug)
+        self._set_up(self._app)
 
-    def _set_up(self, app, debug):
+    def _set_up(self, app):
         raise NotImplementedError
 
     def run(self, debug=False, no_serve=False, detach=False, **config_values):
@@ -64,5 +64,5 @@ class Service:
         return "\n".join(e for e in self._app.extensions)
 
     def __call__(self, func):
-        self.set_up = func
+        self._set_up = func
         return self

@@ -1,6 +1,8 @@
 from typing import Any, Dict, NoReturn
 
-from .. import base, error
+from jason import props
+
+from .. import base
 
 
 class HasScopes(base.TokenRule):
@@ -8,5 +10,11 @@ class HasScopes(base.TokenRule):
         self.scopes = scopes
 
     def validate(self, token: Dict[str, Any]) -> NoReturn:
-        if not all(scope in token["scp"] for scope in self.scopes):
-            raise error.TokenValidationError(f"token is missing a required scope")
+        errors = []
+        for scope in self.scopes:
+            if scope not in token["scp"]:
+                errors.append(f"token is missing a required scope {scope}")
+        if len(errors):
+            raise props.BatchValidationError(
+                f"token is missing one or more required scopes", errors
+            )
