@@ -17,7 +17,7 @@
 ```python
 from jason import token
 
-handler = token.TokenHandler()
+handler = token.Handler()
 ```
 
 
@@ -26,7 +26,7 @@ handler = token.TokenHandler()
 ```python
 from jason import token
 
-handler = token.TokenHandler()
+handler = token.Handler()
 
 handler.generate_token(...)
 ```
@@ -52,7 +52,7 @@ Timestamp representing the earliest time that a token can be used.
 ```python
 from jason import token
 
-handler = token.TokenHandler()
+handler = token.Handler()
 
 handler.configure(...)
 ```
@@ -142,7 +142,7 @@ Takes an unpacked tuple of rules, pulls the token from the request header, decry
 
 If not rules are provides, it will still ensure that any token string is present
 
-NOTE: a `TokenHandler` will need to have been initialised. 
+NOTE: a `Handler` will need to have been initialised. 
 see [Token Handler](#Token-Handler) and [Service Extensions](./jason.md#Service-Extensions)
 
 ```python

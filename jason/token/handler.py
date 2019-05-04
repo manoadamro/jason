@@ -10,7 +10,7 @@ from jason import crypto
 from . import base
 
 
-class TokenHandler(base.TokenHandlerBase):
+class Handler(base.TokenHandlerBase):
 
     HEADER_KEY = "Authorization"
     CIPHER = crypto.ChaCha20
@@ -117,7 +117,7 @@ class TokenHandler(base.TokenHandlerBase):
             self.verify = True
         if len(missing) > 0:
             raise ValueError(
-                "TokenHandler is missing the values for: " f"{', '.join(missing)}"
+                "Handler is missing the values for: " f"{', '.join(missing)}"
             )
 
     def before_request(self) -> NoReturn:
