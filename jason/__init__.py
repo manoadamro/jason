@@ -7,3 +7,4 @@ from .token import Protect as _Protect
 from .token import TokenValidationError
 
 service = Service
+request_schema = _RequestSchema
