@@ -2,18 +2,18 @@
 To run this, you will need 'flask_sqlalchemy' installed.
 
 to see config:
-python3 -m jason examples/simple_api:my_simple_api config
+python3 -m jason examples/simple_consumer:my_simple_api config
 
 to see extension list:
-python3 -m jason examples/simple_api:my_simple_api extensions
+python3 -m jason examples/simple_consumer:my_simple_api extensions
 
 to run the service:
-python3 -m jason examples/simple_api:my_simple_api run
+python3 -m jason examples/simple_consumer:my_simple_api run
 
 """
 from jason import service, make_config, request_schema, props, AppThreads
 from flask import Blueprint, jsonify, current_app
-from kombu import Connection, Consumer, Queue, Exchange
+from kombu import Connection, Queue, Exchange
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -46,6 +46,8 @@ def my_simple_api(app):
 
 @threads.thread
 def my_consumer():
+
+    # rabbit config is available because we passed "rabbit" to make_config()
     host = current_app.config.RABBIT_HOST
     port = current_app.config.RABBIT_PORT
     username = current_app.config.RABBIT_USER
