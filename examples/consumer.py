@@ -1,5 +1,5 @@
 """
-To run this, you will need 'flask_sqlalchemy' installed.
+To run this, you will need 'flask_sqlalchemy' and 'kombu' installed.
 
 to see config:
 python3 -m jason examples/simple_consumer:my_simple_api config

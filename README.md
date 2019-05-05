@@ -2,9 +2,10 @@
 
 - [Documentation](./docs/jason.md)
 - [Examples](./examples)
-    - [Simple API](./examples/simple_api.py)
-    - [JWT API](./examples/jwt_api.py)
-    - [Simple Consumer](./examples/simple_consumer.py)
+    - [Basic](examples/basic.py)
+    - [JWT](examples/jwt.py)
+    - [Consumer](examples/consumer.py)
+    - [Celery](examples/celery.py)
 - [Release Notes](./RELEASES.md)
 
 ### Installation
