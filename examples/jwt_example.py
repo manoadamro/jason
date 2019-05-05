@@ -13,7 +13,7 @@ python3 -m jason service examples/simple_api:my_simple_api run
 """
 from jason import service, make_config, request_schema, props, token
 from flask import Blueprint, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from jason.ext.sqlalchemy import SQLAlchemy
 
 
 blueprint = Blueprint("simple-api", __name__)
@@ -39,7 +39,7 @@ def my_simple_api(app):
     app.init_token_handler(token_handler)
 
 
-@blueprint.route("/auth>", methods=["GET"])
+@blueprint.route("/auth", methods=["GET"])
 def auth():
     jwt = token_handler.generate_token(scopes=("read:thing", "write:thing"))
     return jsonify({"jwt": jwt})
@@ -52,7 +52,7 @@ def create_item(json):
     obj = MyModel(name=json["name"])
     db.session.add(obj)
     db.session.commit()
-    return jsonify({"success": True}), 201
+    return jsonify({"success": True})
 
 
 @blueprint.route("/", methods=["GET"])

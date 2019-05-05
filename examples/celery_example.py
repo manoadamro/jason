@@ -13,8 +13,9 @@ python3 -m jason service examples/simple_api:my_simple_api run
 """
 from jason import service, make_config, request_schema, props
 from flask import Blueprint, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from celery import Celery
+from jason.ext.sqlalchemy import SQLAlchemy
+from jason.ext.celery import Celery
+
 
 blueprint = Blueprint("simple_api", __name__)
 db = SQLAlchemy()
@@ -39,8 +40,8 @@ def create_item(name):
 @service(config_class=make_config("postgres", "celery", "rabbit"))
 def my_simple_api(app):
     app.register_blueprint(blueprint)
-    app.init_sqlalchemy(database=db, migrate=None)  # optional instance of flask_migrate.Migrate
-    app.init_celery(celery)
+    db.init_app(app=app, migrate=None)  # optional instance of flask_migrate.Migrate
+    celery.init_app(app)
 
 
 @celery.task
