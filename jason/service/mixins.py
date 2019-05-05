@@ -18,11 +18,12 @@ class RabbitConfigMixin:
 
 class PostgresConfigMixin:
     TEST_DB_URL = props.String(default="sqlite:///:memory:")
-    DB_DRIVER = props.String(default="postgresql")
+    DB_DRIVER = props.String(default="postgres")
     DB_HOST = props.String(default="localhost")
     DB_PORT = props.Int(default=5432)
-    DB_USER = props.String(nullable=True)
+    DB_USER = props.String(default="root")
     DB_PASS = props.String(nullable=True)
+    DB_NAME = props.String(default="postgres")
 
 
 class CeleryConfigMixin:

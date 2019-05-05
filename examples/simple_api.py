@@ -15,8 +15,7 @@ from jason import service, make_config, request_schema, props
 from flask import Blueprint, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
-
-blueprint = Blueprint("simple-api", __name__)
+blueprint = Blueprint("simple_api", __name__)
 db = SQLAlchemy()
 
 

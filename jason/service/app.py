@@ -2,17 +2,12 @@ from typing import Any
 
 import flask
 
-from jason import props
-
 from . import mixins
-from ..props.utils import is_type
 
 
 class App(flask.Flask):
     def __init__(self, name: str, config: Any, testing: bool = False, **kwargs: Any):
         super(App, self).__init__(name, **kwargs)
-        if is_type(config, props.ConfigObject):
-            config = config.load()
         config.update(self.config)
         self.config = config
         self.testing = testing
@@ -94,7 +89,7 @@ class App(flask.Flask):
             credentials = f"{self.config.DB_USER}:{self.config.DB_PASS}@"
         else:
             credentials = ""
-        return f"{self.config.DB_DRIVER}://{credentials}{self.config.DB_HOST}:{self.config.DB_PORT}"
+        return f"{self.config.DB_DRIVER}://{credentials}{self.config.DB_HOST}:{self.config.DB_PORT}/{self.config.DB_NAME}"
 
     def _check_backend_config(self, backend):
         if backend == "ampq":
