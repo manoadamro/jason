@@ -14,7 +14,7 @@ python3 -m jason service examples/simple_consumer:my_simple_api run
 from jason import service, make_config, request_schema, props, ServiceThreads
 from flask import Blueprint, jsonify, current_app
 from kombu import Connection, Queue, Exchange
-from flask_sqlalchemy import SQLAlchemy
+from jason.ext.sqlalchemy import SQLAlchemy
 
 
 blueprint = Blueprint("simple-api", __name__)

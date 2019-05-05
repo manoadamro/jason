@@ -166,67 +166,26 @@ see [here](#Schema) for more information about defining a config object
 
 ### Service Extensions
 
-Jason will also initialise extensions for you. 
-The only pre-requisite is that your config either uses the relevant mixin, 
-or you use `make_config`  with the required flags.
+Jason will also initialise extensions (that have been imported from `jason.ext`) for you.
+ 
+For each extension used, you will need to add the relevant mixin to yor config object.
+This can be achieved either by using `make_config` or using the mix in in your class definition.
+More info about config and mix ins can be found [here](#Configuring-a-Service)
 
-using `make_config`:
+#### `sqlalchemy`
+
 ```python
+
 from jason import service, make_config
-from flask_sqlalchemy import SQLAlchemy
+from jason.ext.sqlalchemy import SQLAlchemy  # you will need flask_sqlalchemy installed
 
 db = SQLAlchemy()
 
 @service(make_config("postgres"))
 def awesome_service(app):
-    app.init_sqlalchemy(db)
-```
-using mixin:
-```python
-
-from jason import ServiceConfig, service, mixins
-from flask_sqlalchemy import SQLAlchemy
-
-class MyConfig(ServiceConfig, mixins.PostgresConfigMixin):
-    ...
-
-db = SQLAlchemy()
-
-@service(MyConfig)
-def awesome_service(app):
-    app.init_sqlalchemy(db)
-```
-
-### Extensions
-
-For each extension used, you will need to add the relevant mixin to yor config object.
-This can be achieved either by using `make_config` or using the mix in in your class definition.
-More info about config and mix ins can be found [here](#Configuring-a-Service)
-
-#### `jason.ServiceThreads`
-
-Adds threads to the flask app (intended mostly for consumers, see [kombu](https://pypi.org/project/kombu/))
-
-no mix in required. (yet)
-
-([jason.ServiceThreads docs](#Service-Threads))
-
-#### `flask_sqlalchemy`
-
-```python
-
-from jason import service, make_config
-import flask_sqlalchemy
-
-db = flask_sqlalchemy.SQLAlchemy()
-
-@service(make_config())
-def awesome_service(app):
-    app.init_sqlalchemy(db)
+    db.init_app(app)  # you can pass a flask_migrate.Migrate instance in here using 'migrate' as key
     
 ```
-
-NOTE: don't use `db.init_app()`, it won't initialise properly. (it's on the ToDo list)
 
 `PostgresConfigMixin`
 
@@ -241,23 +200,20 @@ NOTE: don't use `db.init_app()`, it won't initialise properly. (it's on the ToDo
 
 [flask_sqlalchemy docs](https://pypi.org/project/Flask-SQLAlchemy/)
 
-#### `flask_redis`
+#### `redis`
 
 ```python
 
 from jason import service, make_config
-import flask_redis
+from jason.ext.redis import Redis  # you will need flask_redis installed
 
-cache = flask_redis.FlaskRedis()
+redis = Redis()
 
-@service(make_config())
+@service(make_config("redis"))
 def awesome_service(app):
-    app.init_redis(cache)
+    redis.init_app(app)
     
 ```
-
-NOTE: don't use `cache.init_app()`, it won't initialise properly. (it's on the ToDo list)
-
 
 `RedisConfigMixin`
 
@@ -275,13 +231,13 @@ NOTE: don't use `cache.init_app()`, it won't initialise properly. (it's on the T
 ```python
 
 from jason import service, make_config
-import celery
+from jason.ext.celery import Celery  # you will need celery installed
 
-cel = celery.Celery()
+celery = Celery()
 
 @service(make_config())
 def awesome_service(app):
-    app.init_celery(cel)
+    celery.init_app(app)
     
 ```
 
@@ -324,7 +280,7 @@ token_handler = token.Handler()
 
 @service(make_config())
 def awesome_service(app):
-    app.init_token_handler(token_handler)
+    token_handler.init_app(app)
 ```
 
 More information about request tokens can be found [here](#Request-Tokens)
@@ -343,7 +299,7 @@ my_threads = ServiceThreads()
 
 @service(make_config())
 def awesome_service(app):
-    app.init_threads(my_threads)
+    my_threads.init_app(app)
 
 # with no parameters
 @my_threads.thread

@@ -4,12 +4,10 @@ import threading
 class ServiceThreads:
     def __init__(self):
         self.app = None
-        self.config = None
         self._service_threads = []
 
-    def init_app(self, app, config):
+    def init_app(self, app):
         self.app = app
-        self.config = config
         self.app.before_first_request(self.run_all)
         self.app.extensions["service_threads"] = self
 

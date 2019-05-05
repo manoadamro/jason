@@ -13,7 +13,7 @@ python3 -m jason service examples/simple_api:my_simple_api run
 """
 from jason import service, make_config, props, request_schema
 from flask import Blueprint, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from jason.ext.sqlalchemy import SQLAlchemy
 
 blueprint = Blueprint("simple_api", __name__)
 db = SQLAlchemy()
@@ -31,7 +31,7 @@ class CreateItemSchema:
 @service(config_class=make_config("postgres"))
 def my_simple_api(app):
     app.register_blueprint(blueprint)
-    app.init_sqlalchemy(database=db, migrate=None)  # optional instance of flask_migrate.Migrate
+    db.init_app(app=app, migrate=None)  # optional instance of flask_migrate.Migrate
 
 
 @blueprint.route("/", methods=["POST"])

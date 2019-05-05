@@ -22,7 +22,8 @@ setuptools.setup(
             "kombu==4.5.0",
             "Flask-SQLAlchemy==2.1",
             "psycopg2-binary==2.8.2",
-            "celery==4.3.0"
+            "celery==4.3.0",
+            "flask-redis==0.3.0"
         ],
     },
     packages=setuptools.find_packages()
