@@ -1,15 +1,15 @@
 [paths]
 source =
-    jason/*
+    jason
 
 
 [report]
 exclude_lines =
+    if __name__ == "__main__":
     raise NotImplementedError
     \.\.\.
 
-omit =
-    */__main__.py
+;omit =
 
 fail_under = 95
 
