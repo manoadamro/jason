@@ -2,6 +2,8 @@
 
 - [Documentation](./docs/jason.md)
 - [Examples](./examples)
+    - [Simple API](./examples/simple_api.py)
+    - [Simple Consumer](./examples/simple_consumer.py)
 - [Release Notes](./RELEASES.md)
 
 ### Installation
