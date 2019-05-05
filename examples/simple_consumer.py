@@ -53,8 +53,8 @@ def my_consumer():
     username = current_app.config.RABBIT_USER
     password = current_app.config.RABBIT_PASS
 
-    my_exchange = Exchange('media', 'direct', durable=True)
-    my_queue = Queue('video', exchange=my_exchange, routing_key='my_thingy')
+    my_exchange = Exchange('thing_exchange', 'direct', durable=True)
+    my_queue = Queue('thing_queue', exchange=my_exchange, routing_key='my_thingy')
 
     def on_message(body, message):
         with current_app.app_context():
