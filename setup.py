@@ -19,6 +19,8 @@ setuptools.setup(
             'coverage==4.5.1',
             'isort==4.3.4',
             'pytest==4.4.1',
+            "kombu==4.5.0",
+            "Flask-SQLAlchemy==2.1"
         ],
     },
     packages=setuptools.find_packages()

@@ -25,11 +25,14 @@ class App(flask.Flask):
 
     def init_sqlalchemy(self, database, migrate=None):
         self._assert_mixin(self.config, mixins.PostgresConfigMixin, "database")
-        self.config.SQLALCHEMY_DATABASE_URI = self._database_uri()
-        self.config.SQLALCHEMY_TRACK_MODIFICATIONS = False
+        self.config["SQLALCHEMY_DATABASE_URI"] = self._database_uri()
+        self.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
         database.init_app(app=self)
-        if migrate:
+        if migrate is not None:
             migrate.init_app(app=self, db=database)
+        if self.testing:
+            with self.app_context():
+                database.create_all()
 
     def init_redis(self, cache):
         self._assert_mixin(self.config, mixins.RedisConfigMixin, "cache")

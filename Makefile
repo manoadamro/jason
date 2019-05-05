@@ -18,7 +18,7 @@ format:
 	python3 -m black ./tests ./jason ;
 
 lint:
-	# python3 -m isort -rc --check-only ./tests ./jason ;
+	python3 -m isort -rc --check-only ./tests ./jason ;
 	python3 -m black --check ./tests ./jason;
 
 test:
