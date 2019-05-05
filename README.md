@@ -64,8 +64,6 @@ this will run the formatter, unit tests and doc tests.
 This is a start, but there is a lot left to do...
 
 Definitely:
-- Create an `ext` package and sub-class each extension (flask_sqlalchemy, flask_redis, celery),
-override the init_app method and use `some_extension.init_app(app)` instead of `app.init_some_extension(extension)`
 - Use green threads for the ServiceThreads extension
 
 Probably:
