@@ -2,13 +2,13 @@
 To run this, you will need 'flask_sqlalchemy' and 'kombu' installed.
 
 to see config:
-python3 -m jason examples/simple_consumer:my_simple_api config
+python3 -m jason service examples/simple_consumer:my_simple_api config
 
 to see extension list:
-python3 -m jason examples/simple_consumer:my_simple_api extensions
+python3 -m jason service examples/simple_consumer:my_simple_api extensions
 
 to run the service:
-python3 -m jason examples/simple_consumer:my_simple_api run
+python3 -m jason service examples/simple_consumer:my_simple_api run
 
 """
 from jason import service, make_config, request_schema, props, ServiceThreads
