@@ -2,7 +2,7 @@ from jason import mixins
 
 try:
     import flask_redis
-except ImportError:
+except (ImportError, ModuleNotFoundError):
     raise ImportError()  # TODO
 
 
