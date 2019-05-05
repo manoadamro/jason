@@ -1,4 +1,5 @@
 from jason import mixins
+
 try:
     import flask_sqlalchemy
 except ImportError:
@@ -6,10 +7,11 @@ except ImportError:
 
 
 class SQLAlchemy(flask_sqlalchemy.SQLAlchemy):
-
     def init_app(self, app, migrate=None):
         app.assert_mixin(mixins.PostgresConfigMixin, "database")
-        app.config["SQLALCHEMY_DATABASE_URI"] = self._database_uri(app.config, app.testing)
+        app.config["SQLALCHEMY_DATABASE_URI"] = self._database_uri(
+            app.config, app.testing
+        )
         app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
         super(SQLAlchemy, self).init_app(app)
         if migrate is not None:

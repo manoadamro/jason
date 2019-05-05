@@ -1,4 +1,5 @@
 from jason import mixins
+
 try:
     import flask_redis
 except ImportError:
@@ -6,7 +7,6 @@ except ImportError:
 
 
 class Redis(flask_redis.FlaskRedis):
-
     def init_app(self, app, migrate=None):
         app.assert_mixin(mixins.RedisConfigMixin, "cache")
         app.config.REDIS_URL = self._redis_uri()

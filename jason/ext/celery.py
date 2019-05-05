@@ -1,4 +1,5 @@
 from jason import mixins
+
 try:
     import celery
 except ImportError:
@@ -6,7 +7,6 @@ except ImportError:
 
 
 class Celery(celery.Celery):
-
     def __init__(self):
         super(Celery, self).__init__()
         self.app = None
@@ -61,9 +61,7 @@ class Celery(celery.Celery):
             )
         elif backend == "redis":
             self.app.assert_mixin(
-                mixins.RedisConfigMixin,
-                "celery broker",
-                "if broker backend is redis",
+                mixins.RedisConfigMixin, "celery broker", "if broker backend is redis"
             )
 
     def _celery_backend_url(self, backend):
