@@ -7,7 +7,7 @@ from jason.service import App, make_config
 
 @pytest.fixture
 def app():
-    return App(__name__, make_config())
+    return App(__name__, make_config().load())
 
 
 def test_init_token_handler(app):
@@ -23,7 +23,7 @@ def test_init_threads(app):
 
 
 def test_init_sqlalchemy(app):
-    app = App(__name__, make_config("postgres"))
+    app = App(__name__, make_config("postgres").load())
     mock_obj1 = mock.Mock()
     mock_obj2 = mock.Mock()
     app.init_sqlalchemy(mock_obj1, mock_obj2)
@@ -56,7 +56,7 @@ def test_init_sqlalchemy_fails(app):
 
 
 def test_init_redis(app):
-    app = App(__name__, make_config("redis"))
+    app = App(__name__, make_config("redis").load())
     mock_obj = mock.Mock()
     app.init_redis(mock_obj)
     assert mock_obj.init_app.call_count == 1
@@ -78,7 +78,7 @@ def test_init_redis_fails(app):
 
 
 def test_init_celery_rabbit():
-    app = App(__name__, make_config("celery", "rabbit"))
+    app = App(__name__, make_config("celery", "rabbit").load())
     mock_obj = mock.Mock()
     app.init_celery(mock_obj)
 
