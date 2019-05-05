@@ -275,11 +275,11 @@ d = props.Date(min_value="1970-01-01")
 
 ##### `min_value` (default None)
 
-minimum date, can also be iso8601 string or callable returning date
+minimum date, can also be iso8601 string, date or callable returning either
 
 ##### `max_value` (default None)
 
-maximum date, can also be iso8601 string or callable returning date
+maximum date, can also be iso8601 string, date or callable returning either
 
 ##### `nullable` (default False)
 
@@ -287,7 +287,7 @@ Will `None` be accepted in place of value?
 
 ##### `default` (default None)
 
-The default to use if the value is `None`.  Can be a callable returning a value
+The default to use if the value is `None`.  Can also be iso8601 string, date or callable returning either
 
 ##### `allow_strings` (default True)
 
@@ -305,11 +305,11 @@ d = props.Datetime(min_value="1970-01-01T00:00:00.000Z")
 
 ##### `min_value` (default None)
 
-minimum datetime, can also be iso8601 string or callable returning datetime
+minimum datetime, can also be iso8601 string, datetime or callable returning either
 
 ##### `max_value` (default None)
 
-maximum datetime, can also be iso8601 string or callable returning datetime
+maximum datetime, can also be iso8601 string, datetime or callable returning either
 
 ##### `nullable` (default False)
 
@@ -317,7 +317,7 @@ Will `None` be accepted in place of value?
 
 ##### `default` (default None)
 
-The default to use if the value is `None`.  Can be a callable returning a value
+The default to use if the value is `None`.  Can also be iso8601 string, datetime or callable returning either
 
 ##### `allow_strings` (default True)
 
