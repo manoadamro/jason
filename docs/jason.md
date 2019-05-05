@@ -203,13 +203,13 @@ For each extension used, you will need to add the relevant mixin to yor config o
 This can be achieved either by using `make_config` or using the mix in in your class definition.
 More info about config and mix ins can be found [here](#Configuring-a-Service)
 
-#### `jason.AppThreads`
+#### `jason.ServiceThreads`
 
 Adds threads to the flask app (intended mostly for consumers, see [kombu](https://pypi.org/project/kombu/))
 
 no mix in required. (yet)
 
-([jason.AppThreads docs](#Service-Threads))
+([jason.ServiceThreads docs](#Service-Threads))
 
 #### `flask_sqlalchemy`
 
@@ -333,13 +333,13 @@ More information about request tokens can be found [here](#Request-Tokens)
 
 ### Service Threads
 
-AppThreads allows you to have other processes running along side your flask service (eg. consumers)
+ServiceThreads allows you to have other processes running along side your flask service (eg. consumers)
 
 ```python
 
-from jason import make_config, service, AppThreads
+from jason import make_config, service, ServiceThreads
 
-my_threads = AppThreads()
+my_threads = ServiceThreads()
 
 @service(make_config())
 def awesome_service(app):

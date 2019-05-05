@@ -1,5 +1,5 @@
 """
-To run this, you will need 'flask_sqlalchemy' installed.
+To run this, you will need 'flask_sqlalchemy' and 'celery' installed.
 
 to see config:
 python3 -m jason examples/simple_api:my_simple_api config
@@ -14,9 +14,11 @@ python3 -m jason examples/simple_api:my_simple_api run
 from jason import service, make_config, request_schema, props
 from flask import Blueprint, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from celery import Celery
 
 blueprint = Blueprint("simple_api", __name__)
 db = SQLAlchemy()
+celery = Celery()
 
 
 class MyModel(db.Model):
@@ -28,18 +30,28 @@ class CreateItemSchema:
     name = props.String(min_length=3, max_length=32)
 
 
-@service(config_class=make_config("postgres"))
+def create_item(name):
+    obj = MyModel(name=name)
+    db.session.add(obj)
+    db.session.commit()
+
+
+@service(config_class=make_config("postgres", "celery", "rabbit"))
 def my_simple_api(app):
     app.register_blueprint(blueprint)
     app.init_sqlalchemy(database=db, migrate=None)  # optional instance of flask_migrate.Migrate
+    app.init_celery(celery)
+
+
+@celery.task
+def my_task(item_name):
+    create_item(name=item_name)
 
 
 @blueprint.route("/", methods=["POST"])
 @request_schema(json=CreateItemSchema)
 def create_item(json):
-    obj = MyModel(name=json["name"])
-    db.session.add(obj)
-    db.session.commit()
+    create_item(json["name"])
     return jsonify({"success": True}), 201
 
 
