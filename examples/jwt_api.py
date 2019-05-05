@@ -11,13 +11,14 @@ to run the service:
 python3 -m jason examples/simple_api:my_simple_api run
 
 """
-from jason import service, make_config, request_schema, props
+from jason import service, make_config, request_schema, props, token
 from flask import Blueprint, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 
 blueprint = Blueprint("simple-api", __name__)
 db = SQLAlchemy()
+token_handler = token.Handler()
 
 
 class MyModel(db.Model):
@@ -34,8 +35,18 @@ def my_simple_api(app):
     app.register_blueprint(blueprint)
     app.init_sqlalchemy(database=db, migrate=None)  # optional instance of flask_migrate.Migrate
 
+    token_handler.configure(key="secret", lifespan=600)
+    app.init_token_handler(token_handler)
+
+
+@blueprint.route("/auth>", methods=["GET"])
+def auth():
+    jwt = token_handler.generate_token(scopes=("read:thing", "write:thing"))
+    return jsonify({"jwt": jwt})
+
 
 @blueprint.route("/", methods=["POST"])
+@token.protect(token.HasScopes("write:thing"))
 @request_schema(json=CreateItemSchema)
 def create_item(json):
     obj = MyModel(name=json["name"])
@@ -45,6 +56,7 @@ def create_item(json):
 
 
 @blueprint.route("/", methods=["GET"])
+@token.protect(token.HasScopes("read:thing"))
 def get_item_list():
     return jsonify(
         [{"id": obj.id, "name": obj.name} for obj in MyModel.query.all()]
