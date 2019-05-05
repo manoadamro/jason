@@ -21,7 +21,8 @@ setuptools.setup(
             'pytest==4.4.1',
             "kombu==4.5.0",
             "Flask-SQLAlchemy==2.1",
-            "psycopg2-binary==2.8.2"
+            "psycopg2-binary==2.8.2",
+            "celery==4.3.0"
         ],
     },
     packages=setuptools.find_packages()

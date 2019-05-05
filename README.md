@@ -2,9 +2,10 @@
 
 - [Documentation](./docs/jason.md)
 - [Examples](./examples)
-    - [Simple API](./examples/simple_api.py)
-    - [JWT API](./examples/jwt_api.py)
-    - [Simple Consumer](./examples/simple_consumer.py)
+    - [Basic](examples/basic_example.py)
+    - [JWT](examples/jwt_example.py)
+    - [Consumer](examples/consumer_example.py)
+    - [Celery](examples/celery_example.py)
 - [Release Notes](./RELEASES.md)
 
 ### Installation
@@ -65,11 +66,11 @@ This is a start, but there is a lot left to do...
 Definitely:
 - Create an `ext` package and sub-class each extension (flask_sqlalchemy, flask_redis, celery),
 override the init_app method and use `some_extension.init_app(app)` instead of `app.init_some_extension(extension)`
-- Use green threads for the AppThreads extension
+- Use green threads for the ServiceThreads extension
 
 Probably:
 - A testing package complete with mocks for everything in jason
-- A module wrapping `kombu`, taking advantage of `AppThreads`
+- A module wrapping `kombu`, taking advantage of `ServiceThreads`
 - A module wrapping `celery`. `Flask-Celery` sort of thing.
 
 Maybe:

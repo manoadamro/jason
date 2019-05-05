@@ -1,5 +1,5 @@
 """
-To run this, you will need 'flask_sqlalchemy' installed.
+To run this, you will need 'flask_sqlalchemy' and 'kombu' installed.
 
 to see config:
 python3 -m jason examples/simple_consumer:my_simple_api config
@@ -11,7 +11,7 @@ to run the service:
 python3 -m jason examples/simple_consumer:my_simple_api run
 
 """
-from jason import service, make_config, request_schema, props, AppThreads
+from jason import service, make_config, request_schema, props, ServiceThreads
 from flask import Blueprint, jsonify, current_app
 from kombu import Connection, Queue, Exchange
 from flask_sqlalchemy import SQLAlchemy
@@ -19,7 +19,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 blueprint = Blueprint("simple-api", __name__)
 db = SQLAlchemy()
-threads = AppThreads()
+threads = ServiceThreads()
 
 
 class MyModel(db.Model):

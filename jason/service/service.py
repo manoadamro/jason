@@ -46,9 +46,9 @@ class Service:
                     daemon=True,
                 )
                 thread.start()
-        elif "app_threads" in self._app.extensions:
-            app_threads = self._app.extensions["app_threads"]
-            app_threads.run_all(threaded=False)
+        elif "service_threads" in self._app.extensions:
+            service_threads = self._app.extensions["service_threads"]
+            service_threads.run_all(threaded=False)
             while threading.active_count():
                 ...
 

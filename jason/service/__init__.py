@@ -8,4 +8,4 @@ from .mixins import (
 )
 from .schema import RequestSchema
 from .service import Service
-from .threads import AppThreads
+from .threads import ServiceThreads

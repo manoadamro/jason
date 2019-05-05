@@ -1,23 +1,23 @@
 import threading
 
 
-class AppThreads:
+class ServiceThreads:
     def __init__(self):
         self.app = None
         self.config = None
-        self._app_threads = []
+        self._service_threads = []
 
     def init_app(self, app, config):
         self.app = app
         self.config = config
         self.app.before_first_request(self.run_all)
-        self.app.extensions["app_threads"] = self
+        self.app.extensions["service_threads"] = self
 
     def add(self, method):
-        self._app_threads.append({"method": method, "kwargs": {"app": self.app}})
+        self._service_threads.append({"method": method, "kwargs": {"app": self.app}})
 
     def run_all(self):
-        for process in self._app_threads:
+        for process in self._service_threads:
             thread = threading.Thread(
                 target=process["method"], kwargs=process["kwargs"]
             )

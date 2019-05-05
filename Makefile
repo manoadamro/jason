@@ -19,10 +19,10 @@ format:
 
 lint:
 	python3 -m isort -rc --check-only ./tests ./jason ;
-	python3 -m black --check ./tests ./jason;
+	python3 -m black --check ./tests ./jason ;
 
 test:
-	python3 -m coverage run --source=./jason -m pytest --doctest-modules;
+	python3 -m coverage run --source=./jason -m pytest --doctest-modules ;
 	python3 -m coverage report ;
 
 pre-commit:

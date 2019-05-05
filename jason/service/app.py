@@ -15,8 +15,8 @@ class App(flask.Flask):
     def init_token_handler(self, handler):
         handler.init_app(self)
 
-    def init_threads(self, app_threads):
-        app_threads.init_app(app=self, config=self.config)
+    def init_threads(self, service_threads):
+        service_threads.init_app(app=self, config=self.config)
 
     def init_sqlalchemy(self, database, migrate=None):
         self._assert_mixin(self.config, mixins.PostgresConfigMixin, "database")
