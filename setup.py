@@ -18,7 +18,7 @@ setuptools.setup(
             "behave==1.2.6",
             "black==18.9b0",
             "coverage==4.5.1",
-            "docker==3.7.2"
+            "docker==3.7.2",
             "isort==4.3.4",
             "pytest==4.4.1",
             "kombu==4.5.0",
