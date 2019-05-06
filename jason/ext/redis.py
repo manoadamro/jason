@@ -7,10 +7,10 @@ except (ImportError, ModuleNotFoundError):
 
 
 class Redis(flask_redis.FlaskRedis):
-    def init_app(self, app, migrate=None):
+    def init_app(self, app, **kwargs):
         app.assert_mixin(mixins.RedisConfigMixin, "cache")
         app.config.REDIS_URL = self._redis_uri()
-        super(Redis, self).init_app(app=app)
+        super(Redis, self).init_app(app=app, **kwargs)
 
     @staticmethod
     def _database_uri(config):

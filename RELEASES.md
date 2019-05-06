@@ -1,3 +1,8 @@
+v0.1.1
+===
+
+- Added "app' command to allow migrations from the command line
+
 v0.1.0
 ===
 
