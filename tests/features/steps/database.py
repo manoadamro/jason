@@ -31,9 +31,8 @@ def create_postgres_container(context):
         detach=True,
     )
     context.host = "localhost"
-    if os.system(f"sh scripts/wait_for_port.sh {context.host} 5432 120"):
-        raise EnvironmentError
-    time.sleep(2)
+    os.system(f"sh scripts/wait_for_port.sh {context.host} 5432 120")
+    time.sleep(5)
     context.containers["postgres"] = container
     return container
 
