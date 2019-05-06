@@ -41,7 +41,7 @@ make test
 To check code formatting:
 
 ```bash
-make check
+make lint
 
 ```
 
