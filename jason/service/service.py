@@ -57,6 +57,10 @@ class Service:
         self.run(debug=True, no_serve=True, **config_values)
         return self._app
 
+    def app(self, debug=False, **config_values):
+        self.run(debug=debug, no_serve=True, **config_values)
+        return self._app
+
     def config(self, debug=False, **config_values):
         self._pre_command(debug, config_values)
         prop_strings = (

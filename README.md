@@ -1,10 +1,11 @@
 # jason
 
-[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/) [![CodeFactor](https://www.codefactor.io/repository/github/manoadamro/jason/badge)](https://www.codefactor.io/repository/github/manoadamro/jason)
-
 | Master | Develop |
 | :----: | :-----: |
 | [![CircleCI](https://circleci.com/gh/manoadamro/jason/tree/master.svg?style=svg&circle-token=ba3677e0eb4748acd49d26bf047cf2b508fd2452)](https://circleci.com/gh/manoadamro/jason/tree/master) | [![CircleCI](https://circleci.com/gh/manoadamro/jason/tree/develop.svg?style=svg&circle-token=ba3677e0eb4748acd49d26bf047cf2b508fd2452)](https://circleci.com/gh/manoadamro/jason/tree/develop) |
+
+[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/) 
+[![CodeFactor](https://www.codefactor.io/repository/github/manoadamro/jason/badge)](https://www.codefactor.io/repository/github/manoadamro/jason)
 
 
 - [Documentation](./docs/jason.md)
