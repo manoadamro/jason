@@ -1,5 +1,6 @@
-import docker
 import os
+
+import docker
 
 
 def before_all(context):
