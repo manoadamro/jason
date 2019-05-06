@@ -1,3 +1,4 @@
+import os
 import time
 from datetime import datetime
 
@@ -18,8 +19,10 @@ class MyModel(db.Model):
     name = db.Column(db.String, nullable=False)
 
 
-def postgres_container(env):
-    return env.containers.run(
+def create_postgres_container(context):
+    if "postgres" in context.containers:
+        return context.containers["postgres"]
+    container = context.docker.containers.run(
         "sameersbn/postgresql:10-1",
         name="postgresql",
         hostname="localhost",
@@ -27,18 +30,24 @@ def postgres_container(env):
         environment=["PG_PASSWORD=postgres"],
         detach=True,
     )
+    context.host = "localhost"
+    if not context.is_circle:
+        os.system(f"sh scripts/wait_for_port.sh {context.host} 5432 10")
+    else:
+        time.sleep(5)
+    context.containers["postgres"] = container
+    return container
 
 
 @given("we have postgres running")
 def step_impl(context):
-    context.containers["postgres"] = postgres_container(context.docker)
-    time.sleep(10)
+    create_postgres_container(context)
 
 
 @given("we have a postgres service")
 def step_impl(context):
     config = make_config("postgres")
-    config.DB_HOST = "postgres"
+    config.DB_HOST = context.host
 
     @service(config)
     def my_simple_api(app):

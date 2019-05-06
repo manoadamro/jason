@@ -21,12 +21,16 @@ lint:
 	python3 -m isort -rc --check-only ./tests ./jason ;
 	python3 -m black --check ./tests ./jason ;
 
-test:
+unit-test:
 	python3 -m coverage run --source=./jason -m pytest --doctest-modules ;
 	python3 -m coverage report ;
+
+feature-test:
+	python3 -m behave ./tests/features ;
 
 pre-commit:
 	python3 --version ;
 	make format ;
 	make lint ;
-	make test ;
+	make unit-test ;
+	make feature-test ;
