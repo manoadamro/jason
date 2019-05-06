@@ -30,8 +30,8 @@ def create_postgres_container(context):
         environment=["PG_PASSWORD=postgres"],
         detach=True,
     )
-    host = os.environ.get("DOCKER_HOST", "localhost")
-    if os.system(f"sh scripts/wait_for_port.sh {host} 5432"):
+    context.host = os.environ.get("DOCKER_HOST", "localhost")
+    if os.system(f"sh scripts/wait_for_port.sh {context.host} 5432"):
         raise EnvironmentError
     time.sleep(2)
     context.containers["postgres"] = container
@@ -46,7 +46,7 @@ def step_impl(context):
 @given("we have a postgres service")
 def step_impl(context):
     config = make_config("postgres")
-    config.DB_HOST = "postgres"
+    config.DB_HOST = context.host
 
     @service(config)
     def my_simple_api(app):
