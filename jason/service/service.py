@@ -53,6 +53,10 @@ class Service:
             while threading.active_count() - 1:
                 ...
 
+    def test_app(self, **config_values):
+        self.run(debug=True, no_serve=True, **config_values)
+        return self._app
+
     def config(self, debug=False, **config_values):
         self._pre_command(debug, config_values)
         prop_strings = (

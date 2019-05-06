@@ -5,6 +5,7 @@ v0.1.0
 - Added "choices" option to all properties in props
 - Added "config" and "extensions" commands to service cli
 - Added basic examples
+- Added test_app
 - Moved config mix ins to "mixins" module
 - Removed services package
 - Updated readme and docs
