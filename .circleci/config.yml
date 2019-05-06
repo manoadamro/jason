@@ -19,7 +19,11 @@ jobs:
       - run:
           name: Run Unit Tests
           command: |
-            make test
+            make unit-test
+      - run:
+          name: Run Feature Tests
+          command: |
+            make feature-test
 
   dependency-check:
     docker:
