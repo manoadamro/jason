@@ -74,7 +74,6 @@ Definitely:
 Probably:
 - A testing package complete with mocks for everything in jason
 - A module wrapping `kombu`, taking advantage of `ServiceThreads`
-- A module wrapping `celery`. `Flask-Celery` sort of thing.
 
 Maybe:
 - Optional response validation (for api-testing)
