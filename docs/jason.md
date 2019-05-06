@@ -438,6 +438,35 @@ python3 -m my_service extensions --debug --my-var=123
 
 ---
 
+
+### Testing a service
+
+```python
+# my_service.py
+
+from jason import service
+
+@service(...)
+def awesome_service(app):
+    ...
+
+
+# test_my_service.py
+from flask import Flask
+import pytest
+
+@pytest.fixture
+def my_awesome_service():
+    config_values = {}  # dictionary of config values
+    return awesome_service.test_app(**config_values)
+    
+def test_service(my_awesome_service):
+    assert isinstance(my_awesome_service, Flask)
+
+    
+```
+
+
 ## Schema
 
 Schema properties are used to validate bits of data. 

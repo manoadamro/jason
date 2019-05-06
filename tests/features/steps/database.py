@@ -52,15 +52,15 @@ def step_impl(context):
     def my_simple_api(app):
         db.init_app(app=app, migrate=None)  # optional instance of flask_migrate.Migrate
 
-    my_simple_api.run(no_serve=True)
-    with my_simple_api._app.app_context():
+    context.app = my_simple_api.test_app()
+    with context.app.app_context():
         db.create_all()
     context.service = my_simple_api
 
 
 @when("we create an instance of the model and serialise it")
 def step_impl(context):
-    with context.service._app.app_context():
+    with context.app.app_context():
         instance = MyModel(name="something")
         db.session.add(instance)
         db.session.commit()
