@@ -200,6 +200,12 @@ class MyModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     created = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
     name = db.Column(db.String, nullable=False)
+    
+   
+def some_method():
+    obj = MyModel.query.first()
+    return obj.dict
+
 ```
 
 
