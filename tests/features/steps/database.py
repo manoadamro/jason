@@ -1,3 +1,4 @@
+import os
 import time
 from datetime import datetime
 
@@ -30,6 +31,8 @@ def create_postgres_container(context):
         detach=True,
     )
     context.containers["postgres"] = container
+    if os.system("sh scripts/wait_for_postgres.sh"):
+        raise EnvironmentError
     return container
 
 
