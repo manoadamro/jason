@@ -21,8 +21,8 @@ class PostgresConfigMixin:
     DB_DRIVER = props.String(default="postgres")
     DB_HOST = props.String(default="localhost")
     DB_PORT = props.Int(default=5432)
-    DB_USER = props.String(default="root")
-    DB_PASS = props.String(nullable=True)
+    DB_USER = props.String(default="postgres")
+    DB_PASS = props.String(default="postgres")
     DB_NAME = props.String(default="postgres")
 
 

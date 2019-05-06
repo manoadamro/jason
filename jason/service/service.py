@@ -33,6 +33,9 @@ class Service:
 
     def run(self, debug=False, no_serve=False, detach=False, **config_values):
         self._pre_command(debug, config_values)
+        if "service_threads" in self._app.extensions:
+            service_threads = self._app.extensions["service_threads"]
+            service_threads.run_all(threaded=False)
         if no_serve is False and self._config.SERVE is True:
             if not detach:
                 self._serve(host=self._config.SERVE_HOST, port=self._config.SERVE_PORT)
@@ -46,10 +49,8 @@ class Service:
                     daemon=True,
                 )
                 thread.start()
-        elif "service_threads" in self._app.extensions:
-            service_threads = self._app.extensions["service_threads"]
-            service_threads.run_all(threaded=False)
-            while threading.active_count():
+        else:
+            while threading.active_count() - 1:
                 ...
 
     def config(self, debug=False, **config_values):
