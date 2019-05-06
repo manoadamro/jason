@@ -30,16 +30,17 @@ def create_postgres_container(context):
         environment=["PG_PASSWORD=postgres"],
         detach=True,
     )
-    context.containers["postgres"] = container
-    if os.system("sh scripts/wait_for_postgres.sh"):
+    host = os.environ.get("DOCKER_HOST", "localhost")
+    if os.system(f"sh scripts/wait_for_port.sh {host} 5432"):
         raise EnvironmentError
+    time.sleep(2)
+    context.containers["postgres"] = container
     return container
 
 
 @given("we have postgres running")
 def step_impl(context):
     create_postgres_container(context)
-    time.sleep(5)
 
 
 @given("we have a postgres service")
