@@ -1,9 +1,10 @@
-from behave import given, then, when
-from datetime import datetime
-from jason import service, make_config
-from jason.ext.sqlalchemy import SQLAlchemy
 import time
+from datetime import datetime
 
+from behave import given, then, when
+
+from jason import make_config, service
+from jason.ext.sqlalchemy import SQLAlchemy
 
 EXPOSED_FIELDS = ["created", "name"]
 
@@ -22,7 +23,7 @@ def postgres_container(env):
         "sameersbn/postgresql:10-1",
         name="postgresql",
         hostname="localhost",
-        ports={'5432/tcp': 5432},
+        ports={"5432/tcp": 5432},
         environment=["PG_PASSWORD=postgres"],
         detach=True,
     )
@@ -38,9 +39,11 @@ def step_impl(context):
 def step_impl(context):
     config = make_config("postgres")
     config.DB_HOST = "postgres"
+
     @service(config)
     def my_simple_api(app):
         db.init_app(app=app, migrate=None)  # optional instance of flask_migrate.Migrate
+
     my_simple_api.run(no_serve=True)
     with my_simple_api._app.app_context():
         db.create_all()

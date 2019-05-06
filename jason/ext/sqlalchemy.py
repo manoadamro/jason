@@ -34,7 +34,7 @@ class SQLAlchemy(flask_sqlalchemy.SQLAlchemy):
             if config.DB_PASS:
                 credentials.append(config.DB_PASS)
             credentials.append("@")
-        credentials = ''.join(credentials)
+        credentials = "".join(credentials)
         if config.DB_NAME:
             db_name = f"/{config.DB_NAME}"
         else:
@@ -42,11 +42,7 @@ class SQLAlchemy(flask_sqlalchemy.SQLAlchemy):
         db_host = config.DB_HOST
         if config.DB_PORT:
             db_host += f":{config.DB_PORT}"
-        string = (
-            f"{config.DB_DRIVER}://{credentials}"
-            f"{db_host}"
-            f"{db_name}"
-        )
+        string = f"{config.DB_DRIVER}://{credentials}" f"{db_host}" f"{db_name}"
         print(string)
         return string
 
