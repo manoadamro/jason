@@ -18,8 +18,10 @@ class MyModel(db.Model):
     name = db.Column(db.String, nullable=False)
 
 
-def postgres_container(env):
-    return env.containers.run(
+def create_postgres_container(context):
+    if "postgres" in context.containers:
+        return context.containers["postgres"]
+    container = context.docker.containers.run(
         "sameersbn/postgresql:10-1",
         name="postgresql",
         hostname="localhost",
@@ -27,12 +29,14 @@ def postgres_container(env):
         environment=["PG_PASSWORD=postgres"],
         detach=True,
     )
+    context.containers["postgres"] = container
+    return container
 
 
 @given("we have postgres running")
 def step_impl(context):
-    context.containers["postgres"] = postgres_container(context.docker)
-    time.sleep(10)
+    create_postgres_container(context)
+    time.sleep(5)
 
 
 @given("we have a postgres service")
@@ -52,8 +56,7 @@ def step_impl(context):
 
 @when("we create an instance of the model and serialise it")
 def step_impl(context):
-    app = context.service._app
-    with app.app_context():
+    with context.service._app.app_context():
         instance = MyModel(name="something")
         db.session.add(instance)
         db.session.commit()

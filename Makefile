@@ -24,6 +24,7 @@ lint:
 test:
 	python3 -m coverage run --source=./jason -m pytest --doctest-modules ;
 	python3 -m coverage report ;
+	python3 -m behave ./tests/features
 
 pre-commit:
 	python3 --version ;
