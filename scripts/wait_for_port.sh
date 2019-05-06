@@ -6,4 +6,4 @@ do
   echo -n .
   sleep 1
 done
-echo "Failed waiting for ${2}" && exit 1
+echo "Failed waiting for ${1}:${2} after ${3} seconds" && exit 1
