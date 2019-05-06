@@ -1,7 +1,7 @@
 version: 2
 jobs:
 
-  test:
+  code-style:
     docker:
       - image: circleci/python:3.7.3
     steps:
@@ -13,11 +13,50 @@ jobs:
       - run:
           name: Check Source Code
           command: |
-            make check
+            make lint
+
+  unit-test:
+    docker:
+      - image: circleci/python:3.7.3
+    steps:
+      - checkout
+      - run:
+          name: Install Jason
+          command: |
+            make install-dev
       - run:
           name: Run Unit Tests
           command: |
-            make test
+            make unit-test
+
+  feature-test:
+    docker:
+      - image: circleci/python:3.7.3
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Install Jason
+          command: |
+            make install-dev
+      - run:
+          name: Run Feature Tests
+          command: |
+            make feature-test
+
+  dependency-check:
+    docker:
+      - image: circleci/python:3.7.3
+    steps:
+      - checkout
+      - run:
+          name: Create Egg Info
+          command: python3 setup.py egg_info
+      - run:
+          name: Check Dependencies
+          command: ./scripts/check_dependencies.sh
+
   deploy:
     docker:
       - image: circleci/python:3.7.3
@@ -28,16 +67,30 @@ jobs:
           command: python3 setup.py sdist
       - run:
           name: Upload to gemfury
-          command: .circleci/gem_fury_deploy.sh dist/$(ls dist | sort -nr | head -1)
+          command: ./scripts/gem_fury_deploy.sh dist/$(ls dist | sort -nr | head -1)
 
 workflows:
   version: 2
   build_test_deploy:
     jobs:
-      - test
+      - code-style
+      - unit-test:
+          requires:
+            - code-style
+      - feature-test:
+          requires:
+            - code-style
+            - unit-test
+          filters:
+            branches:
+              only:
+                - develop
+                - master
       - deploy:
           requires:
-            - test
+            - code-style
+            - unit-test
+            - feature-test
           filters:
             branches:
               only:

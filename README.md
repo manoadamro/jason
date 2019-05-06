@@ -1,6 +1,18 @@
 # jason
 
-- [Documentation](./docs)
+[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/) [![CodeFactor](https://www.codefactor.io/repository/github/manoadamro/jason/badge)](https://www.codefactor.io/repository/github/manoadamro/jason)
+
+| Master | Develop |
+| :----: | :-----: |
+| [![CircleCI](https://circleci.com/gh/manoadamro/jason/tree/master.svg?style=svg&circle-token=ba3677e0eb4748acd49d26bf047cf2b508fd2452)](https://circleci.com/gh/manoadamro/jason/tree/master) | [![CircleCI](https://circleci.com/gh/manoadamro/jason/tree/develop.svg?style=svg&circle-token=ba3677e0eb4748acd49d26bf047cf2b508fd2452)](https://circleci.com/gh/manoadamro/jason/tree/develop) |
+
+
+- [Documentation](./docs/jason.md)
+- [Examples](./examples)
+    - [Basic](examples/basic_example.py)
+    - [JWT](examples/jwt_example.py)
+    - [Consumer](examples/consumer_example.py)
+    - [Celery](examples/celery_example.py)
 - [Release Notes](./RELEASES.md)
 
 ### Installation
@@ -31,7 +43,7 @@ make test
 To check code formatting:
 
 ```bash
-make check
+make lint
 
 ```
 
@@ -52,3 +64,20 @@ make pre-commit
 ```
 
 this will run the formatter, unit tests and doc tests.
+
+
+### The Future of Jason
+
+This is a start, but there is a lot left to do...
+
+Definitely:
+- Use green threads for the ServiceThreads extension
+
+Probably:
+- A testing package complete with mocks for everything in jason
+- A module wrapping `kombu`, taking advantage of `ServiceThreads`
+
+Maybe:
+- Optional response validation (for api-testing)
+- A python-docker module (for integration testing)
+- A package to handle file uploads/downloads

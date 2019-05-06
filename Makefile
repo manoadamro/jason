@@ -1,4 +1,3 @@
-
 LANG=en_GB.UTF-8
 LC_ALL=en_GB.UTF-8
 
@@ -18,17 +17,20 @@ format:
 	python3 -m isort -rc ./tests ./jason ;
 	python3 -m black ./tests ./jason ;
 
-check:
-	# python3 -m isort -rc --check-only ./tests ./jason ;
-	python3 -m black --check ./tests ./jason;
+lint:
+	python3 -m isort -rc --check-only ./tests ./jason ;
+	python3 -m black --check ./tests ./jason ;
 
-test:
-	python3 -m coverage run --source=./jason -m pytest --doctest-modules;
+unit-test:
+	python3 -m coverage run --source=./jason -m pytest --doctest-modules ;
 	python3 -m coverage report ;
+
+feature-test:
+	python3 -m behave ./tests/features ;
 
 pre-commit:
 	python3 --version ;
 	make format ;
-	make check ;
-	make test ;
-	make cloc ;
+	make lint ;
+	make unit-test ;
+	make feature-test ;

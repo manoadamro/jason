@@ -2,28 +2,31 @@
 
 import setuptools
 
-
 setuptools.setup(
-    name='jason',
-    version='0.1.0',
+    name="jason",
+    version="0.1.0",
     install_requires=[
-        'fire==0.1.3',
-        "Flask==1.0.2",
+        "fire==0.1.3",
+        "flask==1.0.2",
         "jsonpointer==2.0",
-        'pika==0.13.1',
         "pycryptodome==3.8.1",
-        "PyJWT==1.7.1",
-        'redis==3.2.1',
-        'SQLAlchemy==1.2.18',
-        'waitress==1.2.1',
+        "pyJWT==1.7.1",
+        "waitress==1.3.0",
     ],
     extras_require={
-        'dev': [
-            'black==18.9b0',
-            'coverage==4.5.1',
-            'isort==4.3.4',
-            'pytest==4.4.1',
-        ],
+        "dev": [
+            "behave==1.2.6",
+            "black==18.9b0",
+            "celery==4.3.0",
+            "coverage==4.5.1",
+            "docker==3.7.2",
+            "flask-redis==0.3.0",
+            "Flask-SQLAlchemy==2.1",
+            "isort==4.3.4",
+            "kombu==4.5.0",
+            "pytest==4.4.1",
+            "psycopg2-binary==2.8.2",
+        ]
     },
-    packages=setuptools.find_packages()
+    packages=setuptools.find_packages(),
 )
