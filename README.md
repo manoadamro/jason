@@ -1,5 +1,7 @@
 # jason
 
+[![CircleCI](https://circleci.com/gh/manoadamro/jason.svg?style=svg&circle-token=ba3677e0eb4748acd49d26bf047cf2b508fd2452)](https://circleci.com/gh/manoadamro/jason)
+
 - [Documentation](./docs/jason.md)
 - [Examples](./examples)
     - [Basic](examples/basic_example.py)
