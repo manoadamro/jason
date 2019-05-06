@@ -1,13 +1,11 @@
 version: 2
 jobs:
 
-  test:
+  unit-test:
     docker:
       - image: circleci/python:3.7.3
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - run:
           name: Install Jason
           command: |
@@ -20,6 +18,18 @@ jobs:
           name: Run Unit Tests
           command: |
             make unit-test
+
+  feature-test:
+    docker:
+      - image: circleci/python:3.7.3
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Install Jason
+          command: |
+            make install-dev
       - run:
           name: Run Feature Tests
           command: |
@@ -53,16 +63,19 @@ workflows:
   version: 2
   build_test_deploy:
     jobs:
-      - test
-#      - dependency-check:
-#          filters:
-#            branches:
-#              only:
-#                - master
-#                - develop
+      - unit-test
+      - feature-test:
+          requires:
+            - unit-test
+          filters:
+            branches:
+              only:
+                - develop
+                - master
       - deploy:
           requires:
-            - test
+            - unit-test
+            - feature-test
           filters:
             branches:
               only:
