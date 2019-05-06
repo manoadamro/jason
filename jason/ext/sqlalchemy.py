@@ -50,7 +50,8 @@ class SQLAlchemy(flask_sqlalchemy.SQLAlchemy):
     def serializable(*names):
         def wrap(func):
             class Wrapped(func):
-                def to_dict(self):
+                @property
+                def dict(self):
                     return {name: getattr(self, name) for name in names}
 
             return Wrapped

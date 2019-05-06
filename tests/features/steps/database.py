@@ -66,7 +66,7 @@ def step_impl(context):
         db.session.add(instance)
         db.session.commit()
         db.session.refresh(instance)
-    context.instance = instance.to_dict()
+    context.instance = instance.dict
 
 
 @then("only the defined fields are exposed")
