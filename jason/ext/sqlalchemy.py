@@ -1,3 +1,5 @@
+import functools
+
 from jason import mixins
 
 try:
@@ -24,12 +26,33 @@ class SQLAlchemy(flask_sqlalchemy.SQLAlchemy):
     def _database_uri(config, testing=False):
         if testing:
             return config.TEST_DB_URL
-        if config.DB_USER:
-            credentials = f"{config.DB_USER}:{config.DB_PASS}@"
+        credentials = []
+        if config.DB_USER or config.DB_PASS:
+            if config.DB_USER:
+                credentials.append(config.DB_USER)
+            credentials.append(":")
+            if config.DB_PASS:
+                credentials.append(config.DB_PASS)
+            credentials.append("@")
+        credentials = "".join(credentials)
+        if config.DB_NAME:
+            db_name = f"/{config.DB_NAME}"
         else:
-            credentials = ""
-        return (
-            f"{config.DB_DRIVER}://{credentials}"
-            f"{config.DB_HOST}:{config.DB_PORT}"
-            f"/{config.DB_NAME}"
-        )
+            db_name = ""
+        db_host = config.DB_HOST
+        if config.DB_PORT:
+            db_host += f":{config.DB_PORT}"
+        string = f"{config.DB_DRIVER}://{credentials}" f"{db_host}" f"{db_name}"
+        print(string)
+        return string
+
+    @staticmethod
+    def serializable(*names):
+        def wrap(func):
+            class Wrapped(func):
+                def to_dict(self):
+                    return {name: getattr(self, name) for name in names}
+
+            return Wrapped
+
+        return wrap

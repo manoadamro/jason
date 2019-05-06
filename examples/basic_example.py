@@ -11,6 +11,7 @@ to run the service:
 python3 -m jason service examples/simple_api:my_simple_api run
 
 """
+from datetime import datetime
 from jason import service, make_config, props, request_schema
 from flask import Blueprint, jsonify
 from jason.ext.sqlalchemy import SQLAlchemy
@@ -19,8 +20,10 @@ blueprint = Blueprint("simple_api", __name__)
 db = SQLAlchemy()
 
 
+@db.serializable("created", "name")
 class MyModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     name = db.Column(db.String, nullable=False)
 
 
