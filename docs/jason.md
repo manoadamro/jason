@@ -187,6 +187,22 @@ def awesome_service(app):
     
 ```
 
+models in `jason.ext.sqlalchemy` also provide a feature to serialise them to a dict.
+
+```python
+import datetime
+from jason.ext.sqlalchemy import SQLAlchemy  # you will need flask_sqlalchemy installed
+
+db = SQLAlchemy()
+
+@db.serializable("created", "name")
+class MyModel(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    created = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    name = db.Column(db.String, nullable=False)
+```
+
+
 `PostgresConfigMixin`
 
 | Name          | Type          | Default               | Nullable  |
