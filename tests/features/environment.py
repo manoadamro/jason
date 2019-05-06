@@ -1,8 +1,14 @@
 import docker
+import os
 
 
 def before_all(context):
-    context.docker = docker.from_env()
+    username = os.environ.get("DOCKER_USER")
+    password = os.environ.get("DOCKER_PASS")
+    client = docker.from_env()
+    if username:
+        client.login(username=username, password=password)
+    context.docker = client
     context.containers = {}
 
 
