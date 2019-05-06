@@ -11,6 +11,7 @@ Jason is a framework for building flask based micro services.
     - [Service Extensions](#Service-Extensions)
     - [Service Threads](#Service-Threads)
     - [Command Line Interface](#Command-Line-Interface)
+    - [Testing a Service](#Testing-a-Service)
 - [Schema](#Schema)
     - [Content Validation](#Content-Validation)
 - [Request Tokens](#Request-Tokens)
@@ -445,7 +446,7 @@ python3 -m my_service extensions --debug --my-var=123
 ---
 
 
-### Testing a service
+### Testing a Service
 
 ```python
 # my_service.py
