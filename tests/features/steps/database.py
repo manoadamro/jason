@@ -30,7 +30,7 @@ def create_postgres_container(context):
         environment=["PG_PASSWORD=postgres"],
         detach=True,
     )
-    context.host = os.environ.get("DOCKER_HOST", "localhost")
+    context.host = "localhost"
     if os.system(f"sh scripts/wait_for_port.sh {context.host} 5432"):
         raise EnvironmentError
     time.sleep(2)
