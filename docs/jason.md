@@ -102,10 +102,10 @@ def service_2(app):
 
 And run them with the following:
 ```bash
-python3 -m jason service service my_service:service_1
+python3 -m jason service service my_service:service_1 run
 ```
 ```bash
-python3 -m jason service my_service:service_2
+python3 -m jason service my_service:service_2 run
 ```
 
 ---
