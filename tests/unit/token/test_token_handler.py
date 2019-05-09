@@ -14,17 +14,6 @@ config = {
     "verify": True,
     "auto_update": True,
     "encryption_key": "some-key",
-    "require_exp": True,
-    "require_nbf": True,
-    "require_iat": True,
-    "require_aud": True,
-    "require_iss": True,
-    "verify_exp": True,
-    "verify_nbf": True,
-    "verify_iat": True,
-    "verify_aud": True,
-    "verify_iss": True,
-    "verify_signature": True,
 }
 
 
