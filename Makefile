@@ -14,12 +14,12 @@ cloc:
 	cloc --exclude-list-file=.gitignore . ;
 
 format:
-	python3 -m isort -rc ./tests ./jason ;
-	python3 -m black ./tests ./jason ;
+	python3 -m isort -rc ./tests ./jason ./examples ;
+	python3 -m black ./tests ./jason ./examples ;
 
 lint:
-	python3 -m isort -rc --check-only ./tests ./jason ;
-	python3 -m black --check ./tests ./jason ;
+	python3 -m isort -rc --check-only ./tests ./jason ./examples ;
+	python3 -m black --check ./tests ./jason ./examples ;
 
 unit-test:
 	python3 -m coverage run --source=./jason -m pytest --doctest-modules ;
