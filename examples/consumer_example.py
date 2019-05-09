@@ -2,13 +2,13 @@
 To run this, you will need 'flask_sqlalchemy' and 'kombu' installed.
 
 to see config:
-python3 -m jason service examples/simple_consumer:my_simple_api config
+python3 -m jason service examples/simple_consumer:my_consumer_api config
 
 to see extension list:
-python3 -m jason service examples/simple_consumer:my_simple_api extensions
+python3 -m jason service examples/simple_consumer:my_consumer_api extensions
 
 to run the service:
-python3 -m jason service examples/simple_consumer:my_simple_api run
+python3 -m jason service examples/simple_consumer:my_consumer_api run
 
 """
 from datetime import datetime
@@ -42,7 +42,7 @@ def create_item(name):
 
 
 @service(config_class=make_config("postgres", "rabbit"))
-def my_simple_api(app):
+def my_consumer_api(app):
     app.register_blueprint(blueprint)
     app.init_sqlalchemy(database=db, migrate=None)
     app.init_threads(threads)
