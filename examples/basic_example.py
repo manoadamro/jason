@@ -2,13 +2,13 @@
 To run this, you will need 'flask_sqlalchemy' installed.
 
 to see config:
-python3 -m jason service examples/simple_api:my_simple_api config
+python3 -m jason service examples/simple_api:my_basic_api config
 
 to see extension list:
-python3 -m jason service examples/simple_api:my_simple_api extensions
+python3 -m jason service examples/simple_api:my_basic_api extensions
 
 to run the service:
-python3 -m jason service examples/simple_api:my_simple_api run
+python3 -m jason service examples/simple_api:my_basic_api run
 
 """
 from datetime import datetime
@@ -32,7 +32,7 @@ class CreateItemSchema:
 
 
 @service(config_class=make_config("postgres"))
-def my_simple_api(app):
+def my_basic_api(app):
     app.register_blueprint(blueprint)
     db.init_app(app=app, migrate=None)  # optional instance of flask_migrate.Migrate
 

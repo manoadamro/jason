@@ -2,13 +2,13 @@
 To run this, you will need 'flask_sqlalchemy' and 'celery' installed.
 
 to see config:
-python3 -m jason service examples/simple_api:my_simple_api config
+python3 -m jason service examples/simple_api:my_celery_api config
 
 to see extension list:
-python3 -m jason service examples/simple_api:my_simple_api extensions
+python3 -m jason service examples/simple_api:my_celery_api extensions
 
 to run the service:
-python3 -m jason service examples/simple_api:my_simple_api run
+python3 -m jason service examples/simple_api:my_celery_api run
 
 """
 from datetime import datetime
@@ -41,7 +41,7 @@ def create_item(name):
 
 
 @service(config_class=make_config("postgres", "celery", "rabbit"))
-def my_simple_api(app):
+def my_celery_api(app):
     app.register_blueprint(blueprint)
     db.init_app(app=app, migrate=None)  # optional instance of flask_migrate.Migrate
     celery.init_app(app)
