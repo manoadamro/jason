@@ -18,7 +18,7 @@ setuptools.setup(
             "behave==1.2.6",
             "black==19.3b0",
             "celery==4.3.0",
-            "coverage==4.5.1",
+            "coverage==4.5.3",
             "docker==3.7.2",
             "flask_migrate==2.4.0",
             "flask-redis==0.3.0",
