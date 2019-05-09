@@ -16,7 +16,7 @@ setuptools.setup(
     extras_require={
         "dev": [
             "behave==1.2.6",
-            "black==18.9b0",
+            "black==19.3b0",
             "celery==4.3.0",
             "coverage==4.5.1",
             "docker==3.7.2",
