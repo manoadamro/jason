@@ -1,7 +1,7 @@
 from typing import Type
 
-from .. import props
 from . import mixins
+from .. import props
 
 
 class ServiceConfig(props.ConfigObject):
