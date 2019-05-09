@@ -16,16 +16,16 @@ setuptools.setup(
     extras_require={
         "dev": [
             "behave==1.2.6",
-            "black==18.9b0",
+            "black==19.3b0",
             "celery==4.3.0",
-            "coverage==4.5.1",
+            "coverage==4.5.3",
             "docker==3.7.2",
             "flask_migrate==2.4.0",
             "flask-redis==0.3.0",
-            "Flask-SQLAlchemy==2.1",
+            "Flask-SQLAlchemy==2.4.0",
             "isort==4.3.4",
             "kombu==4.5.0",
-            "pytest==4.4.1",
+            "pytest==4.4.2",
             "psycopg2-binary==2.8.2",
         ]
     },
