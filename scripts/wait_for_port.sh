@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-for i in `seq 1 ${3}`;
+for i in $(seq 1 ${3});
 do
   nc -z ${1} ${2} && exit 0
   echo -n .

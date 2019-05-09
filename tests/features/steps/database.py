@@ -1,4 +1,6 @@
 import os
+import shlex
+import subprocess
 import time
 from datetime import datetime
 
@@ -32,7 +34,8 @@ def create_postgres_container(context):
     )
     context.host = "localhost"
     if not context.is_circle:
-        os.system(f"sh scripts/wait_for_port.sh {context.host} 5432 10")
+        command = shlex.split(f"sh scripts/wait_for_port.sh {context.host} 5432 10")
+        subprocess.Popen(command)
     else:
         time.sleep(5)
     context.containers["postgres"] = container
