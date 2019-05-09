@@ -8,11 +8,11 @@
 
 ---
 
-| Master | Develop |
-| :----: | :-----: |
-| [![CircleCI](https://circleci.com/gh/manoadamro/jason/tree/master.svg?style=svg&circle-token=ba3677e0eb4748acd49d26bf047cf2b508fd2452)](https://circleci.com/gh/manoadamro/jason/tree/master) | [![CircleCI](https://circleci.com/gh/manoadamro/jason/tree/develop.svg?style=svg&circle-token=ba3677e0eb4748acd49d26bf047cf2b508fd2452)](https://circleci.com/gh/manoadamro/jason/tree/develop) |
-| [![CodeFactor](https://www.codefactor.io/repository/github/manoadamro/jason/badge/master)](https://www.codefactor.io/repository/github/manoadamro/jason/overview/master) | [![CodeFactor](https://www.codefactor.io/repository/github/manoadamro/jason/badge/develop)](https://www.codefactor.io/repository/github/manoadamro/jason/overview/develop) |
-| [![Coverage Status](https://coveralls.io/repos/github/manoadamro/jason/badge.svg?branch=master)](https://coveralls.io/github/manoadamro/jason?branch=master) | [![Coverage Status](https://coveralls.io/repos/github/manoadamro/jason/badge.svg?branch=develop)](https://coveralls.io/github/manoadamro/jason?branch=develop)
+|  Branch | Build | Code Factor | Coverage  | 
+| :-----: | :----: | :----: | :----: |
+| Master  | [![CircleCI](https://circleci.com/gh/manoadamro/jason/tree/master.svg?style=svg&circle-token=ba3677e0eb4748acd49d26bf047cf2b508fd2452)](https://circleci.com/gh/manoadamro/jason/tree/master)   | [![CodeFactor](https://www.codefactor.io/repository/github/manoadamro/jason/badge/master)](https://www.codefactor.io/repository/github/manoadamro/jason/overview/master)   | [![Coverage Status](https://coveralls.io/repos/github/manoadamro/jason/badge.svg?branch=master)](https://coveralls.io/github/manoadamro/jason?branch=master)   |
+| Develop | [![CircleCI](https://circleci.com/gh/manoadamro/jason/tree/develop.svg?style=svg&circle-token=ba3677e0eb4748acd49d26bf047cf2b508fd2452)](https://circleci.com/gh/manoadamro/jason/tree/develop) | [![CodeFactor](https://www.codefactor.io/repository/github/manoadamro/jason/badge/develop)](https://www.codefactor.io/repository/github/manoadamro/jason/overview/develop) | [![Coverage Status](https://coveralls.io/repos/github/manoadamro/jason/badge.svg?branch=develop)](https://coveralls.io/github/manoadamro/jason?branch=develop) |
+
 
 - [Documentation](./docs/jason.md)
 - [Examples](./examples)
