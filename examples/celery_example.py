@@ -12,11 +12,12 @@ python3 -m jason service examples/simple_api:my_simple_api run
 
 """
 from datetime import datetime
-from jason import service, make_config, request_schema, props
-from flask import Blueprint, jsonify
-from jason.ext.sqlalchemy import SQLAlchemy
-from jason.ext.celery import Celery
 
+from flask import Blueprint, jsonify
+
+from jason import make_config, props, request_schema, service
+from jason.ext.celery import Celery
+from jason.ext.sqlalchemy import SQLAlchemy
 
 blueprint = Blueprint("simple_api", __name__)
 db = SQLAlchemy()
@@ -61,6 +62,4 @@ def create_item(json):
 
 @blueprint.route("/", methods=["GET"])
 def get_item_list():
-    return jsonify(
-        [{"id": obj.id, "name": obj.name} for obj in MyModel.query.all()]
-    )
+    return jsonify([obj.dict for obj in MyModel.query.all()])
