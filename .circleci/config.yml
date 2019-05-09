@@ -18,6 +18,9 @@ jobs:
   unit-test:
     docker:
       - image: circleci/python:3.7.3
+    environment:
+      COVERALLS_REPO_TOKEN
+      COVERALLS_PARALLEL
     steps:
       - checkout
       - run:
@@ -25,9 +28,22 @@ jobs:
           command: |
             make install-dev
       - run:
+          name: Install Coveralls
+          command: |
+            sudo pip3 install coveralls
+      - run:
           name: Run Unit Tests
           command: |
             make unit-test
+      - run:
+          name: Report Coverage to Coveralls
+          command:
+            coveralls
+    notify:
+      webhooks:
+        - url: https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN
+    post:
+      - coveralls
 
   feature-test:
     docker:
