@@ -2,21 +2,22 @@
 To run this, you will need 'flask_sqlalchemy' and 'celery' installed.
 
 to see config:
-python3 -m jason service examples/simple_api:my_simple_api config
+python3 -m jason service examples/simple_api:my_celery_api config
 
 to see extension list:
-python3 -m jason service examples/simple_api:my_simple_api extensions
+python3 -m jason service examples/simple_api:my_celery_api extensions
 
 to run the service:
-python3 -m jason service examples/simple_api:my_simple_api run
+python3 -m jason service examples/simple_api:my_celery_api run
 
 """
 from datetime import datetime
-from jason import service, make_config, request_schema, props
-from flask import Blueprint, jsonify
-from jason.ext.sqlalchemy import SQLAlchemy
-from jason.ext.celery import Celery
 
+from flask import Blueprint, jsonify
+
+from jason import make_config, props, request_schema, service
+from jason.ext.celery import Celery
+from jason.ext.sqlalchemy import SQLAlchemy
 
 blueprint = Blueprint("simple_api", __name__)
 db = SQLAlchemy()
@@ -41,7 +42,7 @@ def create_item(name):
 
 
 @service(config_class=make_config("postgres", "celery", "rabbit"))
-def my_simple_api(app):
+def my_celery_api(app):
     app.register_blueprint(blueprint)
     db.init_app(app=app, migrate=None)  # optional instance of flask_migrate.Migrate
     celery.init_app(app)
@@ -61,6 +62,4 @@ def create_item(json):
 
 @blueprint.route("/", methods=["GET"])
 def get_item_list():
-    return jsonify(
-        [{"id": obj.id, "name": obj.name} for obj in MyModel.query.all()]
-    )
+    return jsonify([obj.dict for obj in MyModel.query.all()])

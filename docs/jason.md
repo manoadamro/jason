@@ -102,10 +102,10 @@ def service_2(app):
 
 And run them with the following:
 ```bash
-python3 -m jason service service my_service:service_1
+python3 -m jason service service my_service:service_1 run
 ```
 ```bash
-python3 -m jason service my_service:service_2
+python3 -m jason service my_service:service_2 run
 ```
 
 ---
@@ -184,8 +184,30 @@ db = SQLAlchemy()
 
 @service(make_config("postgres"))
 def awesome_service(app):
-    db.init_app(app)  # you can pass a flask_migrate.Migrate instance in here using 'migrate' as key
+    db.init_app(app)
     
+```
+
+With migrations:
+
+```python
+from jason import service, make_config
+from jason.ext.sqlalchemy import SQLAlchemy  # you will need flask_sqlalchemy installed
+from jason.ext.migrate import Migrate # you will need flask_migrate installed
+
+db = SQLAlchemy()
+migrate = Migrate()
+
+@service(make_config("postgres"))
+def awesome_service(app):
+    db.init_app(app, migrate=migrate)
+    
+awesome_service_app = awesome_service.app()
+
+```
+
+```bash
+export FLASK_APP=path.to.file.awesome_service_app
 ```
 
 models in `jason.ext.sqlalchemy` also provide a feature to serialise them to a dict.

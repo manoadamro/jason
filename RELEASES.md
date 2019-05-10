@@ -1,3 +1,13 @@
+v0.1.1
+===
+
+- Added "app' command to allow migrations from the command line
+- Improved CICD workflow
+  - added coveralls
+  - added dependabot
+  - added code factor
+- Added loads of status badges to readme (who doesn't love badges? weirdos.)
+
 v0.1.0
 ===
 

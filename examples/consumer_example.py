@@ -2,21 +2,22 @@
 To run this, you will need 'flask_sqlalchemy' and 'kombu' installed.
 
 to see config:
-python3 -m jason service examples/simple_consumer:my_simple_api config
+python3 -m jason service examples/simple_consumer:my_consumer_api config
 
 to see extension list:
-python3 -m jason service examples/simple_consumer:my_simple_api extensions
+python3 -m jason service examples/simple_consumer:my_consumer_api extensions
 
 to run the service:
-python3 -m jason service examples/simple_consumer:my_simple_api run
+python3 -m jason service examples/simple_consumer:my_consumer_api run
 
 """
 from datetime import datetime
-from jason import service, make_config, request_schema, props, ServiceThreads
-from flask import Blueprint, jsonify, current_app
-from kombu import Connection, Queue, Exchange
-from jason.ext.sqlalchemy import SQLAlchemy
 
+from flask import Blueprint, current_app, jsonify
+from kombu import Connection, Exchange, Queue
+
+from jason import ServiceThreads, make_config, props, request_schema, service
+from jason.ext.sqlalchemy import SQLAlchemy
 
 blueprint = Blueprint("simple-api", __name__)
 db = SQLAlchemy()
@@ -41,7 +42,7 @@ def create_item(name):
 
 
 @service(config_class=make_config("postgres", "rabbit"))
-def my_simple_api(app):
+def my_consumer_api(app):
     app.register_blueprint(blueprint)
     app.init_sqlalchemy(database=db, migrate=None)
     app.init_threads(threads)
@@ -56,15 +57,17 @@ def my_consumer():
     username = current_app.config.RABBIT_USER
     password = current_app.config.RABBIT_PASS
 
-    my_exchange = Exchange('thing_exchange', 'direct', durable=True)
-    my_queue = Queue('thing_queue', exchange=my_exchange, routing_key='my_thingy')
+    my_exchange = Exchange("thing_exchange", "direct", durable=True)
+    my_queue = Queue("thing_queue", exchange=my_exchange, routing_key="my_thingy")
 
     def on_message(body, message):
         with current_app.app_context():
             create_item(**body)
         message.ack()
 
-    with Connection(hostname=host, port=port, userid=username, password=password) as conn:
+    with Connection(
+        hostname=host, port=port, userid=username, password=password
+    ) as conn:
         with conn.Consumer(my_queue, callbacks=[on_message]):
             while True:
                 conn.drain_events()
@@ -79,6 +82,4 @@ def create_item(json):
 
 @blueprint.route("/", methods=["GET"])
 def get_item_list():
-    return jsonify(
-        [{"id": obj.id, "name": obj.name} for obj in MyModel.query.all()]
-    )
+    return jsonify([obj.dict for obj in MyModel.query.all()])

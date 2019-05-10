@@ -1,10 +1,16 @@
 # jason
 
-[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/) [![CodeFactor](https://www.codefactor.io/repository/github/manoadamro/jason/badge)](https://www.codefactor.io/repository/github/manoadamro/jason)
+---
 
-| Master | Develop |
-| :----: | :-----: |
-| [![CircleCI](https://circleci.com/gh/manoadamro/jason/tree/master.svg?style=svg&circle-token=ba3677e0eb4748acd49d26bf047cf2b508fd2452)](https://circleci.com/gh/manoadamro/jason/tree/master) | [![CircleCI](https://circleci.com/gh/manoadamro/jason/tree/develop.svg?style=svg&circle-token=ba3677e0eb4748acd49d26bf047cf2b508fd2452)](https://circleci.com/gh/manoadamro/jason/tree/develop) |
+[![Version](https://img.shields.io/github/release-pre/manoadamro/Jason.svg)](https://img.shields.io/github/release-pre/manoadamro/Jason.svg)
+[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/) 
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+[![Dependabot](https://img.shields.io/badge/Dependabot-active-brightgreen.svg)](https://img.shields.io/badge/Dependabot-active-brightgreen.svg)
+
+|  Branch | Build  | Code Factor | Coverage  | Dependencies | 
+| :-----: | :----: | :---------: | :-------: | :----------: |
+| [Master](https://github.com/manoadamro/jason/tree/master)  | [![CircleCI](https://circleci.com/gh/manoadamro/jason/tree/master.svg?style=svg&circle-token=ba3677e0eb4748acd49d26bf047cf2b508fd2452)](https://circleci.com/gh/manoadamro/jason/tree/master)   | [![CodeFactor](https://www.codefactor.io/repository/github/manoadamro/jason/badge/master)](https://www.codefactor.io/repository/github/manoadamro/jason/overview/master)   | [![Coverage Status](https://coveralls.io/repos/github/manoadamro/jason/badge.svg?branch=master)](https://coveralls.io/github/manoadamro/jason?branch=master)   | [![Requirements Status](https://requires.io/github/manoadamro/jason/requirements.svg?branch=master)](https://requires.io/github/manoadamro/jason/requirements/?branch=master) |
+| [Develop](https://github.com/manoadamro/jason/tree/develop) | [![CircleCI](https://circleci.com/gh/manoadamro/jason/tree/develop.svg?style=svg&circle-token=ba3677e0eb4748acd49d26bf047cf2b508fd2452)](https://circleci.com/gh/manoadamro/jason/tree/develop) | [![CodeFactor](https://www.codefactor.io/repository/github/manoadamro/jason/badge/develop)](https://www.codefactor.io/repository/github/manoadamro/jason/overview/develop) | [![Coverage Status](https://coveralls.io/repos/github/manoadamro/jason/badge.svg?branch=develop)](https://coveralls.io/github/manoadamro/jason?branch=develop) | [![Requirements Status](https://requires.io/github/manoadamro/jason/requirements.svg?branch=develop)](https://requires.io/github/manoadamro/jason/requirements/?branch=develop) |
 
 
 - [Documentation](./docs/jason.md)

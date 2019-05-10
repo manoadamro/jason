@@ -30,7 +30,11 @@ class ConfigObject(types.Model):
         except AttributeError:
             return getattr(self.__dict__, item)
 
+    def __contains__(self, item):
+        return hasattr(self, item) or item in self.__dict__
+
     def __getitem__(self, item):
+        print(item)
         return getattr(self, item)
 
     def __setitem__(self, key, value):
