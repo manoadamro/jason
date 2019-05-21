@@ -20,7 +20,7 @@ setuptools.setup(
             "celery==4.3.0",
             "coverage==4.5.3",
             "docker==3.7.2",
-            "flask_migrate==2.4.0",
+            "flask_migrate==2.5.1",
             "flask-redis==0.3.0",
             "Flask-SQLAlchemy==2.4.0",
             "isort==4.3.18",
