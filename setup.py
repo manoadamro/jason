@@ -21,7 +21,7 @@ setuptools.setup(
             "coverage==4.5.3",
             "docker==4.0.1",
             "flask_migrate==2.5.2",
-            "flask-redis==0.3.0",
+            "flask-redis==0.4.0",
             "Flask-SQLAlchemy==2.4.0",
             "isort==4.3.20",
             "kombu==4.5.0",
