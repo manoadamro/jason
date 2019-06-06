@@ -24,7 +24,7 @@ setuptools.setup(
             "flask-redis==0.4.0",
             "Flask-SQLAlchemy==2.4.0",
             "isort==4.3.20",
-            "kombu==4.6.0",
+            "kombu==4.6.1",
             "pytest==4.6.2",
             "psycopg2-binary==2.8.2",
         ]
