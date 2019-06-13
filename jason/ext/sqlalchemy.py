@@ -2,7 +2,6 @@ import functools
 
 from jason import mixins
 
-
 try:
     import flask_sqlalchemy
 except ImportError:
@@ -22,7 +21,6 @@ class SQLAlchemy(flask_sqlalchemy.SQLAlchemy):
         if app.testing:
             with app.app_context():
                 self.create_all()
-
 
     @staticmethod
     def _database_uri(config, testing=False):
