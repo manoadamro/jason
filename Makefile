@@ -33,4 +33,4 @@ pre-commit:
 	make format ;
 	make lint ;
 	make unit-test ;
-	make feature-test ;
+	#make feature-test ;
