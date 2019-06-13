@@ -37,9 +37,7 @@ class CreateItemSchema:
 @service(config_class=make_config("postgres"))
 def my_jwt_api(app):
     app.register_blueprint(blueprint)
-    db.init_app(
-        app, migrate=None
-    )  # optional instance of flask_migrate.Migrate
+    db.init_app(app, migrate=None)  # optional instance of flask_migrate.Migrate
 
     token_handler.configure(key="secret", lifespan=600)
     token_handler.init_app(app)
