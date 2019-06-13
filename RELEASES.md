@@ -1,5 +1,11 @@
+v0.1.2
+======
+
+- Runs app threads with context
+
+
 v0.1.1
-===
+======
 
 - Added "app' command to allow migrations from the command line
 - Improved CICD workflow
@@ -9,7 +15,7 @@ v0.1.1
 - Added loads of status badges to readme (who doesn't love badges? weirdos.)
 
 v0.1.0
-===
+======
 
 - Added service package
 - Added "choices" option to all properties in props
@@ -21,47 +27,47 @@ v0.1.0
 - Updated readme and docs
 
 v0.0.15
-===
+======
 
 - Fixed some mess left in v0.0.14
 
 v0.0.14
-===
+=======
 
 - Added crypto module
 
 v0.0.13
-===
+=======
 
 - Schema validation will process everything, 
 collect the errors and raise at the end now rather than raising as soon as it hits an error
 - Added some basic logging
 
 v0.0.12
-===
+=======
 
 - Removed core and api packages and flattened everything
 - Added basic cache module (removed in v0.1.0)
 
 v0.0.11
-===
+=======
 
 - Moved cli methods to class
 
 v0.0.10
-===
+=======
 
 - Updated cli 
 - service module is now a package
 - Removed config mixin package and made service types and plugins responsible for their own config mixins
 
 v0.0.9
-===
+======
 
 - Added basic cli for running services
 
 v0.0.8
-===
+======
 
 - Added service module
 - Added config module for config mixins
@@ -71,12 +77,12 @@ v0.0.8
 - Renamed core.config to core.configuration
 
 v0.0.7
-===
+======
 
 - Added token module
 
 v0.0.6
-===
+======
 
 - CircleCi integration
 - improved setup.py
@@ -85,7 +91,7 @@ v0.0.6
 
     
 v0.0.5
-===
+======
 
 - created core namespace
     - moved config to jason.core
@@ -93,12 +99,12 @@ v0.0.5
     - moved utils to jason.core
 
 v0.0.4
-===
+======
 
 - Added request schema
 
 v0.0.3
-===
+======
 
 - Added config module
 
@@ -106,12 +112,12 @@ v0.0.3
 - Added basic instructions to `README.md`
 
 v0.0.2
-===
+======
 
 - Added props module
 
 v0.0.1
-===
+======
 
 - Added setup.py
 - Added empty README.md
