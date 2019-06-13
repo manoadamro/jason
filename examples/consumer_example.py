@@ -44,8 +44,8 @@ def create_item(name):
 @service(config_class=make_config("postgres", "rabbit"))
 def my_consumer_api(app):
     app.register_blueprint(blueprint)
-    app.init_sqlalchemy(database=db, migrate=None)
-    app.init_threads(threads)
+    db.init_app(app, migrate=None)
+    threads.init_app(app)
 
 
 @threads.thread

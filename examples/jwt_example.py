@@ -37,12 +37,10 @@ class CreateItemSchema:
 @service(config_class=make_config("postgres"))
 def my_jwt_api(app):
     app.register_blueprint(blueprint)
-    app.init_sqlalchemy(
-        database=db, migrate=None
-    )  # optional instance of flask_migrate.Migrate
+    db.init_app(app, migrate=None)  # optional instance of flask_migrate.Migrate
 
     token_handler.configure(key="secret", lifespan=600)
-    app.init_token_handler(token_handler)
+    token_handler.init_app(app)
 
 
 @blueprint.route("/auth", methods=["GET"])

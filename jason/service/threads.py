@@ -12,13 +12,18 @@ class ServiceThreads:
         self.app.extensions["service_threads"] = self
 
     def add(self, method):
-        self._service_threads.append({"method": method, "kwargs": {"app": self.app}})
+        self._service_threads.append({"method": method, "app": self.app})
+
+    @staticmethod
+    def _run_with_context(process):
+        app = process["app"]
+        method = process["method"]
+        with app.app_context():
+            method(app)
 
     def run_all(self):
         for process in self._service_threads:
-            thread = threading.Thread(
-                target=process["method"], kwargs=process["kwargs"]
-            )
+            thread = threading.Thread(target=self._run_with_context, args=process)
             thread.start()
 
     def thread(self, func):

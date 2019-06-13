@@ -630,7 +630,7 @@ handler = token.Handler()
 @service(...)
 def my_service(app):
     handler.configure(...)
-    app.init_token_handler(handler)
+    handler.init_app(app)
     
 
 @token.protect(...)
