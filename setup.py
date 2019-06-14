@@ -26,7 +26,7 @@ setuptools.setup(
             "isort==4.3.20",
             "kombu==4.6.1",
             "pytest==4.6.3",
-            "psycopg2-binary==2.8.2",
+            "psycopg2-binary==2.8.3",
         ]
     },
     packages=setuptools.find_packages(),
