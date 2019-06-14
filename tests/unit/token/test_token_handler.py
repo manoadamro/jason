@@ -5,16 +5,51 @@ import pytest
 
 from jason import Handler
 
-config = {
-    "key": "123",
-    "lifespan": 10,
-    "issuer": "test_issuer",
-    "audience": "test_audience",
-    "algorithm": "HS256",
-    "verify": True,
-    "auto_update": True,
-    "encryption_key": "some-key",
-}
+PARAMETERISED_CONFIG_KEYS = [
+    "key",
+    "lifespan",
+    "issuer",
+    "audience",
+    "algorithm",
+    "verify",
+    "auto_update",
+    "require_exp",
+    "require_nbf",
+    "require_iat",
+    "require_aud",
+    "require_iss",
+    "verify_exp",
+    "verify_nbf",
+    "verify_iat",
+    "verify_aud",
+    "verify_iss",
+    "verify_signature",
+]
+
+
+@pytest.fixture
+def config():
+    return {
+        "key": "123",
+        "lifespan": 10,
+        "issuer": "test_issuer",
+        "audience": "test_audience",
+        "algorithm": "HS256",
+        "verify": True,
+        "auto_update": True,
+        "encryption_key": "some-key",
+        "require_exp": True,
+        "require_nbf": True,
+        "require_iat": True,
+        "require_aud": True,
+        "require_iss": True,
+        "verify_exp": True,
+        "verify_nbf": True,
+        "verify_iat": True,
+        "verify_aud": True,
+        "verify_iss": True,
+        "verify_signature": True,
+    }
 
 
 def test_initialisation():
@@ -24,19 +59,14 @@ def test_initialisation():
     assert "token-handler" in app.extensions
 
 
-def test_configuration():
+@pytest.mark.parametrize("test_input", PARAMETERISED_CONFIG_KEYS)
+def test_configuration(test_input, config):
     handler = Handler()
     handler.configure(**config)
-    assert config["key"] == handler.key
-    assert config["lifespan"] == handler.lifespan
-    assert config["issuer"] == handler.issuer
-    assert config["audience"] == handler.audience
-    assert config["algorithm"] == handler.algorithm
-    assert config["verify"] == handler.verify
-    assert config["auto_update"] == handler.auto_update
+    assert config[test_input] == getattr(handler, test_input)
 
 
-def test_use_cipher():
+def test_use_cipher(config):
     handler = Handler(encryption_key="secret-key")
     handler.configure(**config)
     assert handler.cipher is not None
@@ -57,7 +87,7 @@ def test_invalid_configure_kwarg():
         Handler().configure(nope=True)
 
 
-def test_generate_token_string():
+def test_generate_token_string(config):
     handler = Handler()
     handler.configure(**config)
     token = handler.generate_token("123", ("read:thing", "write:thing"))
