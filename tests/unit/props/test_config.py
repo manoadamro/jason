@@ -55,3 +55,8 @@ def test_indexer_set(config_obj):
     obj = config_obj.load()
     obj["MY_INT"] = 456
     assert obj.MY_INT == 456
+
+
+def test_contains(config_obj):
+    obj = config_obj.load()
+    assert "MY_INT" in obj
