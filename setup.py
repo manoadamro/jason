@@ -19,7 +19,7 @@ setuptools.setup(
             "black==19.3b0",
             "celery==4.3.0",
             "coverage==4.5.3",
-            "docker==4.0.1",
+            "docker==4.0.2",
             "flask_migrate==2.5.2",
             "flask-redis==0.4.0",
             "Flask-SQLAlchemy==2.4.0",
