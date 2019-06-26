@@ -23,7 +23,7 @@ setuptools.setup(
             "flask_migrate==2.5.2",
             "flask-redis==0.4.0",
             "Flask-SQLAlchemy==2.4.0",
-            "isort==4.3.20",
+            "isort==4.3.21",
             "kombu==4.6.1",
             "pytest==4.6.3",
             "psycopg2-binary==2.8.3",
