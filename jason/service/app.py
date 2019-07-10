@@ -8,7 +8,14 @@ from .encoder import JSONEncoder
 class App(flask.Flask):
     json_encoder = JSONEncoder
 
-    def __init__(self, name: str, config: Any, testing: bool = False, json_encoder=None, **kwargs: Any):
+    def __init__(
+        self,
+        name: str,
+        config: Any,
+        testing: bool = False,
+        json_encoder=None,
+        **kwargs: Any,
+    ):
         super(App, self).__init__(name, **kwargs)
         config.update(self.config)
         self.config = config
