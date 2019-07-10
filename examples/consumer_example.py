@@ -14,9 +14,10 @@ python3 -m jason service examples/simple_consumer:my_consumer_api run
 from datetime import datetime
 
 from flask import Blueprint, current_app, jsonify
+from kombu import Connection, Exchange, Queue
+
 from jason import ServiceThreads, make_config, props, request_schema, service
 from jason.ext.sqlalchemy import SQLAlchemy
-from kombu import Connection, Exchange, Queue
 
 blueprint = Blueprint("simple-api", __name__)
 db = SQLAlchemy()

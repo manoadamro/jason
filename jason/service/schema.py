@@ -3,6 +3,7 @@ import inspect
 from typing import Any, Callable, Dict, Optional, Type
 
 from flask import request
+
 from jason.props import base, error, types, utils
 
 

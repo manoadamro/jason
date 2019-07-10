@@ -1,6 +1,7 @@
 from typing import Any, Dict, NoReturn
 
 import jsonpointer
+
 from jason import props
 from jason.props.base import SchemaAttribute, SchemaRule
 

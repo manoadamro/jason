@@ -14,6 +14,7 @@ python3 -m jason service examples/simple_api:my_basic_api run
 from datetime import datetime
 
 from flask import Blueprint, jsonify
+
 from jason import make_config, props, request_schema, service
 from jason.ext.sqlalchemy import SQLAlchemy
 
