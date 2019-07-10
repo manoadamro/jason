@@ -5,7 +5,6 @@ import time
 from datetime import datetime
 
 from behave import given, then, when
-
 from jason import make_config, service
 from jason.ext.sqlalchemy import SQLAlchemy
 
