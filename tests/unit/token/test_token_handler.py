@@ -1,8 +1,8 @@
 from unittest import mock
 
-import flask
 import pytest
 
+import flask
 from jason import Handler
 
 PARAMETERISED_CONFIG_KEYS = [

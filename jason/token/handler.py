@@ -4,7 +4,6 @@ from typing import Any, Dict, NoReturn
 
 import flask
 import jwt
-
 from jason import crypto
 
 from . import base
