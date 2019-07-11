@@ -22,8 +22,8 @@ def test_add(threads):
 def test_run_all(threads):
     thread_count = 5
     with mock.patch.object(threading, "Thread") as mock_thread:
-        for index in range(thread_count):
-            threads.add(lambda _: index)
+        for _ in range(thread_count):
+            threads.add(lambda _: None)
         threads.run_all()
     for thread in threads._service_threads:
         threads._run_with_context(thread)
