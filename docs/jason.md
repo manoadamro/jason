@@ -688,7 +688,7 @@ you can also automatically serialise every field that doesn't start with `_`.
 ```python
 from jason.service import JSONEncoder
 
-@JSONEncoder.auto
+@JSONEncoder.encode_all
 class MyModel:
     x = 12
     y = "thing"
@@ -696,6 +696,22 @@ class MyModel:
     _n = "nope"
 
 '{"x": 12, "y": "thing", "z": true}'
+
+```
+
+or define exactly which fields to serialise:
+
+```python
+from jason.service import JSONEncoder
+
+@JSONEncoder.encode_fields("x", "y")
+class MyModel:
+    x = 12
+    y = "thing"
+    z = True
+    _n = "nope"
+
+'{"x": 12, "y": "thing"}'
 
 ```
 

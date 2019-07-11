@@ -9,12 +9,12 @@ from jason.service.encoder import JSONEncoder
 
 
 def test_static_registry_from_instance():
-    JSONEncoder().object(int)(lambda i: i * 2)
+    JSONEncoder().encode_object(int)(lambda i: i * 2)
     assert int in JSONEncoder._object_encoders.keys()
 
 
 def test_static_registry_from_type():
-    JSONEncoder.object(int)(lambda i: i * 2)
+    JSONEncoder.encode_object(int)(lambda i: i * 2)
     assert int in JSONEncoder._object_encoders.keys()
 
 
@@ -23,7 +23,7 @@ def test_registered_encoder_is_called():
         ...
 
     mock_encoder = mock.Mock(return_value="thing")
-    JSONEncoder.object(Thing)(mock_encoder)
+    JSONEncoder.encode_object(Thing)(mock_encoder)
     encoded = JSONEncoder().encode({"x": Thing()})
     assert mock_encoder.call_count == 1
     assert encoded == '{"x": "thing"}'
@@ -55,7 +55,7 @@ def test_handles_date():
 
 
 def test_auto_encode():
-    @JSONEncoder.auto
+    @JSONEncoder.encode_all
     class MyModel:
         x = 12
         y = "thing"
@@ -69,4 +69,20 @@ def test_auto_encode():
 
 def test_failed_when_auto_encode_passed_non_type():
     with pytest.raises(TypeError):
-        JSONEncoder.auto(123)
+        JSONEncoder.encode_all(123)
+
+
+def test_encode_fields():
+    @JSONEncoder.encode_fields("x", "y")
+    class MyModel:
+        x = 12
+        y = "thing"
+        z = True
+        _n = "nope"
+
+    assert json.dumps(MyModel(), cls=JSONEncoder) == '{"x": 12, "y": "thing"}'
+
+
+def test_failed_when_encode_fields_passed_non_type():
+    with pytest.raises(TypeError):
+        JSONEncoder.encode_fields("x", "y")(123)
