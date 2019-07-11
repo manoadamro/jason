@@ -1,9 +1,13 @@
+v0.1.3
+======
+
+- Added another encoder decorator to allow you to define exactly which fields to serialise
+
 v0.1.2
 ======
 
 - Runs app threads with context
 - Added custom json encoder, extendable by decorators
-
 
 v0.1.1
 ======
