@@ -34,7 +34,7 @@ class JSONEncoder(flask.json.JSONEncoder):
         obj_type = type(obj)
         if obj_type in self._object_encoders:
             return self._object_encoders[obj_type](obj)
-        elif obj_type in self._auto_encoders:
+        if obj_type in self._auto_encoders:
             return self._auto_encode(obj)
         if isinstance(obj, datetime):
             return obj.isoformat()
