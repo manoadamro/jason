@@ -7,9 +7,7 @@ Anyone is free to use this package in any way they see fit (as long as it confor
 As Jason is neither perfect nor complete, we welcome any contributions to help make it so.
 Please refer to the [code of conduct](./CODE_OF_CONDUCT.md) and [contributing guidelines](./CONTRIBUTING.md) for more information.
 
-*Things are likely to change (a lot) before v1.0.0*
-
-*Jason will not support any python version below 3.7*
+**Things are likely to change (a lot) before v1.0.0**
 
 ---
 
