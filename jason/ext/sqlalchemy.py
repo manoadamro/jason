@@ -1,11 +1,11 @@
-import functools
-
 from jason import mixins
 
 try:
     import flask_sqlalchemy
 except ImportError:
-    raise ImportError()  # TODO
+    raise ImportError(
+        "package 'flask_sqlalchemy' is not installed.\nYou can install it with:\npip3 install flask_sqlalchemy"
+    )
 
 
 class SQLAlchemy(flask_sqlalchemy.SQLAlchemy):

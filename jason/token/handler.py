@@ -11,7 +11,6 @@ from . import base
 
 
 class Handler(base.TokenHandlerBase):
-
     HEADER_KEY = "Authorization"
     CIPHER = crypto.ChaCha20
 
@@ -154,3 +153,11 @@ class Handler(base.TokenHandlerBase):
         if self.cipher:
             token_string = self.cipher.encrypt(token_string)
         return token_string
+
+    def __getattribute__(self, item):
+        try:
+            return super(Handler, self).__getattribute__(item)
+        except AttributeError:
+            if item in self.DECODER_OPTIONS:
+                return self.DECODER_OPTIONS[item]
+            raise

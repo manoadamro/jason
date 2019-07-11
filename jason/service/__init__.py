@@ -1,5 +1,6 @@
 from .app import App
 from .config import ServiceConfig, make_config
+from .encoder import JSONEncoder
 from .mixins import (
     CeleryConfigMixin,
     PostgresConfigMixin,

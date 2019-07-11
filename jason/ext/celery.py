@@ -3,7 +3,9 @@ from jason import mixins
 try:
     import celery
 except ImportError:
-    raise ImportError()  # TODO
+    raise ImportError(
+        "package 'celery' is not installed.\nYou can install it with:\npip3 install celery"
+    )
 
 
 class Celery(celery.Celery):

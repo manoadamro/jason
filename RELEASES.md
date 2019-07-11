@@ -2,6 +2,7 @@ v0.1.2
 ======
 
 - Runs app threads with context
+- Added custom json encoder, extendable by decorators
 
 
 v0.1.1

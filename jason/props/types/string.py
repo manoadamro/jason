@@ -51,7 +51,6 @@ class Uuid(String):
 
 
 class Password(String):
-
     uppercase_matcher = re.compile("[A-Z]")
     numbers_matcher = re.compile("[0-9]")
     symbols_matcher = re.compile("[^A-Za-z0-9]")
