@@ -15,8 +15,8 @@ Jason is a framework for building flask based micro services.
 - [Schema](#Schema)
     - [Content Validation](#Content-Validation)
 - [Request Tokens](#Request-Tokens)
-- [Cryptography](#Cryptography)
 - [Jsonification](#Jsonification)
+- [Cryptography](#Cryptography)
 
 ---
 
