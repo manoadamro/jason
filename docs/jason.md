@@ -16,6 +16,7 @@ Jason is a framework for building flask based micro services.
     - [Content Validation](#Content-Validation)
 - [Request Tokens](#Request-Tokens)
 - [Cryptography](#Cryptography)
+- [Jsonification](#Jsonification)
 
 ---
 
@@ -652,6 +653,51 @@ def my_route():
 ```
 
 Full documentation for `jason.token` can be found [here](./token.md)
+
+---
+
+## Jsonification
+
+You can define custom json encoders with a decorator,
+
+```python
+from jason.service import JSONEncoder
+
+
+class MyModel:
+    x = 12
+    y = "thing"
+    z = True
+    _n = "nope"
+
+
+@JSONEncoder.object(MyModel)
+def serialise_my_model(obj):
+    return {
+        "x": obj.x,
+        "y": obj.y,
+        "z": obj.z
+    }
+
+'{"x": 12, "y": "thing", "z": true}'
+
+```
+
+you can also automatically serialise every field that doesn't start with `_`.
+
+```python
+from jason.service import JSONEncoder
+
+@JSONEncoder.auto
+class MyModel:
+    x = 12
+    y = "thing"
+    z = True
+    _n = "nope"
+
+'{"x": 12, "y": "thing", "z": true}'
+
+```
 
 ---
 

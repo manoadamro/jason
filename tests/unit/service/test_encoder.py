@@ -1,4 +1,5 @@
 import datetime
+import json
 import uuid
 from unittest import mock
 
@@ -51,3 +52,21 @@ def test_handles_date():
     encoded = JSONEncoder().encode({"x": datetime.date(year=1970, month=1, day=1)})
     assert mock_encoder.call_count == 0
     assert encoded == '{"x": "1970-01-01"}'
+
+
+def test_auto_encode():
+    @JSONEncoder.auto
+    class MyModel:
+        x = 12
+        y = "thing"
+        z = True
+        _n = "nope"
+
+    assert (
+        json.dumps(MyModel(), cls=JSONEncoder) == '{"x": 12, "y": "thing", "z": true}'
+    )
+
+
+def test_failed_when_auto_encode_passed_non_type():
+    with pytest.raises(TypeError):
+        JSONEncoder.auto(123)
