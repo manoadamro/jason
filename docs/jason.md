@@ -671,7 +671,7 @@ class MyModel:
     _n = "nope"
 
 
-@JSONEncoder.object(MyModel)
+@JSONEncoder.encode_object(MyModel)
 def serialise_my_model(obj):
     return {
         "x": obj.x,
@@ -712,6 +712,42 @@ class MyModel:
     _n = "nope"
 
 '{"x": 12, "y": "thing"}'
+
+```
+
+Flasks `jsonify` method has been patched to be slightly extended.
+If you pass jsonify an iterable, you can define a field to be used as a key and get back a dict (instead of a list)
+
+```python
+
+from jason.service import JSONEncoder
+
+@JSONEncoder.encode_all
+class Thing:
+    def __init__(self, uuid, x):
+        self.uuid = uuid
+        self.x = x
+                
+"""
+flask.jsonify([Thing("1", True), Thing("2", False), Thing("3", True)]).json
+
+[
+    {"uuid": "1", "x": True},
+    {"uuid": "2", "x": False},
+    {"uuid": "3", "x": True},
+]
+"""
+
+
+"""
+flask.jsonify([Thing("1", True), Thing("2", False), Thing("3", True)], key="uuid").json
+
+{
+    "1": {"uuid": "1", "x": True},
+    "2": {"uuid": "2", "x": False},
+    "3": {"uuid": "3", "x": True},
+}
+"""
 
 ```
 
