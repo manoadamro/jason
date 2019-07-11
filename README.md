@@ -1,10 +1,10 @@
 # jason
 ---
 
-This package was created to help me solve some of the common issues I encounter when building flask APIs.
+This package was created to help me solve some of the common issues I encounter when building flask APIs.<br />
 Anyone is free to use this package in any way they see fit (as long as it conforms to the terms laid out in the licence)
 
-As Jason is neither perfect nor complete, we welcome any contributions to help make it so.
+As Jason is neither perfect nor complete, we welcome any contributions to help make it so.<br />
 Please refer to the [code of conduct](./CODE_OF_CONDUCT.md) and [contributing guidelines](./CONTRIBUTING.md) for more information.
 
 **Things are likely to change (a lot) before v1.0.0**
