@@ -10,6 +10,15 @@ class JSONEncoder(flask.json.JSONEncoder):
     def __init__(self, *args, **kwargs):
         super(JSONEncoder, self).__init__(*args, **kwargs)
 
+    @staticmethod
+    def _auto_encode(obj, fields=None):
+        def field_filter(field):
+            return field.startswith("_") is False and (
+                fields is None or field in fields
+            )
+
+        return {key: getattr(obj, key) for key in dir(obj) if field_filter(key)}
+
     @classmethod
     def encode_object(cls, object_type):
         def _call(func):
@@ -38,15 +47,6 @@ class JSONEncoder(flask.json.JSONEncoder):
             return typ
 
         return _call
-
-    @staticmethod
-    def _auto_encode(obj, fields=None):
-        def field_filter(field):
-            return field.startswith("_") is False and (
-                fields is None or field in fields
-            )
-
-        return {key: getattr(obj, key) for key in dir(obj) if field_filter(key)}
 
     def default(self, obj):
         obj_type = type(obj)
