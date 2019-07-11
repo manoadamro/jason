@@ -1,3 +1,8 @@
+v0.1.4
+======
+
+- Patched flasks jsonify to allow it to serialise an iterable to a dict with a defined field as key
+
 v0.1.3
 ======
 
