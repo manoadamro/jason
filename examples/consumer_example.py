@@ -50,7 +50,6 @@ def my_consumer_api(app):
 
 @threads.thread
 def my_consumer():
-
     # rabbit config is available because we passed "rabbit" to make_config()
     host = current_app.config.RABBIT_HOST
     port = current_app.config.RABBIT_PORT

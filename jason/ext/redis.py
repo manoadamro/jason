@@ -3,7 +3,9 @@ from jason import mixins
 try:
     import flask_redis
 except (ImportError, ModuleNotFoundError):
-    raise ImportError()  # TODO
+    raise ImportError(
+        "package 'flask_redis' is not installed.\nYou can install it with:\npip3 install flask_redis"
+    )
 
 
 class Redis(flask_redis.FlaskRedis):

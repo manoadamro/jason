@@ -1,6 +1,6 @@
 from typing import Any, Dict, Type, Union
 
-from .. import base, error, utils
+from .. import base, utils
 from .inline import Inline
 from .model import Model
 from .nested import Nested
