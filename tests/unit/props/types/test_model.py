@@ -1,5 +1,3 @@
-import pytest
-
 from jason import props
 
 

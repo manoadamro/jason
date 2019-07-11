@@ -11,7 +11,6 @@ from . import base
 
 
 class Handler(base.TokenHandlerBase):
-
     HEADER_KEY = "Authorization"
     CIPHER = crypto.ChaCha20
 

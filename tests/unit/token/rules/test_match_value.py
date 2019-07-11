@@ -22,7 +22,6 @@ def test_match_values():
 
 
 def test_value_doesnt_match():
-
     with mock.patch("flask.request", mock.Mock(view_args={"a": True})), pytest.raises(
         token.TokenValidationError
     ):
@@ -30,7 +29,6 @@ def test_value_doesnt_match():
 
 
 def test_value_missing_path():
-
     with mock.patch("flask.request", mock.Mock(view_args={"a": True})), pytest.raises(
         token.TokenValidationError
     ):

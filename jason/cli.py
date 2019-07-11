@@ -25,7 +25,6 @@ class CLI:
                 raise AttributeError(
                     f"module {component} does not contain a service called or assigned to 'service_name'"
                 )
-
         else:
             service = None
             for item in dir(module):

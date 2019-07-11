@@ -165,7 +165,6 @@ def test_form_none():
 @pytest.fixture
 def model():
     class MyModel:
-
         args = props.Inline(props=dict(thing_id=props.Int, other_id=props.Int))
 
         JSON = props.Inline(props=dict(name=props.String))
