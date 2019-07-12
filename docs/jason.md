@@ -732,6 +732,43 @@ class MyModel:
 
 ```
 
+Define the fields when you call `encode`
+
+```python
+from jason.service import JSONEncoder
+
+class MyModel:
+    x = 12
+    y = "thing"
+    z = True
+    _n = "nope"
+
+obj = MyModel()
+JSONEncoder.encode(obj, "x", ("y", "some_y"))
+
+'{"x": 12, "some_y": "thing"}'
+
+```
+
+... or encode the whole thing
+
+```python
+from jason.service import JSONEncoder
+
+@JSONEncoder.encode_all
+class MyModel:
+    x = 12
+    y = "thing"
+    z = True
+    _n = "nope"
+
+obj = MyModel()
+JSONEncoder.encode(obj)
+
+'{"x": 12, "y": "thing", "z": true}'
+
+```
+
 
 Flasks `jsonify` method has been patched to be slightly extended.
 If you pass jsonify an iterable, you can define a field to be used as a key and get back a dict (instead of a list)
