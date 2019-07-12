@@ -661,7 +661,7 @@ Full documentation for `jason.token` can be found [here](./token.md)
 You can define custom json encoders with a decorator,
 
 ```python
-from jason.service import JSONEncoder
+from jason import JSONEncoder
 
 
 class MyModel:
@@ -686,7 +686,7 @@ def serialise_my_model(obj):
 you can also automatically serialise every field that doesn't start with `_`.
 
 ```python
-from jason.service import JSONEncoder
+from jason import JSONEncoder
 
 @JSONEncoder.encode_all
 class MyModel:
@@ -702,7 +702,7 @@ class MyModel:
 or define exactly which fields to serialise:
 
 ```python
-from jason.service import JSONEncoder
+from jason import JSONEncoder
 
 @JSONEncoder.encode_fields("x", "y")
 class MyModel:
@@ -719,7 +719,7 @@ you can also map to different field names by using a tuple:
 
 
 ```python
-from jason.service import JSONEncoder
+from jason import JSONEncoder
 
 @JSONEncoder.encode_fields("x", ( "y", "some_y"))
 class MyModel:
@@ -735,7 +735,7 @@ class MyModel:
 Define the fields when you call `encode`
 
 ```python
-from jason.service import JSONEncoder
+from jason import JSONEncoder
 
 class MyModel:
     x = 12
@@ -753,7 +753,7 @@ JSONEncoder.encode(obj, "x", ("y", "some_y"))
 ... or encode the whole thing
 
 ```python
-from jason.service import JSONEncoder
+from jason import JSONEncoder
 
 @JSONEncoder.encode_all
 class MyModel:
@@ -775,7 +775,7 @@ If you pass jsonify an iterable, you can define a field to be used as a key and 
 
 ```python
 
-from jason.service import JSONEncoder
+from jason import JSONEncoder
 
 @JSONEncoder.encode_all
 class Thing:
