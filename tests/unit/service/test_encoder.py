@@ -5,7 +5,7 @@ from unittest import mock
 
 import pytest
 
-from jason.service.encoder import JSONEncoder
+from jason.utils.encoder import JSONEncoder
 
 
 def test_static_registry_from_instance():

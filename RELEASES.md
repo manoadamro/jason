@@ -1,3 +1,9 @@
+v0.1.6
+======
+
+- big refactor, broke up service module and created utils module
+- added 'slugify' method for creating url slugs from strings
+
 v0.1.5
 ======
 

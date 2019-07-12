@@ -1,8 +1,7 @@
 import flask
 import pytest
 
-from jason import jsonify
-from jason.service import JSONEncoder
+from jason import JSONEncoder, jsonify
 
 
 def test_patches_original():

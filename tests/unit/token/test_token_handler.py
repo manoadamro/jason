@@ -3,7 +3,7 @@ from unittest import mock
 import flask
 import pytest
 
-from jason import Handler
+from jason.token import Handler
 
 PARAMETERISED_CONFIG_KEYS = [
     "key",

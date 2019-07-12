@@ -4,7 +4,7 @@ from unittest import mock
 import pytest
 
 from jason import props, request_schema
-from jason.service import schema
+from jason.utils import request_schema as request_schema_module
 
 
 def mock_request(args=None, query=None, json=None, form=None):
@@ -15,7 +15,9 @@ def mock_request(args=None, query=None, json=None, form=None):
 
 @contextmanager
 def patch_request(**kwargs):
-    with mock.patch.object(schema, "request", mock_request(**kwargs)) as request:
+    with mock.patch.object(
+        request_schema_module, "request", mock_request(**kwargs)
+    ) as request:
         try:
             yield request
         finally:

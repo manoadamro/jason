@@ -93,13 +93,13 @@ class RequestSchema:
             if request.is_json is False:
                 raise error.RequestValidationError("request requires a json body")
             return request.json
-        elif self.json is False:
+        if self.json is False:
             if request.is_json is True:
                 raise error.RequestValidationError(
                     "request should not contain a json body"
                 )
             return None
-        elif utils.is_instance_or_type(self.json, base.SchemaAttribute):
+        if utils.is_instance_or_type(self.json, base.SchemaAttribute):
             return self.json.load(request.json)
         return request.json
 
