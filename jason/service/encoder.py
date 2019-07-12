@@ -12,12 +12,21 @@ class JSONEncoder(flask.json.JSONEncoder):
 
     @staticmethod
     def _auto_encode(obj, fields=None):
+        def _resolve(k, i):
+            return k[i] if isinstance(k, (list, tuple)) else k
+
+        field_map = {_resolve(k, 0): _resolve(k, 1) for k in fields} if fields else None
+
         def field_filter(field):
             return field.startswith("_") is False and (
-                fields is None or field in fields
+                field_map is None or field in field_map
             )
 
-        return {key: getattr(obj, key) for key in dir(obj) if field_filter(key)}
+        return {
+            field_map[key] if field_map else key: getattr(obj, key)
+            for key in dir(obj)
+            if field_filter(key)
+        }
 
     @classmethod
     def encode_object(cls, object_type):

@@ -715,6 +715,24 @@ class MyModel:
 
 ```
 
+you can also map to different field names by using a tuple:
+
+
+```python
+from jason.service import JSONEncoder
+
+@JSONEncoder.encode_fields("x", ( "y", "some_y"))
+class MyModel:
+    x = 12
+    y = "thing"
+    z = True
+    _n = "nope"
+
+'{"x": 12, "some_y": "thing"}'
+
+```
+
+
 Flasks `jsonify` method has been patched to be slightly extended.
 If you pass jsonify an iterable, you can define a field to be used as a key and get back a dict (instead of a list)
 

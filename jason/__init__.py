@@ -1,4 +1,5 @@
 from . import crypto, props
+from .service import JSONEncoder
 from .service import RequestSchema as _RequestSchema
 from .service import (
     Service,
