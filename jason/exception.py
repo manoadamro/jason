@@ -28,7 +28,6 @@ TooManyRequests = _exceptions.TooManyRequests
 RequestHeaderFieldsTooLarge = _exceptions.RequestHeaderFieldsTooLarge
 UnavailableForLegalReasons = _exceptions.UnavailableForLegalReasons
 InternalServerError = _exceptions.InternalServerError
-NotImplemented = _exceptions.NotImplemented
 BadGateway = _exceptions.BadGateway
 ServiceUnavailable = _exceptions.ServiceUnavailable
 GatewayTimeout = _exceptions.GatewayTimeout

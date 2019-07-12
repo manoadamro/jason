@@ -16,6 +16,7 @@ Jason is a framework for building flask based micro services.
     - [Content Validation](#Content-Validation)
 - [Request Tokens](#Request-Tokens)
 - [Jsonification](#Jsonification)
+- [Slugification](#Slugification)
 - [Cryptography](#Cryptography)
 
 ---
@@ -805,6 +806,12 @@ flask.jsonify([Thing("1", True), Thing("2", False), Thing("3", True)], key="uuid
 """
 
 ```
+
+---
+
+## Slugification
+
+TODO
 
 ---
 
