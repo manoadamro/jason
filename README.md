@@ -1,5 +1,4 @@
 # jason
----
 
 This package was created to help me solve some of the common issues I encounter when building flask APIs.<br />
 Anyone is free to use this package in any way they see fit (as long as it conforms to the terms laid out in the licence)
@@ -83,14 +82,6 @@ this will run the formatter, unit tests and doc tests.
 
 ### The Future of Jason
 
-Definitely:
 - Use green threads for the ServiceThreads extension
-
-Probably:
-- A testing package complete with mocks for everything in jason
+- A module to handle file uploads/downloads
 - A module wrapping `kombu`, taking advantage of `ServiceThreads`
-
-Maybe:
-- Optional response validation (for api-testing)
-- A python-docker module (for integration testing)
-- A package to handle file uploads/downloads
