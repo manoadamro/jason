@@ -57,7 +57,7 @@ class JSONEncoder(flask.json.JSONEncoder):
 
         return _call
 
-    @classmethodfi
+    @classmethod
     def encode(cls, o, *fields):
         if len(fields) != 0:
             o = cls._auto_encode(o, fields)
