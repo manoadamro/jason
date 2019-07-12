@@ -4,7 +4,7 @@ import setuptools
 
 setuptools.setup(
     name="jason",
-    version="0.1.4",
+    version="0.1.5",
     install_requires=[
         "fire==0.1.3",
         "flask==1.1.1",
