@@ -83,6 +83,17 @@ def test_encode_fields():
     assert json.dumps(MyModel(), cls=JSONEncoder) == '{"x": 12, "y": "thing"}'
 
 
+def test_encode_fields_specified_names():
+    @JSONEncoder.encode_fields("x", ("y", "some_y"))
+    class MyModel:
+        x = 12
+        y = "thing"
+        z = True
+        _n = "nope"
+
+    assert json.dumps(MyModel(), cls=JSONEncoder) == '{"x": 12, "some_y": "thing"}'
+
+
 def test_failed_when_encode_fields_passed_non_type():
     with pytest.raises(TypeError):
         JSONEncoder.encode_fields("x", "y")(123)

@@ -1,3 +1,8 @@
+v0.1.5
+======
+
+- encode_fields now allows you to specify keys for serialised values
+
 v0.1.4
 ======
 
