@@ -7,7 +7,7 @@ def test_error():
     )
     assert (
         str(err)
-        == """failed to load batch (3 errors):
+        == """failed to validate batch (3 errors):
 something went wrong
     - a thing
     - another thing
@@ -22,7 +22,7 @@ def test_nested_error():
     err = BatchValidationError("something else went wrong", ("a thing", nested))
     assert (
         str(err)
-        == """failed to load batch (4 errors):
+        == """failed to validate batch (4 errors):
 something else went wrong
     - a thing
     - something went wrong
