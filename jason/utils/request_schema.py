@@ -6,6 +6,9 @@ from flask import request
 
 from jason.props import base, error, types, utils
 
+from ..error import BatchValidationError
+from ..exception import BadRequest
+
 
 class RequestSchema:
     def __init__(
@@ -93,13 +96,13 @@ class RequestSchema:
             if request.is_json is False:
                 raise error.RequestValidationError("request requires a json body")
             return request.json
-        elif self.json is False:
+        if self.json is False:
             if request.is_json is True:
                 raise error.RequestValidationError(
                     "request should not contain a json body"
                 )
             return None
-        elif utils.is_instance_or_type(self.json, base.SchemaAttribute):
+        if utils.is_instance_or_type(self.json, base.SchemaAttribute):
             return self.json.load(request.json)
         return request.json
 
@@ -111,13 +114,16 @@ class RequestSchema:
         def call(**kwargs: Any) -> Any:
             for name, value in self.load_view_args().items():
                 kwargs[name] = value
-            kwargs = self.load(
-                kwargs,
-                func_params,
-                json=self.load_json,
-                query=self.load_query,
-                form=self.load_form,
-            )
+            try:
+                kwargs = self.load(
+                    kwargs,
+                    func_params,
+                    json=self.load_json,
+                    query=self.load_query,
+                    form=self.load_form,
+                )
+            except BatchValidationError as ex:
+                raise BadRequest(ex.message)
             return func(**kwargs)
 
         return call

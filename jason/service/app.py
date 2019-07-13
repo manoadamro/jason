@@ -2,7 +2,7 @@ from typing import Any
 
 import flask
 
-from .encoder import JSONEncoder
+from jason.utils.encoder import JSONEncoder
 
 
 class App(flask.Flask):

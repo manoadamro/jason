@@ -1,0 +1,34 @@
+from werkzeug import exceptions as _exceptions
+
+BadRequest = _exceptions.BadRequest
+ClientDisconnected = _exceptions.ClientDisconnected
+SecurityError = _exceptions.SecurityError
+BadHost = _exceptions.BadHost
+Unauthorized = _exceptions.Unauthorized
+Forbidden = _exceptions.Forbidden
+NotFound = _exceptions.NotFound
+MethodNotAllowed = _exceptions.MethodNotAllowed
+NotAcceptable = _exceptions.NotAcceptable
+RequestTimeout = _exceptions.RequestTimeout
+Conflict = _exceptions.Conflict
+Gone = _exceptions.Gone
+LengthRequired = _exceptions.LengthRequired
+PreconditionFailed = _exceptions.PreconditionFailed
+RequestEntityTooLarge = _exceptions.RequestEntityTooLarge
+RequestURITooLarge = _exceptions.RequestURITooLarge
+UnsupportedMediaType = _exceptions.UnsupportedMediaType
+RequestedRangeNotSatisfiable = _exceptions.RequestedRangeNotSatisfiable
+ExpectationFailed = _exceptions.ExpectationFailed
+ImATeapot = _exceptions.ImATeapot
+UnprocessableEntity = _exceptions.UnprocessableEntity
+Locked = _exceptions.Locked
+FailedDependency = _exceptions.FailedDependency
+PreconditionRequired = _exceptions.PreconditionRequired
+TooManyRequests = _exceptions.TooManyRequests
+RequestHeaderFieldsTooLarge = _exceptions.RequestHeaderFieldsTooLarge
+UnavailableForLegalReasons = _exceptions.UnavailableForLegalReasons
+InternalServerError = _exceptions.InternalServerError
+BadGateway = _exceptions.BadGateway
+ServiceUnavailable = _exceptions.ServiceUnavailable
+GatewayTimeout = _exceptions.GatewayTimeout
+HTTPVersionNotSupported = _exceptions.HTTPVersionNotSupported

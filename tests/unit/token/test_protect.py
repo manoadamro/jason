@@ -3,6 +3,7 @@ from unittest import mock
 import pytest
 
 from jason import props, token
+from jason.exception import Unauthorized
 
 
 @pytest.fixture
@@ -37,5 +38,5 @@ def test_fails_to_validate(prop, err):
     def protected():
         return True
 
-    with pytest.raises(props.BatchValidationError):
+    with pytest.raises(Unauthorized):
         protected()
