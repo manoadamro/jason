@@ -6,6 +6,9 @@ from flask import request
 
 from jason.props import base, error, types, utils
 
+from ..error import BatchValidationError
+from ..exception import BadRequest
+
 
 class RequestSchema:
     def __init__(
@@ -111,13 +114,16 @@ class RequestSchema:
         def call(**kwargs: Any) -> Any:
             for name, value in self.load_view_args().items():
                 kwargs[name] = value
-            kwargs = self.load(
-                kwargs,
-                func_params,
-                json=self.load_json,
-                query=self.load_query,
-                form=self.load_form,
-            )
+            try:
+                kwargs = self.load(
+                    kwargs,
+                    func_params,
+                    json=self.load_json,
+                    query=self.load_query,
+                    form=self.load_form,
+                )
+            except BatchValidationError as ex:
+                raise BadRequest(ex.message)
             return func(**kwargs)
 
         return call

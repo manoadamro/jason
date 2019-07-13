@@ -14,9 +14,9 @@ class BatchValidationError(Exception):
             else:
                 lines.append(f"{self.tab}- {error}")
                 count += 1
-        message = "\n".join(lines)
+        self.message = "\n".join(lines)
         self.lines = lines
         self.count = count
         super(BatchValidationError, self).__init__(
-            f"failed to load batch ({self.count} errors):\n{message}"
+            f"failed to validate batch ({self.count} errors):\n{self.message}"
         )

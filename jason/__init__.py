@@ -10,3 +10,5 @@ service = Service
 request_schema = _RequestSchema
 
 Blueprint = _flask.Blueprint
+
+Void = type(None)

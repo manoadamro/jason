@@ -4,6 +4,7 @@ from unittest import mock
 import pytest
 
 from jason import props, request_schema
+from jason.exception import BadRequest
 from jason.utils import request_schema as request_schema_module
 
 
@@ -73,7 +74,7 @@ def test_json_true():
 
     assert parsed_json == {"q": "hello"}
 
-    with patch_request(json=None), pytest.raises(props.BatchValidationError):
+    with patch_request(json=None), pytest.raises(BadRequest):
         mock_route()
 
 
@@ -87,7 +88,7 @@ def test_json_false():
 
     assert parsed_json is None
 
-    with patch_request(json=dict(q="hello")), pytest.raises(props.BatchValidationError):
+    with patch_request(json=dict(q="hello")), pytest.raises(BadRequest):
         mock_route()
 
 
@@ -130,7 +131,7 @@ def test_form_true():
 
     assert parsed_form == {"q": "hello"}
 
-    with patch_request(form=None), pytest.raises(props.BatchValidationError):
+    with patch_request(form=None), pytest.raises(BadRequest):
         mock_route()
 
 
@@ -144,7 +145,7 @@ def test_form_false():
 
     assert parsed_form is None
 
-    with patch_request(form=dict(q="hello")), pytest.raises(props.BatchValidationError):
+    with patch_request(form=dict(q="hello")), pytest.raises(BadRequest):
         mock_route()
 
 

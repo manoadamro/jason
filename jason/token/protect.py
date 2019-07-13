@@ -3,6 +3,8 @@ from typing import Any, Callable
 
 import flask
 
+from ..error import BatchValidationError
+from ..exception import Unauthorized
 from . import base, rules
 
 
@@ -14,7 +16,10 @@ class Protect(base.TokenHandlerBase):
         @functools.wraps(func)
         def call(*args: Any, **kwargs: Any) -> Any:
             token = flask.g[self.G_KEY]
-            self.rules.validate(token)
+            try:
+                self.rules.validate(token)
+            except BatchValidationError as ex:
+                raise Unauthorized(ex.message)
             return func(*args, **kwargs)
 
         return call
