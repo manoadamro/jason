@@ -19,28 +19,33 @@ _CONFIG_MIXIN_MAP = {
 }
 
 
+def _resolve_mixin(name, types):
+    if name not in _CONFIG_MIXIN_MAP:
+        raise KeyError(
+            f"can not add config mix in for '{name}'. "
+            f"valid mix ins are: {', '.join(_CONFIG_MIXIN_MAP.keys())}"
+        )
+    mixin = _CONFIG_MIXIN_MAP[name]
+    if mixin in types:
+        raise ValueError(f"Mixin '{mixin}' has already been added to config")
+    return mixin
+
+
 def make_config(*configs, **fields):
     types = []
     base = None
-    for name in configs:
-        if isinstance(name, type):
-            if issubclass(name, ServiceConfig):
+    for obj in configs:
+        if isinstance(obj, type):
+            if obj == ServiceConfig or issubclass(obj, ServiceConfig):
                 if base is not None:
                     raise ValueError(
                         "Only one instance of 'ServiceConfig' can be passed to make_config"
                     )
-                base = name
+                base = obj
             else:
-                types.append(name)
-        elif isinstance(name, str):
-            if name not in _CONFIG_MIXIN_MAP:
-                raise KeyError(
-                    f"can not add config mix in for '{name}'. "
-                    f"valid mix ins are: {', '.join(_CONFIG_MIXIN_MAP.keys())}"
-                )
-            mixin = _CONFIG_MIXIN_MAP[name]
-            if mixin in types:
-                raise ValueError(f"Mixin '{mixin}' has already been added to config")
+                types.append(obj)
+        elif isinstance(obj, str):
+            mixin = _resolve_mixin(obj, types)
             types.append(mixin)
         else:
             raise ValueError(
