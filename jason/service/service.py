@@ -36,14 +36,13 @@ class Service:
         raise NotImplementedError
 
     @property
-    def autoapp(self):
+    def _autoapp(self):
         if self._app is None:
             self._pre_command()
         return self._app
 
-    @property
     def app_context(self):
-        return self.autoapp.app_context
+        return self._autoapp.app_context()
 
     def run(self, testing=None, no_serve=False, detach=False, **config_values):
         self._pre_command(testing, config_values)
