@@ -34,7 +34,6 @@ class ConfigObject(types.Model):
         return hasattr(self, item) or item in self.__dict__
 
     def __getitem__(self, item):
-        print(item)
         return getattr(self, item)
 
     def __setitem__(self, key, value):

@@ -134,7 +134,7 @@ class MyConfig(ServiceConfig):
     SOME_VAR = props.Bool(default=True)
     OTHER_VAR = props.Int()
 
-@service(make_config("postgres", "redis", base=MyConfig))
+@service(make_config(MyConfig, "postgres", "redis"))
 def awesome_service(app):
     ...
 ```
@@ -413,8 +413,8 @@ This will configure the service, call the set up method and run it.
 python3 -m jason service my_package.module1:my_service run
 ```
 
-`--debug`: 
-- runs flask app in debug mode (not using waitress).
+`--testing`: 
+- runs flask app in testing mode (not using waitress).
 - uses `TEST_DB_URL` for database
 
 `--no-serve`
@@ -433,7 +433,7 @@ The process will exit but everything will be running in the background.
 eg: `--my-var=123` would override `MY_VAR` in config with a value of `123`
 
 ```bash
-python3 -m my_service config --debug --my-var=123
+python3 -m my_service config --testing --my-var=123
 ```
 
 ### `config`
@@ -444,12 +444,12 @@ This is useful to ensure that your service definition is producing the results e
 To ensure that the resulting config is identical to what would be produced when calling `run`,
 you can pass in the following parameters from the `run` method. 
 
-`--debug`, `**config values`
+`--testing`, `**config values`
 
 see `run` command for more info on these.
 
 ```bash
-python3 -m my_service config --debug --my-var=123
+python3 -m my_service config --testing --my-var=123
 ```
 
 ### `extensions`
@@ -459,12 +459,12 @@ This will configure the service, call the set up method and log the initialised 
 To ensure that the resulting list is identical to what would be produced when calling `run`,
 you can pass in the following parameters from the `run` method. 
 
-`--debug`, `**config values`
+`--testing`, `**config values`
 
 see `run` command for more info on these.
 
 ```bash
-python3 -m my_service extensions --debug --my-var=123
+python3 -m my_service extensions --testing --my-var=123
 ```
 
 ---
