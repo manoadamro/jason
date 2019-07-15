@@ -5,7 +5,6 @@ from jason.service import Service
 
 
 class CLI:
-
     @classmethod
     def service(cls, service):
         service = service.replace("/", ".")
