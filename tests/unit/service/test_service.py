@@ -1,7 +1,6 @@
 from unittest import mock
 
 import flask
-import pytest
 
 from jason.service.service import Service, ServiceConfig, threading, waitress
 
@@ -11,15 +10,15 @@ def test_run_prod():
     with mock.patch.object(waitress, "serve") as mock_serve, mock.patch.object(
         service, "_set_up"
     ):
-        service.run(debug=False)
+        service.run(testing=False)
     assert mock_serve.call_count == 1
 
 
-def test_run_debug():
+def test_run_testing():
     service = Service(ServiceConfig)
     service._app_gen = mock.MagicMock()
     with mock.patch.object(service, "_set_up"):
-        service.run(debug=True)
+        service.run(testing=True)
     assert service._app.run.call_count == 1
 
 
@@ -28,7 +27,7 @@ def test_run_no_serve():
     with mock.patch.object(waitress, "serve") as mock_serve, mock.patch.object(
         service, "_set_up"
     ):
-        service.run(debug=False, no_serve=True)
+        service.run(testing=False, no_serve=True)
     assert mock_serve.call_count == 0
 
 

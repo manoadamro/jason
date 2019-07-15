@@ -45,7 +45,7 @@ def test_base():
     class MyConfig(ServiceConfig):
         SOME_THING = props.Int()
 
-    config = make_config(base=MyConfig)
+    config = make_config(MyConfig)
     assert hasattr(config, "SOME_THING")
     assert hasattr(config, "SERVE")
     assert hasattr(config, "SERVE_HOST")

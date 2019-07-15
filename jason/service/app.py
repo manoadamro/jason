@@ -1,11 +1,11 @@
 from typing import Any
 
-import flask
-
 from jason.utils.encoder import JSONEncoder
 
+from .patch import MonkeyFlask
 
-class App(flask.Flask):
+
+class App(MonkeyFlask):
     json_encoder = JSONEncoder
 
     def __init__(
