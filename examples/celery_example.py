@@ -15,7 +15,7 @@ from datetime import datetime
 
 from flask import Blueprint, jsonify
 
-from jason import make_config, props, request_schema, service
+from jason import JSONEncoder, make_config, props, request_schema, service
 from jason.ext.celery import Celery
 from jason.ext.sqlalchemy import SQLAlchemy
 
@@ -24,7 +24,7 @@ db = SQLAlchemy()
 celery = Celery()
 
 
-@db.serializable("created", "name")
+@JSONEncoder.encode_fields("created", "name")
 class MyModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

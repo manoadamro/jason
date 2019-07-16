@@ -5,7 +5,7 @@ from datetime import datetime
 
 from behave import given, then, when
 
-from jason import make_config, service
+from jason import JSONEncoder, jsonify, make_config, service
 from jason.ext.sqlalchemy import SQLAlchemy
 
 EXPOSED_FIELDS = ["created", "name"]
@@ -13,7 +13,7 @@ EXPOSED_FIELDS = ["created", "name"]
 db = SQLAlchemy()
 
 
-@db.serializable(*EXPOSED_FIELDS)
+@JSONEncoder.encode_fields(*EXPOSED_FIELDS)
 class MyModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
@@ -68,14 +68,13 @@ def step_impl(context):
         db.session.add(instance)
         db.session.commit()
         db.session.refresh(instance)
-    context.instance = instance.dict
+        context.serialised = jsonify(instance)
 
 
 @then("only the defined fields are exposed")
 def step_impl(context):
-    instance = context.instance
-    assert len(instance) == len(EXPOSED_FIELDS)
-    for field in instance:
+    data = context.serialised.json
+    assert len(data) == len(EXPOSED_FIELDS)
+    for field in data:
         assert field in EXPOSED_FIELDS, f"field '{field}' should not have been exposed"
-    assert isinstance(instance["created"], datetime)
-    assert instance["name"] == "something"
+    assert data["name"] == "something"

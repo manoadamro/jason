@@ -16,7 +16,14 @@ from datetime import datetime
 from flask import Blueprint, current_app, jsonify
 from kombu import Connection, Exchange, Queue
 
-from jason import ServiceThreads, make_config, props, request_schema, service
+from jason import (
+    JSONEncoder,
+    ServiceThreads,
+    make_config,
+    props,
+    request_schema,
+    service,
+)
 from jason.ext.sqlalchemy import SQLAlchemy
 
 blueprint = Blueprint("simple-api", __name__)
@@ -24,7 +31,7 @@ db = SQLAlchemy()
 threads = ServiceThreads()
 
 
-@db.serializable("created", "name")
+@JSONEncoder.encode_fields("created", "name")
 class MyModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
