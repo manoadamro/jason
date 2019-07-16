@@ -61,20 +61,16 @@ def step_impl(context):
     context.service = my_simple_api
 
 
-@when("we create an instance of the model and serialise it")
+@when("we create a row")
 def step_impl(context):
     with context.app.app_context():
         instance = MyModel(name="something")
         db.session.add(instance)
         db.session.commit()
-        db.session.refresh(instance)
-        context.serialised = jsonify(instance)
 
 
-@then("only the defined fields are exposed")
+@then("we can select the row again")
 def step_impl(context):
-    data = context.serialised.json
-    assert len(data) == len(EXPOSED_FIELDS)
-    for field in data:
-        assert field in EXPOSED_FIELDS, f"field '{field}' should not have been exposed"
-    assert data["name"] == "something"
+    with context.app.app_context():
+        obj = MyModel.query.filter_by(name="something").first()
+    assert obj is not None
