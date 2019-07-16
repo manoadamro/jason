@@ -15,14 +15,14 @@ from datetime import datetime
 
 from flask import Blueprint, jsonify
 
-from jason import make_config, props, request_schema, service
+from jason import JSONEncoder, make_config, props, request_schema, service
 from jason.ext.sqlalchemy import SQLAlchemy
 
 blueprint = Blueprint("simple_api", __name__)
 db = SQLAlchemy()
 
 
-@db.serializable("created", "name")
+@JSONEncoder.encode_fields("created", "name")
 class MyModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

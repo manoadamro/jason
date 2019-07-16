@@ -208,29 +208,10 @@ awesome_service_app = awesome_service.app()
 
 ```
 
+you will need to set the `FLASK_APP` environment variable and point it to your service setup method.
+
 ```bash
 export FLASK_APP=path.to.file.awesome_service_app
-```
-
-models in `jason.ext.sqlalchemy` also provide a feature to serialise them to a dict.
-
-```python
-import datetime
-from jason.ext.sqlalchemy import SQLAlchemy  # you will need flask_sqlalchemy installed
-
-db = SQLAlchemy()
-
-@db.serializable("created", "name")
-class MyModel(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    created = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    name = db.Column(db.String, nullable=False)
-    
-   
-def some_method():
-    obj = MyModel.query.first()
-    return obj.dict
-
 ```
 
 
