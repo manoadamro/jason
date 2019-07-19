@@ -37,7 +37,7 @@ def awesome_service(app):
 
 The app can now be run with:
 ```bash
-python3 -m jason service my_service run
+python3 -m jason my_service run
 ```
 
 More information on running a service can be found [here](#Command-Line-Interface)
@@ -83,7 +83,7 @@ Now, either one can be run with the following.
 NOTE: the name you pass in to the CLI is the attribute that your service INSTANCE is assigned to
 
 ```bash
-python3 -m jason service my_service
+python3 -m jason my_service
 ```
 
 You can define multiple entry points in one file:
@@ -104,10 +104,10 @@ def service_2(app):
 
 And run them with the following:
 ```bash
-python3 -m jason service service my_service:service_1 run
+python3 -m jason service my_service:service_1 run
 ```
 ```bash
-python3 -m jason service my_service:service_2 run
+python3 -m jason my_service:service_2 run
 ```
 
 ---
@@ -134,7 +134,7 @@ class MyConfig(ServiceConfig):
     SOME_VAR = props.Bool(default=True)
     OTHER_VAR = props.Int()
 
-@service(make_config("postgres", "redis", base=MyConfig))
+@service(make_config(MyConfig, "postgres", "redis"))
 def awesome_service(app):
     ...
 ```
@@ -208,29 +208,10 @@ awesome_service_app = awesome_service.app()
 
 ```
 
+you will need to set the `FLASK_APP` environment variable and point it to your service setup method.
+
 ```bash
 export FLASK_APP=path.to.file.awesome_service_app
-```
-
-models in `jason.ext.sqlalchemy` also provide a feature to serialise them to a dict.
-
-```python
-import datetime
-from jason.ext.sqlalchemy import SQLAlchemy  # you will need flask_sqlalchemy installed
-
-db = SQLAlchemy()
-
-@db.serializable("created", "name")
-class MyModel(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    created = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    name = db.Column(db.String, nullable=False)
-    
-   
-def some_method():
-    obj = MyModel.query.first()
-    return obj.dict
-
 ```
 
 
@@ -386,12 +367,12 @@ assuming you have the following structure:
 
 to run a service in `./my_package/module1`:
 ```bash
-python3 -m jason service my_package.module1
+python3 -m jason my_package.module1
 ```
 
 to run a service in `./module2`:
 ```bash
-python3 -m jason service module2
+python3 -m jason module2
 ```
 If no service attribute is defined, jason will pick up the first one it finds.
 
@@ -399,10 +380,10 @@ If your module contains more than one service instances (eg. `my_service` and `m
 you can specify the service you wish to interact with:
 
 ```bash
-python3 -m jason service my_package.module1:my_service
+python3 -m jason my_package.module1:my_service
 ```
 ```bash
-python3 -m jason service my_package.module1:my_other_service
+python3 -m jason my_package.module1:my_other_service
 ```
 
 ### `run`
@@ -410,11 +391,11 @@ python3 -m jason service my_package.module1:my_other_service
 This will configure the service, call the set up method and run it.
 
 ```bash
-python3 -m jason service my_package.module1:my_service run
+python3 -m jason my_package.module1:my_service run
 ```
 
-`--debug`: 
-- runs flask app in debug mode (not using waitress).
+`--testing`: 
+- runs flask app in testing mode (not using waitress).
 - uses `TEST_DB_URL` for database
 
 `--no-serve`
@@ -433,7 +414,7 @@ The process will exit but everything will be running in the background.
 eg: `--my-var=123` would override `MY_VAR` in config with a value of `123`
 
 ```bash
-python3 -m my_service config --debug --my-var=123
+python3 -m jason my_service config --testing --my-var=123
 ```
 
 ### `config`
@@ -444,12 +425,12 @@ This is useful to ensure that your service definition is producing the results e
 To ensure that the resulting config is identical to what would be produced when calling `run`,
 you can pass in the following parameters from the `run` method. 
 
-`--debug`, `**config values`
+`--testing`, `**config values`
 
 see `run` command for more info on these.
 
 ```bash
-python3 -m my_service config --debug --my-var=123
+python3 -m jason my_service config --testing --my-var=123
 ```
 
 ### `extensions`
@@ -459,12 +440,12 @@ This will configure the service, call the set up method and log the initialised 
 To ensure that the resulting list is identical to what would be produced when calling `run`,
 you can pass in the following parameters from the `run` method. 
 
-`--debug`, `**config values`
+`--testing`, `**config values`
 
 see `run` command for more info on these.
 
 ```bash
-python3 -m my_service extensions --debug --my-var=123
+python3 -m jason my_service extensions --testing --my-var=123
 ```
 
 ---
