@@ -15,7 +15,7 @@ from datetime import datetime
 
 from flask import Blueprint, jsonify
 
-from jason import make_config, props, request_schema, service, token
+from jason import JSONEncoder, make_config, props, request_schema, service, token
 from jason.ext.sqlalchemy import SQLAlchemy
 
 blueprint = Blueprint("simple-api", __name__)
@@ -23,7 +23,7 @@ db = SQLAlchemy()
 token_handler = token.Handler()
 
 
-@db.serializable("created", "name")
+@JSONEncoder.encode_fields("created", "name")
 class MyModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

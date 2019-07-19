@@ -5,7 +5,7 @@ from datetime import datetime
 
 from behave import given, then, when
 
-from jason import make_config, service
+from jason import JSONEncoder, jsonify, make_config, service
 from jason.ext.sqlalchemy import SQLAlchemy
 
 EXPOSED_FIELDS = ["created", "name"]
@@ -13,7 +13,7 @@ EXPOSED_FIELDS = ["created", "name"]
 db = SQLAlchemy()
 
 
-@db.serializable(*EXPOSED_FIELDS)
+@JSONEncoder.encode_fields(*EXPOSED_FIELDS)
 class MyModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

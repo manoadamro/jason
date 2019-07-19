@@ -1,3 +1,8 @@
+v0.1.7
+======
+
+- fixed migration bug where `flask db ...` commands were not working
+
 v0.1.6
 ======
 

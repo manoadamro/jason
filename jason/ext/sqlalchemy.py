@@ -44,15 +44,3 @@ class SQLAlchemy(flask_sqlalchemy.SQLAlchemy):
             db_host += f":{config.DB_PORT}"
         string = f"{config.DB_DRIVER}://{credentials}" f"{db_host}" f"{db_name}"
         return string
-
-    @staticmethod
-    def serializable(*names):
-        def wrap(func):
-            class Wrapped(func):
-                @property
-                def dict(self):
-                    return {name: getattr(self, name) for name in names}
-
-            return Wrapped
-
-        return wrap
