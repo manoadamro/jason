@@ -80,3 +80,12 @@ def test_extensions():
     with mock.patch.object(service, "_set_up"):
         ext = service.extensions()
     assert isinstance(ext, str)
+
+
+def test_autoapp():
+    assert isinstance(Service(ServiceConfig)(lambda x: None)._autoapp, flask.Flask)
+
+
+def test_app_context():
+    with Service(ServiceConfig)(lambda x: None).app_context():
+        ...

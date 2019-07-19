@@ -68,3 +68,24 @@ def test_fields():
     config = make_config(thing=props.Int(), other=props.String())
     assert hasattr(config, "THING")
     assert hasattr(config, "OTHER")
+
+
+def test_duplicate_mixin_names():
+    with pytest.raises(ValueError):
+        make_config("postgres", "postgres")
+
+
+def test_two_base_classes():
+    with pytest.raises(ValueError):
+        make_config(type("A", (ServiceConfig,), {}), type("B", (ServiceConfig,), {}))
+
+
+def test_some_class():
+    a = type("A", (ServiceConfig,), {"a": 1})
+    b = type("B", (), {"a": 1})
+    assert issubclass(make_config(a, b), ServiceConfig)
+
+
+def test_wrong_type():
+    with pytest.raises(ValueError):
+        make_config("postgres", 123)
