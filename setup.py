@@ -6,7 +6,7 @@ setuptools.setup(
     name="jason",
     version="0.1.7",
     install_requires=[
-        "fire==0.1.3",
+        "fire==0.2.0",
         "flask==1.1.1",
         "jsonpointer==2.0",
         "pycryptodome==3.8.2",
