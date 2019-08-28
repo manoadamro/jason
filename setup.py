@@ -12,7 +12,7 @@ setuptools.setup(
         "pycryptodome==3.8.2",
         "pyJWT==1.7.1",
         "python-slugify==3.0.3",
-        "waitress==1.3.0",
+        "waitress==1.3.1",
     ],
     extras_require={
         "dev": [
