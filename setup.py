@@ -9,7 +9,7 @@ setuptools.setup(
         "fire==0.2.1",
         "flask==1.1.1",
         "jsonpointer==2.0",
-        "pycryptodome==3.9.0",
+        "pycryptodome==3.9.9",
         "pyJWT==1.7.1",
         "python-slugify==3.0.3",
         "waitress==1.3.1",
