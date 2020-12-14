@@ -26,7 +26,7 @@ setuptools.setup(
             "Flask-SQLAlchemy==2.4.0",
             "isort==4.3.21",
             "kombu==4.6.4",
-            "pytest==5.1.2",
+            "pytest==6.2.0",
             "psycopg2-binary==2.8.3",
         ]
     },
