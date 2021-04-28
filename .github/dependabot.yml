@@ -1,0 +1,38 @@
+version: 2
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  target-branch: develop
+  reviewers:
+  - manoadamro
+  assignees:
+  - manoadamro
+  allow:
+  - dependency-type: direct
+  - dependency-type: indirect
+  ignore:
+  - dependency-name: black
+    versions:
+    - 20.8b1
+    - 21.4b0
+  - dependency-name: docker
+    versions:
+    - 4.4.1
+    - 4.4.2
+    - 4.4.3
+    - 4.4.4
+  - dependency-name: coverage
+    versions:
+    - "5.4"
+  - dependency-name: pytest
+    versions:
+    - 6.2.2
+  - dependency-name: pycryptodome
+    versions:
+    - 3.9.9
+  - dependency-name: flask-sqlalchemy
+    versions:
+    - 2.4.4
