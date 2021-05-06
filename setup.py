@@ -11,7 +11,7 @@ setuptools.setup(
         "jsonpointer==2.0",
         "pycryptodome==3.9.0",
         "pyJWT==1.7.1",
-        "python-slugify==3.0.3",
+        "python-slugify==5.0.2",
         "waitress==1.3.1",
     ],
     extras_require={
